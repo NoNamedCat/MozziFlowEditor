@@ -1,5 +1,5 @@
-// Mozzi Native Exporter for MozziFlowEditor
-// Generates procedural C++ code specific to Mozzi
+// Mozzi Native Exporter for MozziFlowEditor - STABLE INTELLIGENT VERSION
+// Manages global/local scope by pre-declaring all active outlets in their respective functions.
 
 function NodeToMozziCppInternal() {
     var nodes = mozziFlowContainer;
@@ -7,274 +7,161 @@ function NodeToMozziCppInternal() {
     var variableMap = {};
     var adjacency = {};
     
-    // 1. Setup Data Structures
     nodes.forEach(function(node) {
         variableMap[node.nodeid] = makeVarName(node.nodetype, node.nodeid);
         adjacency[node.nodeid] = [];
     });
 
     links.forEach(function(link) {
-        if (adjacency[link.node_in_id]) {
-            adjacency[link.node_in_id].push(link.node_out_id);
-        }
+        if (adjacency[link.node_in_id]) adjacency[link.node_in_id].push(link.node_out_id);
     });
 
-    // 2. FIND "LIVE" NODES
     var liveNodes = {};
     function markLive(nodeId) {
         if (liveNodes[nodeId]) return;
         liveNodes[nodeId] = true;
-        links.forEach(function(link) {
-            if (link.node_in_id === nodeId) markLive(link.node_out_id);
-        });
+        links.forEach(function(link) { if (link.node_in_id === nodeId) markLive(link.node_out_id); });
     }
+    nodes.forEach(function(node) { if (node.nodetype.indexOf('output/') !== -1) markLive(node.nodeid); });
 
-    nodes.forEach(function(node) {
-        if (node.nodetype.indexOf('output/') !== -1) markLive(node.nodeid);
-    });
-
-    // 3. CYCLE DETECTION & TOPOLOGICAL SORT
-    var visited = {};
-    var recStack = {};
-    var sortedNodes = [];
-    var hasCycle = false;
-    var feedbackNodes = {}; // Nodes involved in feedback loops
-
+    var visited = {}; var recStack = {}; var sortedNodes = []; var hasCycle = false; var feedbackNodes = {}; 
     function visit(nodeId) {
-        if (recStack[nodeId]) { 
-            hasCycle = true; 
-            feedbackNodes[nodeId] = true; // This node is being read before it's fully calculated
-            return; 
-        }
+        if (recStack[nodeId]) { hasCycle = true; feedbackNodes[nodeId] = true; return; }
         if (visited[nodeId]) return;
-        visited[nodeId] = true;
-        recStack[nodeId] = true;
+        visited[nodeId] = true; recStack[nodeId] = true;
         var deps = adjacency[nodeId];
-        if (deps) {
-            deps.forEach(function(depId) { if (liveNodes[depId]) visit(depId); });
-        }
+        if (deps) deps.forEach(function(depId) { if (liveNodes[depId]) visit(depId); });
         recStack[nodeId] = false;
         var nodeObj = nodes.find(n => n.nodeid === nodeId);
         if (nodeObj && liveNodes[nodeId]) sortedNodes.push(nodeObj);
     }
-
-    nodes.forEach(function(node) {
-        if (liveNodes[node.nodeid] && !visited[node.nodeid]) visit(node.nodeid);
-    });
+    nodes.forEach(function(node) { if (liveNodes[node.nodeid] && !visited[node.nodeid]) visit(node.nodeid); });
 
     function makeVarName(type, id) {
         var parts = type.split('/');
-        var cleanType = parts[parts.length - 1].replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-        return cleanType + "_" + id.replace(/[^a-zA-Z0-9]/g, "");
+        return parts[parts.length - 1].replace(/[^a-zA-Z0-9]/g, "").toLowerCase() + "_" + id.replace(/[^a-zA-Z0-9]/g, "");
     }
 
-    // 3.5. RATE INFERENCE (Bidirectional Analysis: Capacity vs Necessity)
+    // --- PHASE 1: RATE INFERENCE ---
     var nodeRates = {};
-    var canBeAudio = {};
     var mustBeAudio = {};
-    
-    // 1. FORWARD PASS: Identify nodes that CAN produce audio (Capacity)
     sortedNodes.forEach(function(node) {
         var def = NodeLibrary.find(d => d.nodetype === node.nodetype);
-        if (!def) return;
-        
-        // Explicitly audio nodes OR nodes with an audio processing function (Oscillators, even if elastic)
-        if (def.mozzi && (def.mozzi.rate === 'audio' || typeof def.mozzi.audio === 'function')) {
-            canBeAudio[node.nodeid] = true;
-        } else {
-            // Elastic nodes (like Math) can be audio if they receive audio on a non-control inlet
-            var receivesAudio = false;
-            links.forEach(function(link) {
-                if (link.node_in_id === node.nodeid) {
-                    if (canBeAudio[link.node_out_id]) {
-                        var inletDef = def.rpdnode.inlets ? def.rpdnode.inlets[link.inlet_alias] : null;
-                        if (!inletDef || !inletDef.is_control) receivesAudio = true;
-                    }
-                }
-            });
-            if (receivesAudio) canBeAudio[node.nodeid] = true;
-        }
-    });
-
-    // 2. BACKWARD PASS: Identify nodes that NEED to produce audio (Necessity)
-    // Initialize primary sinks (Outputs and fixed audio nodes with no outlets)
-    sortedNodes.forEach(function(node) {
-        var def = NodeLibrary.find(d => d.nodetype === node.nodetype);
-        if (node.nodetype === 'output/mozzi_out' || (def && def.mozzi && def.mozzi.rate === 'audio')) {
-            mustBeAudio[node.nodeid] = true;
-        }
+        if (node.nodetype === 'output/mozzi_out' || (def && def.mozzi && def.mozzi.rate === 'audio')) mustBeAudio[node.nodeid] = true;
     });
 
     var changed = true;
     while (changed) {
         changed = false;
         sortedNodes.forEach(function(node) {
-            // Check if any consumer needs this node's output as audio
             links.forEach(function(link) {
                 if (link.node_out_id === node.nodeid) {
                     if (mustBeAudio[link.node_in_id] && !mustBeAudio[node.nodeid]) {
-                        // The consumer is audio, but does it need THIS link as audio?
                         var consumerNode = nodes.find(n => n.nodeid === link.node_in_id);
-                        var consumerDef = NodeLibrary.find(d => d.nodetype === consumerNode.nodetype);
-                        var inletDef = (consumerDef && consumerDef.rpdnode && consumerDef.rpdnode.inlets) 
-                                       ? consumerDef.rpdnode.inlets[link.inlet_alias] : null;
-                        
-                        // If it's a signal inlet (not is_control), then this node MUST be audio
-                        if (!inletDef || !inletDef.is_control) {
-                            mustBeAudio[node.nodeid] = true;
-                            changed = true;
-                        }
+                        var consumerDef = NodeLibrary.find(d => d.nodetype === (consumerNode?consumerNode.nodetype:""));
+                        var inletDef = (consumerDef && consumerDef.rpdnode && consumerDef.rpdnode.inlets) ? consumerDef.rpdnode.inlets[link.inlet_alias] : null;
+                        if (!inletDef || !inletDef.is_control) { mustBeAudio[node.nodeid] = true; changed = true; }
                     }
                 }
             });
         });
     }
 
-    // 3. FINAL RESOLUTION
     sortedNodes.forEach(function(node) {
         var def = NodeLibrary.find(d => d.nodetype === node.nodetype);
-        // Rule: Fixed rate nodes stay fixed. Elastic nodes are audio ONLY if they can AND must.
-        if (def && def.mozzi && def.mozzi.rate) {
-            nodeRates[node.nodeid] = def.mozzi.rate;
-        } else {
-            nodeRates[node.nodeid] = (canBeAudio[node.nodeid] && mustBeAudio[node.nodeid]) ? 'audio' : 'control';
-        }
+        if (def && def.mozzi && def.mozzi.rate) nodeRates[node.nodeid] = def.mozzi.rate;
+        else nodeRates[node.nodeid] = mustBeAudio[node.nodeid] ? 'audio' : 'control';
     });
 
-    // 3.6. SCOPE ANALYSIS (Optimizes RAM usage)
-    var globalsNeeded = {};
-    // 1. Mark feedback nodes
-    for (var id in feedbackNodes) globalsNeeded[id] = true;
-    
-    // 2. Mark Cross-Rate variables (Audio<->Control)
+    // --- PHASE 2: GLOBAL PROMOTION ---
+    var globalOutlets = {}; 
     links.forEach(function(link) {
         var sourceRate = nodeRates[link.node_out_id];
-        
         var destNode = nodes.find(n => n.nodeid === link.node_in_id);
-        var destDef = NodeLibrary.find(d => d.nodetype === (destNode ? destNode.nodetype : ""));
-        var inletDef = destDef && destDef.rpdnode.inlets ? destDef.rpdnode.inlets[link.inlet_alias] : null;
-        var isDestInletControl = inletDef && inletDef.is_control;
-        
-        var producedIn = sourceRate;
-        var consumedIn = (nodeRates[link.node_in_id] === 'control' || isDestInletControl) ? 'control' : 'audio';
-        
-        if (producedIn !== consumedIn) {
-            globalsNeeded[link.node_out_id] = true;
+        var destRate = nodeRates[link.node_in_id];
+        var suffix = (link.outlet_alias || "out").toLowerCase();
+        // Promotion if crossing rate boundary or feedback
+        if (sourceRate !== destRate || feedbackNodes[link.node_out_id]) {
+            globalOutlets[link.node_out_id + "_" + suffix] = true;
         }
     });
 
-    // 4. GENERATE CODE
-    var code_includes = "#include <Mozzi.h>\n";
-    var code_audio_tables = ""; // For storing raw sample data
-    var code_globals = "";
+    var code_includes = "#include <Mozzi.h>\n"; var code_tables = ""; var code_globals = "";
     var code_setup = "void setup() {\n";
-    var code_control = "void updateControl() {\n";
-    var code_audio = "AudioOutput updateAudio() {\n";
-    var warnings = "";
+    var code_control_body = ""; var code_audio_body = "";
+    var controlLocals = {}; var audioLocals = {};
 
-    if (hasCycle) warnings += "// WARNING: Feedback Loop Detected - using implicit unit delay (global var)\n";
-
-    // COLLECT AUDIO TABLES FROM NODES
-    nodes.forEach(function(node) {
-        if (node.rpdNode && node.rpdNode.data) {
-            var data = node.rpdNode.data;
-            if (data.sampleInfo && data.sampleInfo.cpp) {
-                code_audio_tables += "\n// Audio Data: " + data.sampleInfo.name + "\n" + data.sampleInfo.cpp + "\n";
-            }
-            if (data.huffmanInfo && data.huffmanInfo.cpp) {
-                code_audio_tables += "\n// Huffman Data: " + data.huffmanInfo.name + "\n" + data.huffmanInfo.cpp + "\n";
-            }
-        }
-    });
-
-    // PRE-DECLARE ALL OUTPUT VARIABLES GLOBALLY
-    // Using 'volatile' for thread-safety between updateControl and updateAudio (interrupt)
+    // --- PHASE 3: GENERATION & DECLARATION TRACKING ---
     sortedNodes.forEach(function(node) {
-        var myVar = variableMap[node.nodeid];
         var def = NodeLibrary.find(d => d.nodetype === node.nodetype);
-        
-        if (def && def.rpdnode && def.rpdnode.outlets) {
-            Object.keys(def.rpdnode.outlets).forEach(function(outletKey) {
-                var suffix = (outletKey.toLowerCase() === "out") ? "_out" : "_" + outletKey.toLowerCase();
-                code_globals += "volatile int " + myVar + suffix + " = 0;\n";
-            });
-        }
-    });
-
-    for (var i = 0; i < sortedNodes.length; i++) {
-        var node = sortedNodes[i];
-        if (node.rpdNode && node.rpdNode.data) node.data = node.rpdNode.data;
-        var def = NodeLibrary.find(d => d.nodetype === node.nodetype);
-        if (!def || !def.mozzi || def.is_constant) continue;
-
+        if (!def || !def.mozzi || def.is_constant) return;
         var myVar = variableMap[node.nodeid];
-        var inputs = {};
-        if (def.mozzi.defaults) {
-             for (var key in def.mozzi.defaults) { inputs[key] = def.mozzi.defaults[key]; }
-        }
-
-        links.forEach(function(link) {
-            if (link.node_in_id === node.nodeid) {
-                var inletName = link.inlet_alias;
-                var senderNode = nodes.find(n => n.nodeid === link.node_out_id);
-                var senderDef = NodeLibrary.find(d => d.nodetype === senderNode.nodetype);
-                if (senderDef && senderDef.is_constant) {
-                    var constVal = "0";
-                    if (senderNode.rpdNode && senderNode.rpdNode.data && senderNode.rpdNode.data.value !== undefined) {
-                        constVal = senderNode.rpdNode.data.value;
-                    } else if (senderNode.data && senderNode.data.value !== undefined) {
-                        constVal = senderNode.data.value;
-                    }
-                    inputs[inletName] = constVal;
-                } else {
-                    var suffix = (link.outlet_alias && link.outlet_alias.toLowerCase() !== "out") ? "_" + link.outlet_alias.toLowerCase() : "_out";
-                    inputs[inletName] = variableMap[link.node_out_id] + suffix;
-                }
-            }
-        });
-        
-        if (node.nodeinletvalue) {
-            for (var key in node.nodeinletvalue) {
-                 var valEntry = node.nodeinletvalue[key];
-                 if (valEntry && valEntry[1] !== undefined && valEntry[1] !== "") {
-                     if (!links.find(l => l.node_in_id === node.nodeid && l.inlet_alias === key)) inputs[key] = valEntry[1];
-                 }
-            }
-        }
-
-        if (def.mozzi.includes) {
-            def.mozzi.includes.forEach(inc => { if (code_includes.indexOf(inc) === -1) code_includes += inc + "\n"; });
-        }
-        
         var targetRate = nodeRates[node.nodeid];
         var rateMacro = (targetRate === 'audio') ? "AUDIO_RATE" : "CONTROL_RATE";
 
+        var inputs = {};
+        if (def.mozzi.defaults) { for (var k in def.mozzi.defaults) inputs[k] = def.mozzi.defaults[k]; }
+        links.forEach(function(link) {
+            if (link.node_in_id === node.nodeid) {
+                var senderNode = nodes.find(n => n.nodeid === link.node_out_id);
+                var senderDef = NodeLibrary.find(d => d.nodetype === (senderNode?senderNode.nodetype:""));
+                if (senderDef && senderDef.is_constant) {
+                    inputs[link.inlet_alias] = (senderNode.rpdNode && senderNode.rpdNode.data && senderNode.rpdNode.data.value !== undefined) ? senderNode.rpdNode.data.value : "0";
+                } else {
+                    inputs[link.inlet_alias] = variableMap[link.node_out_id] + "_" + (link.outlet_alias || "out").toLowerCase();
+                }
+            }
+        });
+        if (node.nodeinletvalue) {
+            for (var k in node.nodeinletvalue) {
+                 var v = node.nodeinletvalue[k];
+                 if (v && v[1] !== undefined && v[1] !== "" && !links.find(l => l.node_in_id === node.nodeid && l.inlet_alias === k)) inputs[k] = v[1];
+            }
+        }
+
+        if (def.mozzi.includes) def.mozzi.includes.forEach(inc => { if (code_includes.indexOf(inc) === -1) code_includes += inc + "\n"; });
         if (def.mozzi.global) { var g = def.mozzi.global(node, myVar, rateMacro); if (g) code_globals += g + "\n"; }
         if (def.mozzi.setup) { var s = def.mozzi.setup(node, myVar, inputs, rateMacro); if (s) code_setup += "\t" + s + "\n"; }
-        
-        if (def.mozzi.control) { 
-            var c = def.mozzi.control(node, myVar, inputs, rateMacro); 
-            if (c) {
-                code_control += "\t" + c + "\n"; 
-            }
+
+        // Track declarations needed for outlets
+        if (def.rpdnode && def.rpdnode.outlets) {
+            Object.keys(def.rpdnode.outlets).forEach(ok => {
+                var suffix = ok.toLowerCase() === "out" ? "_out" : "_" + ok.toLowerCase();
+                var fullVar = myVar + suffix;
+                if (globalOutlets[node.nodeid + suffix]) {
+                    if (code_globals.indexOf("volatile int " + fullVar) === -1) code_globals += "volatile int " + fullVar + " = 0;\n";
+                } else {
+                    if (targetRate === 'audio' || def.mozzi.rate === 'audio') audioLocals[fullVar] = true;
+                    else controlLocals[fullVar] = true;
+                }
+            });
         }
-        
-        if (def.mozzi.audio) { 
-            var a = def.mozzi.audio(node, myVar, inputs, rateMacro); 
-            if (targetRate === 'control') {
-                // OPTIMIZATION: Run math/logic in Control Rate if all inputs are Control Rate
-                if (a) code_control += "\t" + a + "\n";
-            } else {
-                // Standard Audio Rate Execution
-                if (a) code_audio += "\t" + a + "\n"; 
-            }
+
+        if (def.mozzi.control) code_control_body += "\t" + def.mozzi.control(node, myVar, inputs, rateMacro) + "\n";
+        if (def.mozzi.audio) {
+            if (targetRate === 'audio' || def.mozzi.rate === 'audio') code_audio_body += "\t" + def.mozzi.audio(node, myVar, inputs, rateMacro) + "\n";
+            else code_control_body += "\t" + def.mozzi.audio(node, myVar, inputs, rateMacro) + "\n";
         }
-    }
-    
+    });
+
+    // --- PHASE 4: FINAL ASSEMBLY ---
+    var final_control = "void updateControl() {\n";
+    for (var v in controlLocals) final_control += "\tint " + v + " = 0;\n";
+    final_control += code_control_body + "}\n";
+
+    var final_audio = "AudioOutput updateAudio() {\n";
+    for (var v in audioLocals) final_audio += "\tint " + v + " = 0;\n";
+    final_audio += code_audio_body + (code_audio_body.indexOf("return ") === -1 ? "\treturn 0;\n" : "") + "}\n";
+
     code_setup += "\tstartMozzi(CONTROL_RATE);\n}\n";
-    code_control += "}\n";
-    if (code_audio.indexOf("return ") === -1) code_audio += "\treturn 0;\n";
-    code_audio += "}\n\nvoid loop() {\n\taudioHook();\n}\n";
-    
-    return warnings + "\n" + code_includes + "\n" + code_audio_tables + "\n" + code_globals + "\n" + code_setup + "\n" + code_control + "\n" + code_audio;
+
+nodes.forEach(function(node) {
+        if (node.rpdNode && node.rpdNode.data) {
+            var data = node.rpdNode.data;
+            if (data.sampleInfo && data.sampleInfo.cpp) code_tables += "\n" + data.sampleInfo.cpp + "\n";
+            if (data.huffmanInfo && data.huffmanInfo.cpp) code_tables += "\n" + data.huffmanInfo.cpp + "\n";
+        }
+    });
+
+    return (hasCycle ? "// WARNING: Feedback Loop Detected\n" : "") + "\n" + code_includes + "\n" + code_tables + "\n" + code_globals + "\n" + code_setup + "\n" + final_control + "\n" + final_audio + "\nvoid loop() {\n\taudioHook();\n}\n";
 }

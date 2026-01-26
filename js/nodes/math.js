@@ -3,17 +3,6 @@
 
 NodeLibrary.push({
     nodetype: 'math/add',
-    help: {
-    "summary": "Performs standard arithmetic addition (A + B).",
-    "inlets": {
-        "a": "Signal input A.",
-        "b": "Signal input B."
-    },
-    "outlets": {
-        "out": "The sum of A and B."
-    },
-    "usage": "Mix two audio signals or add a modulation offset (CV) to a frequency. Note: Mixing multiple loud signals may require attenuation later to prevent clipping."
-},
     nodeclass: "MathAdd",
     description: "Adds signals.",
     mozzi: {
@@ -22,35 +11,13 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Add",
-    "inlets": {
-        "a": {
-            "type": "mozziflow/string"
-        },
-        "b": {
-            "type": "mozziflow/string"
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string"
-        }
-    }
+    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
+    "outlets": { "out": { "type": "mozziflow/string" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/sub',
-    help: {
-    "summary": "Performs standard arithmetic subtraction (A - B).",
-    "inlets": {
-        "a": "Base signal A.",
-        "b": "Signal to subtract B."
-    },
-    "outlets": {
-        "out": "The result of A minus B."
-    },
-    "usage": "Invert a control signal or create phase differences between two oscillators by subtracting their phases."
-},
     nodeclass: "MathSub",
     description: "Subtracts signals.",
     mozzi: {
@@ -59,35 +26,13 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Subtract",
-    "inlets": {
-        "a": {
-            "type": "mozziflow/string"
-        },
-        "b": {
-            "type": "mozziflow/string"
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string"
-        }
-    }
+    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
+    "outlets": { "out": { "type": "mozziflow/string" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/mul',
-    help: {
-    "summary": "Standard arithmetic multiplication (A * B). Warning: Can easily overflow 16-bit integers.",
-    "inlets": {
-        "a": "Value A.",
-        "b": "Value B."
-    },
-    "outlets": {
-        "out": "The result of A * B."
-    },
-    "usage": "Math operation."
-},
     nodeclass: "MathMul",
     description: "Multiplies signals.",
     mozzi: {
@@ -96,29 +41,13 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Multiply",
-    "inlets": {
-        "a": { "type": "mozziflow/string" },
-        "b": { "type": "mozziflow/string" }
-    },
-    "outlets": {
-        "out": { "type": "mozziflow/string" }
-    }
+    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
+    "outlets": { "out": { "type": "mozziflow/string" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/mul_audio',
-    help: {
-    "summary": "Audio-safe multiplication. (A * B) >> 8.",
-    "inlets": {
-        "a": "Audio Signal.",
-        "b": "Gain (0-255)."
-    },
-    "outlets": {
-        "out": "Scaled signal."
-    },
-    "usage": "Use this for VCA or volume control."
-},
     nodeclass: "MathMulAudio",
     description: "Audio Multiplier.",
     mozzi: {
@@ -127,29 +56,16 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Mul (Audio)",
-    "inlets": {
-        "a": { "type": "mozziflow/string", "color": "bipolar_8" },
-        "b": { "type": "mozziflow/string", "color": "unipolar_8" }
+    "inlets": { 
+        "a": { "type": "mozziflow/string", "color": "bipolar_8" }, 
+        "b": { "type": "mozziflow/string", "color": "unipolar_8" } 
     },
-    "outlets": {
-        "out": { "type": "mozziflow/string", "color": "bipolar_8" }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/div',
-    help: {
-    "summary": "Performs standard arithmetic division (A / B) with safety checks.",
-    "inlets": {
-        "a": "Dividend signal.",
-        "b": "Divisor signal."
-    },
-    "outlets": {
-        "out": "The result of A / B (outputs 0 if B is zero)."
-    },
-    "usage": "Reduce the range of a signal or create non-linear control curves for parameters like filter resonance."
-},
     nodeclass: "MathDiv",
     description: "Divides signals.",
     mozzi: {
@@ -158,34 +74,13 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Divide",
-    "inlets": {
-        "a": {
-            "type": "mozziflow/string"
-        },
-        "b": {
-            "type": "mozziflow/string"
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string"
-        }
-    }
+    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
+    "outlets": { "out": { "type": "mozziflow/string" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/abs',
-    help: {
-    "summary": "Returns the absolute (always positive) value of the input signal.",
-    "inlets": {
-        "in": "Bipolar signal (contains negative values)."
-    },
-    "outlets": {
-        "out": "Positive version of the signal."
-    },
-    "usage": "Rectify a bipolar audio wave (-128 to 127) to use it as a unipolar modulation source (0 to 127) for parameters like frequency."
-},
     nodeclass: "MathAbs",
     description: "Absolute value.",
     mozzi: {
@@ -194,34 +89,13 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Absolute",
-    "inlets": {
-        "in": {
-            "type": "mozziflow/string",
-            "no_text": true
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "unipolar_8" // Abs usually makes unipolar
-        }
-    }
+    "inlets": { "in": { "type": "mozziflow/string", "no_text": true } },
+    "outlets": { "out": { "type": "mozziflow/string", "color": "unipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/min',
-    help: {
-    "summary": "Outputs the lower of two input values.",
-    "inlets": {
-        "a": "Signal A.",
-        "b": "Signal B."
-    },
-    "outlets": {
-        "out": "The minimum value between A and B."
-    },
-    "usage": "Hard-clip a signal at a specific maximum threshold or create simple logical conditions for control signals."
-},
     nodeclass: "MathMin",
     description: "Smaller of two.",
     mozzi: {
@@ -230,35 +104,13 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Minimum",
-    "inlets": {
-        "a": {
-            "type": "mozziflow/string"
-        },
-        "b": {
-            "type": "mozziflow/string"
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string"
-        }
-    }
+    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
+    "outlets": { "out": { "type": "mozziflow/string" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/max',
-    help: {
-    "summary": "Outputs the higher of two input values.",
-    "inlets": {
-        "a": "Signal A.",
-        "b": "Signal B."
-    },
-    "outlets": {
-        "out": "The maximum value between A and B."
-    },
-    "usage": "Gate signals: select the strongest of two trigger sources, or ensure a signal never drops below a minimum 'floor' value."
-},
     nodeclass: "MathMax",
     description: "Larger of two.",
     mozzi: {
@@ -267,95 +119,35 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Maximum",
-    "inlets": {
-        "a": {
-            "type": "mozziflow/string"
-        },
-        "b": {
-            "type": "mozziflow/string"
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string"
-        }
-    }
+    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
+    "outlets": { "out": { "type": "mozziflow/string" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/mozzi_intmap',
-    help: {
-    "summary": "High-performance integer mapping, optimized for Arduino hardware.",
-    "inlets": {
-        "in": "Input signal.",
-        "imin": "Input minimum (e.g., 0).",
-        "imax": "Input maximum (e.g., 1023 or 4095).",
-        "omin": "Output minimum.",
-        "omax": "Output maximum."
-    },
-    "outlets": {
-        "out": "Output signal scaled to the new range."
-    },
-    "usage": "Essential bridge node. Use it to connect raw 'Analog In' readings directly to audio parameters like Filter Cutoff or Gain. For CH32X035, set imax to 4095."
-},
     nodeclass: "MozziIntMap",
     description: "Fast integer mapping.",
     mozzi: {
+        rate: "control",
         includes: ["#include <IntMap.h>"],
         defaults: {"in":"0", "imin":"0", "imax":"1023", "omin":"0", "omax":"255"},
         global: function(n,v){ 
-            var getVal = function(a, d) {
-                if (n.nodeinletvalue && n.nodeinletvalue[a]) return n.nodeinletvalue[a][1];
-                return d;
-            };
-            var imin = getVal('imin', '0');
-            var imax = getVal('imax', '1023');
-            var omin = getVal('omin', '0');
-            var omax = getVal('omax', '255');
-            return "IntMap " + v + "(" + imin + "," + imax + "," + omin + "," + omax + ");"; 
+            var getVal = function(a, d) { if (n.nodeinletvalue && n.nodeinletvalue[a]) return n.nodeinletvalue[a][1]; return d; };
+            return "IntMap " + v + "(" + getVal('imin','0') + "," + getVal('imax','1023') + "," + getVal('omin','0') + "," + getVal('omax','255') + ");"; 
         },
         audio: function(n,v,i){ return v+"_out = "+v+"((int)"+i.in+");"; },
     },
     rpdnode: {
     "title": "IntMap",
     "inlets": {
-        "in": {
-            "type": "mozziflow/string",
-            "no_text": true,
-            "color": "unipolar_16" // Likely high res input
-        },
-        "imin": {
-            "type": "mozziflow/string",
-            "default": "0",
-            "is_control": true,
-            "color": "unipolar_16"
-        },
-        "imax": {
-            "type": "mozziflow/string",
-            "default": "1023",
-            "is_control": true,
-            "color": "unipolar_16"
-        },
-        "omin": {
-            "type": "mozziflow/string",
-            "default": "0",
-            "is_control": true,
-            "color": "unipolar_16"
-        },
-        "omax": {
-            "type": "mozziflow/string",
-            "default": "255",
-            "is_control": true,
-            "color": "unipolar_16"
-        }
+        "in": { "type": "mozziflow/string", "no_text": true, "color": "unipolar_16" },
+        "imin": { "type": "mozziflow/string", "default": "0", "color": "unipolar_16" },
+        "imax": { "type": "mozziflow/string", "default": "1023", "color": "unipolar_16" },
+        "omin": { "type": "mozziflow/string", "default": "0", "color": "unipolar_16" },
+        "omax": { "type": "mozziflow/string", "default": "255", "color": "unipolar_16" }
     },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "unipolar_8" // Usually mapped to 8-bit
-        }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "unipolar_8" } }
 }
 });
 
@@ -364,7 +156,6 @@ NodeLibrary.push({
     nodeclass: "MozziMap",
     description: "Manual range mapper.",
     mozzi: {
-        defaults: {"in":"0","imin":"-128","imax":"127","omin":"20","omax":"3000"},
         audio: function(n,v,i){ 
             return v+"_out = map((int)"+i.in+", (int)"+i.imin+", (int)"+i.imax+", (int)"+i.omin+", (int)"+i.omax+");"; 
         },
@@ -372,48 +163,18 @@ NodeLibrary.push({
     rpdnode: {
     "title": "Map Range",
     "inlets": {
-        "in": {
-            "type": "mozziflow/string",
-            "no_text": true,
-            "color": "unipolar_16"
-        },
-        "imin": {
-            "type": "mozziflow/string",
-            "default": "-128",
-            "is_control": true,
-            "color": "unipolar_16"
-        },
-        "imax": {
-            "type": "mozziflow/string",
-            "default": "127",
-            "is_control": true,
-            "color": "unipolar_16"
-        },
-        "omin": {
-            "type": "mozziflow/string",
-            "default": "20",
-            "is_control": true,
-            "color": "unipolar_16"
-        },
-        "omax": {
-            "type": "mozziflow/string",
-            "default": "3000",
-            "is_control": true,
-            "color": "unipolar_16"
-        }
+        "in": { "type": "mozziflow/string", "no_text": true, "color": "unipolar_16" },
+        "imin": { "type": "mozziflow/string", "default": "-128" },
+        "imax": { "type": "mozziflow/string", "default": "127" },
+        "omin": { "type": "mozziflow/string", "default": "20" },
+        "omax": { "type": "mozziflow/string", "default": "3000" }
     },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "unipolar_16"
-        }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "unipolar_16" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/mtof',
-    help: { "summary": "Converts a MIDI note number (0-127) to Frequency (Hz). Wraps Mozzi's mtof()." },
     nodeclass: "MathMTOF",
     description: "MIDI to Freq",
     mozzi: {
@@ -428,11 +189,8 @@ NodeLibrary.push({
     }
 });
 
-// CASTING NODES
-
 NodeLibrary.push({
     nodetype: 'math/to_int',
-    help: { "summary": "Converts any signal to an Integer (truncates decimals)." },
     nodeclass: "MathToInt",
     description: "Cast to Integer",
     mozzi: {
@@ -448,7 +206,6 @@ NodeLibrary.push({
 
 NodeLibrary.push({
     nodetype: 'math/to_float',
-    help: { "summary": "Converts an Integer signal to a Float (Decimal)." },
     nodeclass: "MathToFloat",
     description: "Cast to Float",
     mozzi: {
@@ -464,9 +221,6 @@ NodeLibrary.push({
 
 NodeLibrary.push({
     nodetype: 'math/mul_10',
-    help: {
-    "summary": "Multiplies two 10-bit signals."
-},
     nodeclass: "MathMul10",
     description: "Multiply (10-bit).",
     mozzi: {
@@ -475,57 +229,28 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Mul 10b",
-    "inlets": {
-        "a": {
-            "type": "mozziflow/string"
-        },
-        "b": {
-            "type": "mozziflow/string"
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string"
-        }
-    }
+    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
+    "outlets": { "out": { "type": "mozziflow/string" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'math/mul_12',
-    help: {
-    "summary": "Multiplies two 12-bit signals."
-},
     nodeclass: "MathMul12",
     description: "Multiply (12-bit).",
     mozzi: {
         defaults: {"a":"0","b":"4095"},
         audio: function(n,v,i) { return v + '_out = (int)(((long)' + i.a + ' * (int)' + i.b + ') >> 12);'; },
-        inlet_rates: {"a":"elastic","b":"elastic"},
     },
     rpdnode: {
     "title": "Mul 12b",
-    "inlets": {
-        "a": {
-            "type": "mozziflow/string"
-        },
-        "b": {
-            "type": "mozziflow/string"
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string"
-        }
-    }
+    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
+    "outlets": { "out": { "type": "mozziflow/string" } }
 }
 });
 
-// COMPARISON NODES
-
 NodeLibrary.push({
     nodetype: 'math/compare_gt',
-    help: { "summary": "Greater Than (A > B). Outputs 255 if true, 0 if false." },
     nodeclass: "MathGT",
     description: "Compare: A > B",
     mozzi: {
@@ -540,87 +265,7 @@ NodeLibrary.push({
 });
 
 NodeLibrary.push({
-    nodetype: 'math/compare_lt',
-    help: { "summary": "Less Than (A < B). Outputs 255 if true, 0 if false." },
-    nodeclass: "MathLT",
-    description: "Compare: A < B",
-    mozzi: {
-        defaults: {"a":"0","b":"0"},
-        audio: function(n,v,i) { return v+"_out = ((int)"+i.a+" < (int)"+i.b+") ? 255 : 0;"; },
-    },
-    rpdnode: {
-    "title": "A < B",
-        inlets: { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
-        outlets: { "out": { "type": "mozziflow/string", "color": "logic" } }
-    }
-});
-
-NodeLibrary.push({
-    nodetype: 'math/compare_gte',
-    help: { "summary": "Greater or Equal (A >= B). Outputs 255 if true, 0 if false." },
-    nodeclass: "MathGTE",
-    description: "Compare: A >= B",
-    mozzi: {
-        defaults: {"a":"0","b":"0"},
-        audio: function(n,v,i) { return v+"_out = ((int)"+i.a+" >= (int)"+i.b+") ? 255 : 0;"; },
-    },
-    rpdnode: {
-    "title": "A >= B",
-        inlets: { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
-        outlets: { "out": { "type": "mozziflow/string", "color": "logic" } }
-    }
-});
-
-NodeLibrary.push({
-    nodetype: 'math/compare_lte',
-    help: { "summary": "Less or Equal (A <= B). Outputs 255 if true, 0 if false." },
-    nodeclass: "MathLTE",
-    description: "Compare: A <= B",
-    mozzi: {
-        defaults: {"a":"0","b":"0"},
-        audio: function(n,v,i) { return v+"_out = ((int)"+i.a+" <= (int)"+i.b+") ? 255 : 0;"; },
-    },
-    rpdnode: {
-    "title": "A <= B",
-        inlets: { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
-        outlets: { "out": { "type": "mozziflow/string", "color": "logic" } }
-    }
-});
-
-NodeLibrary.push({
-    nodetype: 'math/compare_eq',
-    help: { "summary": "Equal (A == B). Outputs 255 if true, 0 if false." },
-    nodeclass: "MathEQ",
-    description: "Compare: A == B",
-    mozzi: {
-        defaults: {"a":"0","b":"0"},
-        audio: function(n,v,i) { return v+"_out = ((int)"+i.a+" == (int)"+i.b+") ? 255 : 0;"; },
-    },
-    rpdnode: {
-    "title": "A == B",
-        inlets: { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
-        outlets: { "out": { "type": "mozziflow/string", "color": "logic" } }
-    }
-});
-
-NodeLibrary.push({
-    nodetype: 'math/compare_neq',
-    help: { "summary": "Not Equal (A != B). Outputs 255 if true, 0 if false." },
-    nodeclass: "MathNEQ",
-    description: "Compare: A != B",
-    mozzi: {
-        defaults: {"a":"0","b":"0"},
-        audio: function(n,v,i) { return v+"_out = ((int)"+i.a+" != (int)"+i.b+") ? 255 : 0;"; },
-    },
-    rpdnode: {
-    "title": "A != B",
-        inlets: { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
-        outlets: { "out": { "type": "mozziflow/string", "color": "logic" } }
-    }
-});
-NodeLibrary.push({
     nodetype: 'math/shl',
-    help: { "summary": "Bitwise Shift Left (A << B). Multiplies A by 2 to the power of B. Fast for high-res scaling." },
     nodeclass: "MathSHL",
     description: "Shift Left",
     mozzi: {
@@ -629,17 +274,13 @@ NodeLibrary.push({
     },
     rpdnode: {
         "title": "Shift Left",
-        inlets: { 
-            "a": { "type": "mozziflow/string", "color": "unipolar_16" }, 
-            "b": { "type": "mozziflow/string", "color": "unipolar_8" } 
-        },
+        inlets: { "a": { "type": "mozziflow/string", "color": "unipolar_16" }, "b": { "type": "mozziflow/string", "color": "unipolar_8" } },
         outlets: { "out": { "type": "mozziflow/string", "color": "unipolar_16" } }
     }
 });
 
 NodeLibrary.push({
     nodetype: 'math/shr',
-    help: { "summary": "Bitwise Shift Right (A >> B). Divides A by 2 to the power of B. Useful for reducing bit resolution." },
     nodeclass: "MathSHR",
     description: "Shift Right",
     mozzi: {
@@ -648,19 +289,13 @@ NodeLibrary.push({
     },
     rpdnode: {
         "title": "Shift Right",
-        inlets: { 
-            "a": { "type": "mozziflow/string", "color": "unipolar_16" }, 
-            "b": { "type": "mozziflow/string", "color": "unipolar_8" } 
-        },
+        inlets: { "a": { "type": "mozziflow/string", "color": "unipolar_16" }, "b": { "type": "mozziflow/string", "color": "unipolar_8" } },
         outlets: { "out": { "type": "mozziflow/string", "color": "unipolar_16" } }
     }
 });
 
-// FLOAT MATH NODES
-
 NodeLibrary.push({
     nodetype: 'math/add_f',
-    help: { "summary": "Floating-point Addition (A + B). Maintains decimal precision." },
     nodeclass: "MathAddF",
     description: "Float Add",
     mozzi: {
@@ -676,7 +311,6 @@ NodeLibrary.push({
 
 NodeLibrary.push({
     nodetype: 'math/sub_f',
-    help: { "summary": "Floating-point Subtraction (A - B)." },
     nodeclass: "MathSubF",
     description: "Float Subtract",
     mozzi: {
@@ -692,7 +326,6 @@ NodeLibrary.push({
 
 NodeLibrary.push({
     nodetype: 'math/mul_f',
-    help: { "summary": "Floating-point Multiplication (A * B)." },
     nodeclass: "MathMulF",
     description: "Float Multiply",
     mozzi: {
@@ -708,12 +341,11 @@ NodeLibrary.push({
 
 NodeLibrary.push({
     nodetype: 'math/div_f',
-    help: { "summary": "Floating-point Division (A / B)." },
     nodeclass: "MathDivF",
     description: "Float Divide",
     mozzi: {
         defaults: {"a":"1.0","b":"1.0"},
-        audio: function(n,v,i) { return v+"_out = (float)"+i.b+" != 0.0f ? (float)"+i.a+" / (float)"+i.b+" : 0.0f;"; },
+        audio: function(n,v,i) { return v+"_out = ((float)"+i.b+" != 0.0f) ? ((float)"+i.a+" / (float)"+i.b+") : 0.0f;"; },
     },
     rpdnode: {
         "title": "Div (F)",

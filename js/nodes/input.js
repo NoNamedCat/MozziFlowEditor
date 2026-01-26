@@ -17,6 +17,7 @@ NodeLibrary.push({
     is_constant: true,
     description: "Generates a constant value or represents a physical Pin.",
     mozzi: {
+        rate: "control"
     },
     renderer: {
         'html': function(body, node) {
@@ -108,9 +109,9 @@ NodeLibrary.push({
     },
     "outlets": {
         "up": "Emits a momentary pulse (255) on each clockwise step.",
-        "down": "Emits a momentary pulse (255) on each counter-clockwise step."
+        "down": "Emits a momentary pulse (255) on cada contra-clockwise step."
     },
-    "usage": "Perfect for high-precision parameter control. Connect 'up' and 'down' to a 'Counter' node to maintain a stable value that increases or decreases as you turn the knob."
+    "usage": "Perfect for high-precision parameter control. Connect 'up' and 'down' to a 'Counter' node to maintain a stable value."
 },
     nodeclass: "ArduinoEncoder",
     description: "Reads a physical Rotary Encoder.",
@@ -150,14 +151,14 @@ NodeLibrary.push({
 NodeLibrary.push({
     nodetype: 'input/arduino_button',
     help: {
-    "summary": "Reads a physical momentary push-button with high-performance software debouncing.",
+    "summary": "Reads a physical momentary push-button with software debouncing.",
     "inlets": {
-        "pin": "Digital pin number. Assumes 'Input Pull-up' mode (internal resistor) with the button connected to Ground."
+        "pin": "Digital pin number."
     },
     "outlets": {
         "out": "Outputs 255 while the button is held down, and 0 when released."
     },
-    "usage": "Use as a Gate for ADSR envelopes or a clock for sequencers and drum samples. Debouncing ensures a clean trigger without 'chatter' noise."
+    "usage": "Use as a Gate for ADSR envelopes."
 },
     nodeclass: "ArduinoButton",
     description: "Digital Button Input.",
@@ -189,14 +190,14 @@ NodeLibrary.push({
 NodeLibrary.push({
     nodetype: 'input/digital',
     help: {
-    "summary": "Direct digital state reader (HIGH/LOW) without debouncing.",
+    "summary": "Direct digital state reader (HIGH/LOW).",
     "inlets": {
-        "pin": "Digital pin number to monitor."
+        "pin": "Digital pin number."
     },
     "outlets": {
-        "out": "Returns 1 if the pin is HIGH (5V/3.3V) or 0 if the pin is LOW (GND)."
+        "out": "Returns 1 if the pin is HIGH or 0 if LOW."
     },
-    "usage": "Best used for clean logic signals from other microcontrollers, limit switches, or digital sensors where speed is more critical than noise filtering."
+    "usage": "Best used for clean logic signals."
 },
     nodeclass: "DigIn",
     description: "Simple Digital Input.",
@@ -234,7 +235,7 @@ NodeLibrary.push({
     "outlets": {
         "out": "Value (0-1023)."
     },
-    "usage": "Only use this for setup/testing or very simple sketches. It pauses the processor to read the pin, which interrupts the audio engine. Use 'Async Analog' for smooth performance."
+    "usage": "Use 'Async Analog' for smooth performance."
 },
     nodeclass: "ArduinoAnalog",
     description: "Blocking Analog Input (Standard).",
@@ -292,17 +293,16 @@ NodeLibrary.push({
 NodeLibrary.push({
     nodetype: 'input/mux4051_1',
     help: {
-    "summary": "Controller for one CD4051 8-channel Analog Multiplexer/Demultiplexer chip.",
+    "summary": "Controller for one CD4051 8-channel Analog Multiplexer.",
     "inlets": {
-        "s0": "Binary select pin 0 (Digital).",
-        "s1": "Binary select pin 1 (Digital).",
-        "s2": "Binary select pin 2 (Digital).",
-        "pin": "Arduino Analog pin (e.g., A0) connected to the chip's common Z output."
+        "s0": "Select pin 0.",
+        "s1": "Select pin 1.",
+        "s2": "Select pin 2.",
+        "pin": "Arduino Analog pin."
     },
     "outlets": {
-        "ch0-ch7": "Individual analog readings for each of the 8 inputs on the multiplexer."
-    },
-    "usage": "Allows you to read 8 different potentiometers using only 1 analog pin and 3 digital pins. The node handles the rapid switching between channels automatically."
+        "ch0-ch7": "Individual analog readings."
+    }
 },
     nodeclass: "MozziMux4051_1",
     description: "CD4051 Multiplexer.",
@@ -318,22 +318,10 @@ NodeLibrary.push({
     rpdnode: {
     "title": "Mux 4051 (1)",
     "inlets": {
-        "s0": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "s1": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "s2": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin": {
-            "type": "mozziflow/string",
-            "is_control": true
-        }
+        "s0": { "type": "mozziflow/string", "is_control": true },
+        "s1": { "type": "mozziflow/string", "is_control": true },
+        "s2": { "type": "mozziflow/string", "is_control": true },
+        "pin": { "type": "mozziflow/string", "is_control": true }
     },
     "outlets": {
         "ch0": { "type": "mozziflow/string", "color": "unipolar_16" },
@@ -350,18 +338,6 @@ NodeLibrary.push({
 
 NodeLibrary.push({
     nodetype: 'input/mux4051_2',
-    help: {
-    "summary": "Controller for two cascaded CD4051 chips, providing 16 analog input channels.",
-    "inlets": {
-        "s0-s2": "Shared binary select pins for both chips.",
-        "pin0": "Analog pin for Chip 1.",
-        "pin1": "Analog pin for Chip 2."
-    },
-    "outlets": {
-        "ch0-ch15": "Individual analog readings for all 16 channels."
-    },
-    "usage": "Expands your project to 16 knobs while only using 2 analog pins and 3 shared digital pins."
-},
     nodeclass: "MozziMux4051_2",
     description: "CD4051 Multiplexer (2 Chips - 16 ch).",
     mozzi: {
@@ -381,26 +357,11 @@ NodeLibrary.push({
     rpdnode: {
     "title": "Mux 4051 (2)",
     "inlets": {
-        "s0": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "s1": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "s2": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin0": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin1": {
-            "type": "mozziflow/string",
-            "is_control": true
-        }
+        "s0": { "type": "mozziflow/string", "is_control": true },
+        "s1": { "type": "mozziflow/string", "is_control": true },
+        "s2": { "type": "mozziflow/string", "is_control": true },
+        "pin0": { "type": "mozziflow/string", "is_control": true },
+        "pin1": { "type": "mozziflow/string", "is_control": true }
     },
     "outlets": {
         "ch0": { "type": "mozziflow/string", "color": "unipolar_16" },
@@ -425,17 +386,6 @@ NodeLibrary.push({
 
 NodeLibrary.push({
     nodetype: 'input/mux4051_3',
-    help: {
-    "summary": "Controller for three cascaded CD4051 chips, providing 24 analog input channels.",
-    "inlets": {
-        "s0-s2": "Shared select pins.",
-        "pin0-pin2": "Dedicated analog input pins for each of the three chips."
-    },
-    "outlets": {
-        "ch0-ch23": "Individual analog readings for all 24 channels."
-    },
-    "usage": "Suitable for large synthesizer panels with multiple banks of knobs."
-},
     nodeclass: "MozziMux4051_3",
     description: "CD4051 Multiplexer (3 Chips - 24 ch).",
     mozzi: {
@@ -455,73 +405,21 @@ NodeLibrary.push({
     rpdnode: {
     "title": "Mux 4051 (3)",
     "inlets": {
-        "s0": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "s1": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "s2": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin0": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin1": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin2": {
-            "type": "mozziflow/string",
-            "is_control": true
-        }
+        "s0": { "type": "mozziflow/string", "is_control": true },
+        "s1": { "type": "mozziflow/string", "is_control": true },
+        "s2": { "type": "mozziflow/string", "is_control": true },
+        "pin0": { "type": "mozziflow/string", "is_control": true },
+        "pin1": { "type": "mozziflow/string", "is_control": true },
+        "pin2": { "type": "mozziflow/string", "is_control": true }
     },
     "outlets": {
-        "ch0": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch1": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch2": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch3": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch4": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch5": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch6": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch7": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch8": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch9": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch10": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch11": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch12": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch13": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch14": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch15": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch16": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch17": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch18": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch19": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch20": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch21": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch22": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch23": { "type": "mozziflow/string", "color": "unipolar_16" }
+        "ch0": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch1": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch2": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch3": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch4": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch5": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch6": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch7": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch8": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch9": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch10": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch11": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch12": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch13": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch14": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch15": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch16": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch17": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch18": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch19": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch20": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch21": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch22": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch23": { "type": "mozziflow/string", "color": "unipolar_16" }
     }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'input/mux4051_4',
-    help: {
-    "summary": "Controller for four cascaded CD4051 chips, providing a total of 32 analog input channels.",
-    "inlets": {
-        "s0-s2": "Shared select pins.",
-        "pin0-pin3": "Dedicated analog input pins for each of the four chips."
-    },
-    "outlets": {
-        "ch0-ch31": "Individual analog readings for all 32 channels."
-    },
-    "usage": "Enables the construction of professional-grade control surfaces with 32 independent potentiometers using only 4 analog pins."
-},
     nodeclass: "MozziMux4051_4",
     description: "CD4051 Multiplexer (4 Chips - 32 ch).",
     mozzi: {
@@ -541,84 +439,22 @@ NodeLibrary.push({
     rpdnode: {
     "title": "Mux 4051 (4)",
     "inlets": {
-        "s0": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "s1": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "s2": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin0": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin1": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin2": {
-            "type": "mozziflow/string",
-            "is_control": true
-        },
-        "pin3": {
-            "type": "mozziflow/string",
-            "is_control": true
-        }
+        "s0": { "type": "mozziflow/string", "is_control": true },
+        "s1": { "type": "mozziflow/string", "is_control": true },
+        "s2": { "type": "mozziflow/string", "is_control": true },
+        "pin0": { "type": "mozziflow/string", "is_control": true },
+        "pin1": { "type": "mozziflow/string", "is_control": true },
+        "pin2": { "type": "mozziflow/string", "is_control": true },
+        "pin3": { "type": "mozziflow/string", "is_control": true }
     },
     "outlets": {
-        "ch0": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch1": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch2": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch3": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch4": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch5": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch6": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch7": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch8": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch9": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch10": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch11": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch12": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch13": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch14": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch15": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch16": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch17": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch18": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch19": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch20": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch21": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch22": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch23": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch24": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch25": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch26": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch27": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch28": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch29": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch30": { "type": "mozziflow/string", "color": "unipolar_16" },
-        "ch31": { "type": "mozziflow/string", "color": "unipolar_16" }
+        "ch0": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch1": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch2": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch3": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch4": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch5": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch6": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch7": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch8": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch9": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch10": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch11": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch12": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch13": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch14": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch15": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch16": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch17": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch18": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch19": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch20": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch21": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch22": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch23": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch24": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch25": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch26": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch27": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch28": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch29": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch30": { "type": "mozziflow/string", "color": "unipolar_16" }, "ch31": { "type": "mozziflow/string", "color": "unipolar_16" }
     }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'input/mozzi_cappoll',
-    help: {
-    "summary": "Detects human touch using capacitive sensing on a single digital pin.",
-    "inlets": {
-        "pin": "The digital pin connected to the touch-sensitive surface."
-    },
-    "outlets": {
-        "out": "Outputs 255 if touch is detected, and 0 otherwise."
-    },
-    "usage": "Connect a wire or copper tape to the pin. Touching it changes the capacitance, which the node detects. Useful for touch keyboards or triggers without moving parts."
-},
     nodeclass: "MozziCapPoll",
     description: "Capacitive Touch Input.",
     mozzi: {
@@ -631,31 +467,18 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "CapTouch",
-    "inlets": {
-        "pin": {
-            "type": "mozziflow/string",
-            "is_control": true
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "logic"
-        }
-    }
+    "inlets": { "pin": { "type": "mozziflow/string", "is_control": true } },
+    "outlets": { "out": { "type": "mozziflow/string", "color": "logic" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'input/float_constant',
-    help: {
-        "summary": "Outputs a static decimal (floating-point) value.",
-        "usage": "Use this to set precise frequencies like 1.5 Hz or modulation ratios. Range: Any valid decimal number."
-    },
     nodeclass: "FloatConst",
     is_constant: true,
     description: "Generates a constant decimal value.",
     mozzi: {
+        rate: "control"
     },
     renderer: {
         'html': function(body, node) {
@@ -691,4 +514,3 @@ NodeLibrary.push({
         "outlets": { "out": { "type": "mozziflow/float_32" } }
     }
 });
-

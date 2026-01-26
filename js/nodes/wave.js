@@ -3,20 +3,10 @@
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_sin',
-    help: {
-    "summary": "High-purity Sine Wave oscillator with phase modulation support.",
-    "inlets": {
-        "freq": "Frequency in Hertz (Hz).",
-        "phase": "Phase offset for Phase Modulation (PM)."
-    },
-    "outlets": {
-        "out": "8-bit Sine audio signal (-128 to 127)."
-    },
-    "usage": "Produces the cleanest tone with no harmonics. For **FM Synthesis**, connect the output of another oscillator to the 'phase' inlet to create complex, metallic FM timbres."
-},
     nodeclass: "MozziSin",
     description: "Sine oscillator with Phase Modulation support.",
     mozzi: {
+        rate: "audio",
         bipolar: true,
         includes: ["#include <Oscil.h>","#include <tables/sin2048_int8.h>"],
         defaults: {"freq":"440","phase":"0"},
@@ -29,41 +19,20 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Sine",
-    "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        },
-        "phase": {
-            "type": "mozziflow/string",
-            "no_text": true,
-            "color": "bipolar_16"
-        }
+    "inlets": { 
+        "freq": { "type": "mozziflow/float_32", "is_control": true }, 
+        "phase": { "type": "mozziflow/string", "no_text": true, "color": "bipolar_16" } 
     },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_saw',
-    help: {
-    "summary": "Sawtooth Wave oscillator. Rich in all harmonics.",
-    "inlets": {
-        "freq": "Oscillation frequency in Hz."
-    },
-    "outlets": {
-        "out": "8-bit Sawtooth audio signal (-128 to 127)."
-    },
-    "usage": "The classic 'bright' synth sound. Its rich harmonic spectrum makes it the best starting point for subtractive synthesis. Always follow with a Low Pass Filter to control the brightness."
-},
     nodeclass: "MozziSaw",
     description: "Sawtooth oscillator.",
     mozzi: {
+        rate: "audio",
         bipolar: true,
         includes: ["#include <Oscil.h>","#include <tables/saw2048_int8.h>"],
         defaults: {"freq":"440"},
@@ -73,36 +42,17 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Saw",
-    "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "inlets": { "freq": { "type": "mozziflow/float_32", "is_control": true } },
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_tri',
-    help: {
-    "summary": "Triangle Wave oscillator. Soft tone with few harmonics.",
-    "inlets": {
-        "freq": "Frequency in Hz."
-    },
-    "outlets": {
-        "out": "8-bit Triangle audio signal (-128 to 127)."
-    },
-    "usage": "Produces a pure, mellow sound. Excellent for sub-bass, soft melodies, or as a Low Frequency Oscillator (LFO) for smooth modulation of other parameters."
-},
     nodeclass: "MozziTri",
     description: "Triangle oscillator.",
     mozzi: {
+        rate: "audio",
         bipolar: true,
         includes: ["#include <Oscil.h>","#include <tables/triangle2048_int8.h>"],
         defaults: {"freq":"440"},
@@ -112,36 +62,17 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Triangle",
-    "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "inlets": { "freq": { "type": "mozziflow/float_32", "is_control": true } },
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_square',
-    help: {
-    "summary": "Square Wave oscillator (Band-limited). Classic hollow sound.",
-    "inlets": {
-        "freq": "Frequency in Hz."
-    },
-    "outlets": {
-        "out": "8-bit Square audio signal (-128 to 127)."
-    },
-    "usage": "Fundamental for Chiptune and 8-bit music. Features only odd harmonics. Use it for clarinet-like tones or aggressive, 'digital' sounding basslines."
-},
     nodeclass: "MozziSquare",
     description: "Square oscillator.",
     mozzi: {
+        rate: "audio",
         bipolar: true,
         includes: ["#include <Oscil.h>","#include <tables/square_no_alias_2048_int8.h>"],
         defaults: {"freq":"440"},
@@ -151,35 +82,13 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Square",
-    "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "inlets": { "freq": { "type": "mozziflow/float_32", "is_control": true } },
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_wavepacketsample',
-    help: {
-    "summary": "Advanced Granular Synthesis oscillator based on resonant wave packets.",
-    "inlets": {
-        "freq": "Grain/Packet repetition rate.",
-        "fund": "Fundamental pitch of the carrier wave.",
-        "bw": "Bandwidth (controls resonance width and sharpness)."
-    },
-    "outlets": {
-        "out": "Granular audio signal (-128 to 127)."
-    },
-    "usage": "Unique for creating organic, **Vocal or Formant** textures (like human vowels). Modulate the 'bw' and 'freq' inlets to sweep through different resonant 'character' zones."
-},
     nodeclass: "MozziWavePacketSample",
     description: "Granular synthesis.",
     mozzi: {
@@ -192,45 +101,20 @@ NodeLibrary.push({
                    v+".set(f, (int)"+i.bw+", (int)"+i.freq+");"; 
         },
         audio: function(n,v,i){ return v+"_out = "+v+".next();"; },
-        inlet_rates: {"trig":"control","freq":"control"},
     },
     rpdnode: {
     "title": "WavePacket Sample",
     "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        },
-        "fund": {
-            "type": "mozziflow/string",
-            "is_control": true,
-            "color": "unipolar_16"
-        },
-        "bw": {
-            "type": "mozziflow/string",
-            "is_control": true,
-            "color": "unipolar_8" 
-        }
+        "freq": { "type": "mozziflow/float_32", "is_control": true },
+        "fund": { "type": "mozziflow/string", "is_control": true, "color": "unipolar_16" },
+        "bw": { "type": "mozziflow/string", "is_control": true, "color": "unipolar_8" }
     },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_noise',
-    help: {
-    "summary": "White Noise generator. Produces a random audio signal.",
-    "inlets": {},
-    "outlets": {
-        "out": "Random audio signal (-128 to 127)."
-    },
-    "usage": "Crucial for percussive sounds (Snares, Claps, Hi-hats), atmospheric effects like wind or waves, or as a source of randomness for Sample & Hold nodes."
-},
     nodeclass: "MozziNoise",
     description: "High-quality white noise source.",
     mozzi: {
@@ -242,27 +126,12 @@ NodeLibrary.push({
     rpdnode: {
     "title": "Noise",
     "inlets": {},
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_phasor',
-    help: {
-    "summary": "High-resolution linear ramp generator (0 to 4294967295).",
-    "inlets": {
-        "freq": "Oscillation frequency in Hz."
-    },
-    "outlets": {
-        "out": "32-bit Phasor signal (High-Precision phase ramp)."
-    },
-    "usage": "The master clock for custom synthesis. Use its high-res output to drive custom lookup tables or create ultra-precise synchronization between nodes."
-},
     nodeclass: "MozziPhasor",
     description: "High-Res Phasor.",
     mozzi: {
@@ -275,34 +144,13 @@ NodeLibrary.push({
     },
     rpdnode: {
     "title": "Phasor",
-    "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "unipolar_16"
-        }
-    }
+    "inlets": { "freq": { "type": "mozziflow/float_32", "is_control": true } },
+    "outlets": { "out": { "type": "mozziflow/string", "color": "unipolar_16" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_pdresonant',
-    help: {
-    "summary": "Phase Distortion (PD) oscillator. Simulates resonant filter sweeps mathematically.",
-    "inlets": {
-        "freq": "Fundamental pitch.",
-        "amount": "Resonance/Distortion amount (0-255)."
-    },
-    "outlets": {
-        "out": "Complex audio signal with resonant peaks (-128 to 127)."
-    },
-    "usage": "Iconic for **Acid** basslines and 80s digital synth sounds (Casio CZ). It generates a sharp resonant peak during oscillation, making it much more CPU-efficient than a real resonant filter."
-},
     nodeclass: "MozziPDRes",
     description: "CZ-style Phase Distortion.",
     mozzi: {
@@ -311,55 +159,30 @@ NodeLibrary.push({
         defaults: {"freq":"440","amount":"128"},
         global: function(n,v){ return "Phasor<AUDIO_RATE> "+v+"_ph; unsigned int "+v+"_idx;"; },
         control: function(n,v,i){ return v+"_ph.setFreq((int)"+i.freq+");"; },
-        audio: function(n,v,i){ return v+"_idx = (("+v+"_ph.next() >> 16) * (int)"+i.amount+") >> 10;\n\t"+v+"_out = SIN2048_DATA["+v+"_idx & 2047];"; },
+        audio: function(n,v,i){ return v+"_idx = (("+v+"_ph.next() >> 16) * (int)"+i.amount+") >> 10; "+v+"_out = SIN2048_DATA["+v+"_idx & 2047];"; },
     },
     rpdnode: {
     "title": "PD Resonant",
     "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        },
-        "amount": {
-            "type": "mozziflow/string",
-            "is_control": true,
-            "color": "unipolar_8"
-        }
+        "freq": { "type": "mozziflow/float_32", "is_control": true },
+        "amount": { "type": "mozziflow/string", "is_control": true, "color": "unipolar_8" }
     },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_sample',
-    help: {
-    "summary": "Standard audio sample player for Flash (PROGMEM) memory.",
-    "inlets": {
-        "freq": "Playback speed ratio (1.0 = normal, 0.5 = half speed, 2.0 = double speed).",
-        "trig": "Trigger input. A pulse > 0 resets the sample to the beginning."
-    },
-    "outlets": {
-        "out": "8-bit Sample audio signal (-128 to 127)."
-    },
-    "usage": "Used for drum hits, vocal chops, or short sound effects. Use the 'Load' button in the editor UI to upload and convert your own WAV files into Arduino-ready code."
-},
     nodeclass: "MozziSample",
-    description: "Plays audio samples from PROGMEM. Load WAV/MP3 files.",
+    description: "Plays audio samples from PROGMEM.",
     mozzi: {
         rate: "audio",
         includes: ["#include <Sample.h>","#include <tables/sin2048_int8.h>"],
         defaults: {"freq":"1.0","trig":"0"},
         global: function(n,v){ 
-            var tableName = "SIN2048_DATA";
-            var size = "2048";
+            var tableName = "SIN2048_DATA"; var size = "2048";
             if (n.data && n.data.sampleInfo) {
-                var cpp = n.data.sampleInfo.cpp || "";
-                var match = cpp.match(/int8_t\s+([a-zA-Z0-9_]+)\s*\[\]/);
+                var match = (n.data.sampleInfo.cpp || "").match(/int8_t\s+([a-zA-Z0-9_]+)\s*\[\]/);
                 tableName = match ? match[1] : (n.data.sampleInfo.name.replace('.h', '').toUpperCase() + "_DATA");
                 size = n.data.sampleInfo.data.length;
             }
@@ -371,7 +194,6 @@ NodeLibrary.push({
                    v + "_last_trig = (int)" + i.trig + ";"; 
         },
         audio: function(n,v,i){ return v+"_out = "+v+".next();"; },
-        inlet_rates: {"trig":"control","freq":"control"},
     },
     renderer: {
         'html': function(bodyElm, node) {
@@ -382,95 +204,26 @@ NodeLibrary.push({
             btn.innerText = "Load Audio"; btn.className = "mozzi-load-btn";
             var status = document.createElement('div');
             status.style.fontSize = "9px"; status.style.color = "#eee"; status.style.marginTop = "4px";
-            
-            var updateStatus = function() {
-                if (node.data.sampleInfo) {
-                    var bytes = node.data.sampleInfo.data.length;
-                    var kb = (bytes / 1024).toFixed(2);
-                    status.innerText = "Sample: " + kb + " KB (" + bytes + " bytes)";
-                } else {
-                    status.innerText = "No sample loaded";
-                }
-            };
-            node._onDataUpdate = updateStatus;
-            updateStatus();
-
             var fileIn = document.createElement('input');
             fileIn.type = "file"; fileIn.style.display = "none";
             fileIn.accept = "audio/*";
-            
             btn.onclick = function() { fileIn.click(); };
-            fileIn.onchange = function(e) {
-                var file = e.target.files[0]; if (!file) return;
-                status.innerText = "Converting...";
-                if (typeof MozziSampleConverter !== 'undefined') {
-                    MozziSampleConverter.processFile(file, function(result) {
-                        if (result) {
-                            node.data.sampleInfo = {
-                                name: file.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.h',
-                                data: result.data,
-                                cpp: MozziSampleConverter.generateHeader('sample', result.tableString)
-                            };
-                            updateStatus();
-                        } else { status.innerText = "Error: Conversion failed"; }
-                    });
-                } else { status.innerText = "Error: Converter not found"; }
-            };
-
-            var viewBtn = document.createElement('button');
-            viewBtn.innerText = "View Data"; viewBtn.className = "mozzi-view-btn";
-            viewBtn.style.marginTop = "4px";
-            viewBtn.onclick = function() {
-                if (!node.data.sampleInfo) { vex.dialog.alert("No sample data loaded."); return; }
-                vex.dialog.open({
-                    message: 'Generated C++ Table for: ' + node.data.sampleInfo.name,
-                    input: '<textarea rows="10" style="width:100%;font-size:9px;font-family:monospace;background:#000;color:#0f9;border:1px solid #333;">' + node.data.sampleInfo.cpp + '</textarea>',
-                    buttons: [{ text: 'Close', type: 'button', className: 'vex-dialog-button-primary', click: function(){ vex.closeAll(); } }]
-                });
-            };
-            
-            container.appendChild(btn); container.appendChild(status); 
-            container.appendChild(viewBtn); container.appendChild(fileIn);
+            container.appendChild(btn); container.appendChild(status); container.appendChild(fileIn);
             bodyElm.appendChild(container);
         }
     },
     rpdnode: {
     "title": "Sample",
-    "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        },
-        "trig": {
-            "type": "mozziflow/string",
-            "no_text": true,
-            "is_control": true,
-            "color": "logic"
-        }
+    "inlets": { 
+        "freq": { "type": "mozziflow/float_32", "is_control": true }, 
+        "trig": { "type": "mozziflow/string", "no_text": true, "is_control": true, "color": "logic" } 
     },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_wavepacket',
-    help: {
-    "summary": "Double granular engine for rich, shifting harmonic textures.",
-    "inlets": {
-        "freq": "Center resonant frequency.",
-        "fund": "Fundamental pitch.",
-        "bw": "Bandwidth/Sharpness."
-    },
-    "outlets": {
-        "out": "Advanced granular audio signal (-128 to 127)."
-    },
-    "usage": "Similar to WavePacketSample but optimized for synthesized waveforms. Excellent for creating evolving drones and organic, shifting soundscapes."
-},
     nodeclass: "MozziWavePacket",
     description: "Granular synthesis engine.",
     mozzi: {
@@ -483,47 +236,20 @@ NodeLibrary.push({
                    v+".set(f, (int)"+i.bw+", (int)"+i.freq+");"; 
         },
         audio: function(n,v,i){ return v+"_out = "+v+".next();"; },
-        inlet_rates: {"freq":"control","fund":"control","bw":"control"},
     },
     rpdnode: {
     "title": "WavePacket",
     "inlets": {
-        "freq": {
-            "type": "mozziflow/float_32",
-            "is_control": true
-        },
-        "fund": {
-            "type": "mozziflow/string",
-            "is_control": true,
-            "color": "unipolar_16"
-        },
-        "bw": {
-            "type": "mozziflow/string",
-            "is_control": true,
-            "color": "unipolar_8"
-        }
+        "freq": { "type": "mozziflow/float_32", "is_control": true },
+        "fund": { "type": "mozziflow/string", "is_control": true, "color": "unipolar_16" },
+        "bw": { "type": "mozziflow/string", "is_control": true, "color": "unipolar_8" }
     },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });
 
 NodeLibrary.push({
     nodetype: 'wave/mozzi_huffman',
-    help: {
-    "summary": "Specialized player for Huffman-compressed audio samples.",
-    "inlets": {
-        "trig": "Trigger input to restart playback."
-    },
-    "outlets": {
-        "out": "Compressed audio output (-128 to 127)."
-    },
-    "usage": "Crucial for fitting longer audio samples (like speech or ambient loops) into the limited Flash memory of an Arduino. Use the built-in converter to prepare your files."
-},
     nodeclass: "MozziHuffman",
     description: "Compressed sample playback.",
     mozzi: {
@@ -535,80 +261,13 @@ NodeLibrary.push({
                 var info = n.data.huffmanInfo;
                 return "SampleHuffman " + v + "(" + info.sounddata_name + ", " + info.huffman_name + ", " + info.sounddata_bits + ");";
             }
-            return "// Huffman: No data loaded for " + v; 
+            return "// Huffman: No data loaded"; 
         },
-        audio: function(n,v){ return v+"_out = "+v+".next();"; },
-    },
-    renderer: {
-        'html': function(bodyElm, node) {
-            if (!node.data) node.data = {};
-            var container = document.createElement('div');
-            container.style.padding = "5px"; container.style.textAlign = "center";
-            var btn = document.createElement('button');
-            btn.innerText = "Load Huffman"; btn.className = "mozzi-load-btn";
-            var status = document.createElement('div');
-            status.style.fontSize = "9px"; status.style.color = "#eee"; status.style.marginTop = "4px";
-            
-            var updateStatus = function() {
-                if (node.data.huffmanInfo) {
-                    var bytes = node.data.huffmanInfo.data.length;
-                    var kb = (bytes / 1024).toFixed(2);
-                    status.innerText = "Huffman: " + kb + " KB (" + bytes + " bytes)";
-                } else {
-                    status.innerText = "No file loaded";
-                }
-            };
-            node._onDataUpdate = updateStatus;
-            updateStatus();
-            
-            var fileIn = document.createElement('input');
-            fileIn.type = "file"; fileIn.style.display = "none";
-            
-            btn.onclick = function() { fileIn.click(); };
-            fileIn.onchange = function(e) {
-                var file = e.target.files[0]; if (!file) return;
-                status.innerText = "Compressing...";
-                if (typeof MozziHuffmanConverter !== 'undefined') {
-                    MozziHuffmanConverter.convert(file, function(info) {
-                        if (info) {
-                            node.data.huffmanInfo = info;
-                            updateStatus();
-                        } else { status.innerText = "Error: Compression failed"; }
-                    });
-                } else { status.innerText = "Error: Converter not found"; }
-            };
-
-            var viewBtn = document.createElement('button');
-            viewBtn.innerText = "View Data"; viewBtn.className = "mozzi-view-btn";
-            viewBtn.style.marginTop = "4px";
-            viewBtn.onclick = function() {
-                if (!node.data.huffmanInfo) { vex.dialog.alert("No Huffman data loaded."); return; }
-                vex.dialog.open({
-                    message: 'Generated Huffman C++ for: ' + node.data.huffmanInfo.name,
-                    input: '<textarea rows="10" style="width:100%;font-size:9px;font-family:monospace;background:#000;color:#0f9;border:1px solid #333;">' + node.data.huffmanInfo.cpp + '</textarea>',
-                    buttons: [{ text: 'Close', type: 'button', className: 'vex-dialog-button-primary', click: function(){ vex.closeAll(); } }]
-                });
-            };
-            
-            container.appendChild(btn); container.appendChild(status); 
-            container.appendChild(viewBtn); container.appendChild(fileIn);
-            bodyElm.appendChild(container);
-        }
+        audio: function(n,v){ return v+"_out = "+v+".next()"; },
     },
     rpdnode: {
     "title": "Huffman",
-    "inlets": {
-        "trig": {
-            "type": "mozziflow/string",
-            "no_text": true,
-            "color": "logic"
-        }
-    },
-    "outlets": {
-        "out": {
-            "type": "mozziflow/string",
-            "color": "bipolar_8"
-        }
-    }
+    "inlets": { "trig": { "type": "mozziflow/string", "no_text": true, "is_control": true, "color": "logic" } },
+    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
 }
 });

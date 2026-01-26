@@ -362,6 +362,7 @@ NodeLibrary.push({
     nodeclass: "MozziOverSample",
     description: "Anti-aliasing filter.",
     mozzi: {
+        rate: "audio",
         includes: ["#include <OverSample.h>"],
         defaults: {"in":"0"},
         global: function(n,v){ 

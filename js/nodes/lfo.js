@@ -8,7 +8,7 @@ NodeLibrary.push({
     "usage": "Use this to modulate filters or pitch. Output range: -128 to 127 (Bipolar)."
 },
     nodeclass: "MozziLFOSin",
-    description: "Sine LFO (Control).",
+    description: "Sine LFO (Control).\n",
     mozzi: {
         rate: "control",
         includes: ["#include <Oscil.h>","#include <tables/sin2048_int8.h>"],
@@ -40,7 +40,7 @@ NodeLibrary.push({
     "usage": "Ideal for linear sweeps. Output range: -128 to 127 (Bipolar)."
 },
     nodeclass: "MozziLFOTri",
-    description: "Triangle LFO (Control).",
+    description: "Triangle LFO (Control).\n",
     mozzi: {
         rate: "control",
         includes: ["#include <Oscil.h>","#include <tables/triangle2048_int8.h>"],
@@ -72,7 +72,7 @@ NodeLibrary.push({
     "usage": "Use for rhythmic trills or on/off modulation. Output: -128 or 127."
 },
     nodeclass: "MozziLFOSquare",
-    description: "Square LFO (Control).",
+    description: "Square LFO (Control).\n",
     mozzi: {
         rate: "control",
         includes: ["#include <Oscil.h>","#include <tables/square_no_alias_2048_int8.h>"],
@@ -105,7 +105,7 @@ NodeLibrary.push({
     "usage": "Excellent for rhythmic 'rising' effects. Output: -128 to 127."
 },
     nodeclass: "MozziLFOSaw",
-    description: "Sawtooth LFO (Control).",
+    description: "Sawtooth LFO (Control).\n",
     mozzi: {
         rate: "control",
         includes: ["#include <Oscil.h>","#include <tables/saw2048_int8.h>"],
@@ -136,7 +136,7 @@ NodeLibrary.push({
     "summary": "True High-Res Sine LFO (10-bit)."
 },
     nodeclass: "MozziLFOSin10",
-    description: "Sine LFO (10-bit).",
+    description: "Sine LFO (10-bit).\n",
     mozzi: {
         rate: "control",
         includes: ["#include <Phasor.h>","#include <tables/cos4096_int16.h>","#include <mozzi_pgmspace.h>"],
@@ -167,7 +167,7 @@ NodeLibrary.push({
     "summary": "True High-Res Sine LFO (12-bit)."
 },
     nodeclass: "MozziLFOSin12",
-    description: "Sine LFO (12-bit).",
+    description: "Sine LFO (12-bit).\n",
     mozzi: {
         rate: "control",
         includes: ["#include <Phasor.h>","#include <tables/cos4096_int16.h>","#include <mozzi_pgmspace.h>"],
@@ -207,7 +207,7 @@ NodeLibrary.push({
         "usage": "Use this as a GATE for ADSR envelopes. Adjust 'width' to control how long the note is held. 'freq' controls the tempo."
     },
     nodeclass: "MozziLFOPulse",
-    description: "Pulse LFO (PWM).",
+    description: "Pulse LFO (PWM).\n",
     mozzi: {
         rate: "control",
         includes: ["#include <Phasor.h>"],
@@ -256,7 +256,7 @@ NodeLibrary.push({
         "usage": "The ultimate modulation source. Unlike fixed LFOs, this lets you use ANY waveform as a modulator. Runs at CONTROL_RATE for efficiency."
     },
     nodeclass: "MozziLFOGeneric",
-    description: "Custom Wavetable LFO.",
+    description: "Custom Wavetable LFO.\n",
     mozzi: {
         rate: "control",
         includes: ["#include <Oscil.h>", "#include <tables/sin2048_int8.h>", "#include <tables/triangle2048_int8.h>", "#include <tables/saw2048_int8.h>", "#include <tables/square_no_alias_2048_int8.h>"],
