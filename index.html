@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>MozziFlowEditor - Visual Audio Designer</title>
+
+        <!-- replace double equals signs with double dashes to get html head like below generated -->
+        <!-- gulp html-head ==style quartz ==renderer html ==toolkit util ==toolkit timbre ==root .. -->
+
+        <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
+        <!-- gulp ==style quartz ==renderer html ==toolkit util ==toolkit timbre -->
+
+        <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: html -->
+        <!-- <link rel="stylesheet" href="vendor/render/html.css"></style> -->
+        <!-- RPD Style: quartz (html) -->
+        <!-- <link rel="stylesheet" href="vendor/style/quartz/html.css"></style> -->
+        <!-- RPD Toolkit: timbre (html) -->
+        <!-- <link rel="stylesheet" href="vendor/timbre/html.css"></style> -->
+        <!-- RPD Toolkit: util (html) -->
+        <link rel="stylesheet" href="vendor/util/html.css"></style>
+        <!-- <link rel="stylesheet" href="vendor/rpd.css"></style> -->
+
+        <!-- Timbre -->
+        <!-- <script src="http://mohayonao.github.io/timbre.js/timbre.js"></script> -->
+
+        <!-- Mithril -->
+        <script src="vendor/mithril_1.1.6.js"></script>
+        <!-- Kefir -->
+        <script src="vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="vendor/rpd.min.js"></script>
+        <!-- RPD Style Patch (Must load after RPD) -->
+        <script src="vendor/style/quartz/html.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="vendor/util/shared.js"></script>
+        <!-- <script src="vendor/util/toolkit.js"></script> -->
+        <!-- RPD Toolkit: util (html) -->
+        <!-- <script src="vendor/util/html.js"></script> -->
+ 
+        <!-- RPD Toolkit: timbre -->
+        <!-- <script src="../src/toolkit/timbre/shared.js"></script> -->
+        <!-- <script src="../src/toolkit/timbre/toolkit.js"></script> -->
+        <!-- RPD Toolkit: timbre (html) -->
+        <!-- <script src="../src/toolkit/timbre/html.js"></script> -->
+        <!-- <script src="../src/io/json.js"></script> -->
+
+        <script src="vendor/vex.combined.min.js"></script>
+        <script>vex.defaultOptions.className = 'vex-theme-wireframe'</script>
+        <link rel="stylesheet" href="vendor/vex.css" />
+        <link rel="stylesheet" href="vendor/vex-theme-wireframe.css" />
+
+        <!-- drag drop file open -->
+        <script src="vendor/filereader.js"></script>
+
+        <!-- underscore -->
+        <script src="vendor/underscore.js"></script>
+        <script src="vendor/hotkeys.min.js"></script>
+
+                <!-- MozziFlow custom node -->
+                <script src="js/mozziflow.js"></script>
+                <script src="js/sample_converter.js"></script>
+                <script src="js/huffman_converter.js"></script>
+                
+                                <!-- Examples Registry and Individual Patches -->
+        <script>var EXAMPLES = {};</script>
+        <script src="js/examples/7segment_display.js"></script>
+        <script src="js/examples/acid.js"></script>
+        <script src="js/examples/am.js"></script>
+        <script src="js/examples/ambient.js"></script>
+        <script src="js/examples/bitcrusher.js"></script>
+        <script src="js/examples/button_kick.js"></script>
+        <script src="js/examples/detune.js"></script>
+        <script src="js/examples/drums.js"></script>
+        <script src="js/examples/dub_delay.js"></script>
+        <script src="js/examples/echo.js"></script>
+        <script src="js/examples/encoder_router.js"></script>
+        <script src="js/examples/euclidean.js"></script>
+        <script src="js/examples/flanger.js"></script>
+        <script src="js/examples/fm.js"></script>
+        <script src="js/examples/granular_synth.js"></script>
+        <script src="js/examples/hihats.js"></script>
+        <script src="js/examples/karplus.js"></script>
+        <script src="js/examples/kick_drum.js"></script>
+        <script src="js/examples/pd.js"></script>
+        <script src="js/examples/pm.js"></script>
+        <script src="js/examples/pwm.js"></script>
+        <script src="js/examples/quantizer_test.js"></script>
+        <script src="js/examples/reverb.js"></script>
+        <script src="js/examples/sequencer_595.js"></script>
+        <script src="js/examples/sh_random.js"></script>
+        <script src="js/examples/stepper.js"></script>
+        <script src="js/examples/svf.js"></script>
+        <script src="js/examples/theremin.js"></script>
+        <script src="js/examples/vco_vcf_vca.js"></script>
+        <script src="js/examples/wavefolder.js"></script>
+        <script src="js/examples/wavepacket.js"></script>
+<!-- Mozzi Node Modules -->
+        <script src="js/nodes/wave.js"></script>
+        <script src="js/nodes/filter.js"></script>
+        <script src="js/nodes/signal.js"></script>
+        <script src="js/nodes/input.js"></script>
+        <script src="js/nodes/math.js"></script>
+        <script src="js/nodes/lfo.js"></script>
+        <script src="js/nodes/logic.js"></script>
+        <script src="js/nodes/output.js"></script>
+
+        <script src="js/mozziexport.js"></script>
+        <script src="js/help_system.js"></script>
+
+        <!-- MozziFlow system -->
+        <script src="js/mozziflow_editor.js"></script>
+
+                <link rel="stylesheet" href="css/mozziflow.css"></style>        <link rel="stylesheet" href="css/help.css"></style>
+
+                <link id="theme_css" rel="stylesheet" href="css/rpd-dark.css"></style>
+
+        
+
+                <style>
+
+                    /* --- VISIBILITY FIXES ONLY --- */
+
+        
+
+                                /* 1. Help System Containment - AGGRESSIVE FIX */
+
+        
+
+                                .help-node-wrapper {
+
+        
+
+                                    padding: 40px; margin: 10px 0; 
+
+        
+
+                                    display: flex !important; justify-content: center !important; align-items: center !important; 
+
+        
+
+                                    min-height: 140px; position: relative !important; background: rgba(0,0,0,0.2);
+
+        
+
+                                    border: 1px solid #444;
+
+        
+
+                                }
+
+        
+
+                                /* Override RPD JS inline styles */
+
+        
+
+                                .help-node-wrapper .rpd-node-box {
+
+        
+
+                                    position: relative !important; 
+
+        
+
+                                    left: auto !important; 
+
+        
+
+                                    top: auto !important;
+
+        
+
+                                    display: inline-block !important; 
+
+        
+
+                                    transform: none !important;
+
+        
+
+                                    margin: 0 !important;
+
+        
+
+                                }
+
+        
+
+                                .help-node-wrapper .rpd-node {
+
+        
+
+                                    margin: 0 auto !important; 
+
+        
+
+                                    display: table !important;
+
+        
+
+                                    position: relative !important;
+
+        
+
+                                    top: auto !important;
+
+        
+
+                                    left: auto !important;
+
+        
+
+                                }
+
+        
+
+                    
+
+        
+
+                    /* 2. Text Contrast Fixes (Workarea & Help) */
+
+                    /* Force readable text colors based on header background brightness */
+
+                    .rpd-node.rpd-toolkit-wave .rpd-title,
+
+                    .rpd-node.rpd-toolkit-signal .rpd-title,
+
+                    .rpd-node.rpd-toolkit-output .rpd-title,
+
+                    .rpd-node.rpd-toolkit-lfo .rpd-title,
+
+                    .rpd-node.rpd-toolkit-logic .rpd-title {
+
+                        color: #000 !important;
+
+                    }
+
+                    .rpd-node.rpd-toolkit-filter .rpd-title,
+
+                    .rpd-node.rpd-toolkit-input .rpd-title,
+
+                    .rpd-node.rpd-toolkit-math .rpd-title {
+
+                        color: #fff !important;
+
+                    }
+
+                    
+
+                    /* Ensure the text element itself inherits this color */
+
+                    .rpd-node .rpd-title span, .rpd-node .rpd-title th {
+
+                        color: inherit !important;
+
+                    }
+
+        
+
+                    /* 3. Internal Labels Readability */
+
+                    /* Fixes invisible text like 'Freq / Cutoff' or 'In' inside nodes */
+
+                    .rpd-node .mozzi-inlet-label {
+
+                        color: #fff !important;
+
+                        text-shadow: 1px 1px 0 #000;
+
+                        font-size: 0.8em;
+
+                    }
+
+                </style>
+
+            </head>
+
+        
+
+    <body id="main">
+        
+        <div id="editor-content">
+            <div id="node-palette" class="rpd-mozziflow-nodelist">
+                <div class="palette-header">Mozzi Nodes</div>
+            </div>
+
+            <div id="rpd-canvas-container"></div>
+            
+            <!-- Full-Screen Help Overlay -->
+            <div id="help-overlay" class="help-overlay hidden">
+                <div class="help-top-bar">
+                    <h2>MOZZIFLOW NODE REFERENCE</h2>
+                    <button class="close-help-btn" onclick="toggleHelp()">CLOSE [X]</button>
+                </div>
+                <div class="help-main-layout">
+                    <div id="help-nodes-list" class="help-nodes-list">
+                        <!-- Node list populated via JS -->
+                    </div>
+                    <div id="help-detail-view" class="help-detail-view">
+                        <div class="help-empty-state">
+                            <p>Select a node from the left to see documentation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer id="app-footer">
+            <div class="footer-row-top">
+                <span class="footer-title">MozziFlowEditor v1.0.0</span>
+                <div class="footer-buttons">
+                    <button class="footer-btn" onclick="toggleHelp()">Help (?)</button>
+                    <button class="footer-btn" onclick="showExamples()">Examples</button>
+                    <button class="footer-btn" onclick="editPatchSource()">Source (ALT+P)</button>
+                    <button class="footer-btn" onclick="showNodeCode()">Code (ALT+E)</button>
+                    <button class="footer-btn" onclick="NodeToCPPDownload()">Download (ALT+S)</button>
+                </div>
+                <span class="footer-credits">By NoNamedCat, based on espnode86 by Budi Prakosa</span>
+            </div>
+            <div class="footer-legend">
+                <span class="legend-item"><i class="bg-audio"></i> bipolar_8 (-128, 127)</span>
+                <span class="legend-item"><i class="bg-control"></i> unipolar_8 (0, 255)</span>
+                <span class="legend-item"><i class="bg-freq"></i> unipolar_16 (0, 65535)</span>
+                <span class="legend-item"><i class="bg-mod"></i> bipolar_16 (-32768, 32767)</span>
+                <span class="legend-item"><i class="bg-logic"></i> logic (0 or 255)</span>
+                <span class="legend-item"><i class="bg-float"></i> float_32 (decimal)</span>
+                <span class="legend-item"><i class="bg-generic"></i> generic</span>
+            </div>
+        </footer>
+        
+        <script>
+            var modalOpen = 0;
+
+            function replaceAll(str, find, replace) {
+                return str.replace(new RegExp(find, 'g'), replace);
+            }
+
+            Rpd.renderNext('html', document.getElementById('rpd-canvas-container'), { style: 'quartz', fullPage: false });
+                        
+            var root = Rpd.addPatch('root');
+            mozziFlowRoot = root;
+            initAnchoredPalette(root);
+
+            // Force a resize event to ensure RPD canvas computes its dimensions correctly
+            window.dispatchEvent(new Event('resize'));
+
+            // Palette is now anchored, no need to add it as a node
+            // var nodeList = root.addNode('mozziflow/nodelist');
+
+            FileReaderJS.setupDrop(document.body, {
+                readAsDefault: "Text",
+                on: {
+                    load: function(e, file) {
+                        NodeImportCpp(e.target.result);
+                    // mozziFlowRoot.close();
+                    // mozziFlowReset();
+                    // NodeImportCpp(e.target.result);
+                    }
+                }
+            });
+        
+            var chooseTheme = function(theme) {
+                console.log(theme);
+                document.getElementById('theme_css').href = 'css/' + theme;
+            }
+
+            hotkeys('alt+p,alt+e,alt+s,ctrl+1,ctrl+2,ctrl+3,ctrl+4', function(event, handler) {
+                event.preventDefault();
+
+                switch(handler.key){
+                    case "alt+p": editPatchSource(); break;
+                    case "alt+e": showNodeCode(); break;
+                    case "alt+s": NodeToCPPDownload(); break;
+                    case "ctrl+1": chooseTheme('rpd-pink.css'); break;
+                    case "ctrl+2": chooseTheme('rpd-coco.css'); break;
+                    case "ctrl+3": chooseTheme('rpd-dark.css'); break;
+                    case "ctrl+4": chooseTheme('rpd-90s.css'); break;
+                }
+
+                return false;
+            });
+
+                                                var showExamples = function() {
+                if (modalOpen === 1) return;
+                modalOpen = 1;
+                
+                var keys = Object.keys(EXAMPLES).sort();
+                var btnHtml = '<div class="ex-container">';
+                
+                var getTitle = function(key) {
+                    var code = EXAMPLES[key];
+                    var match = code.match(new RegExp('network/add-patch \S+ (.+)'));
+                    if (match) return match[1].replace(/_/g, ' ');
+                    return key;
+                };
+
+                keys.forEach(function(key) {
+                    btnHtml += `<button class="ex-btn" onclick="loadExample('${key}')">${getTitle(key)}</button>`;
+                });
+                btnHtml += '</div>';
+
+                vex.dialog.open({
+                    message: 'Select an Example Patch (' + keys.length + ' available)',
+                    showCloseButton: true,
+                    buttons: [],
+                    input: [
+                        '<style>',
+                            '.ex-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }',
+                            '.ex-btn { display: block; width: 100%; margin: 8px 0; padding: 10px; background: #222; border: 1px solid #444; color: #0f9; cursor: pointer; font-family: monospace; text-align: left; font-size: 11px; }',
+                            '.ex-btn:hover { background: #333; border-color: #0f9; }',
+                        '</style>',
+                        btnHtml
+                    ].join(''),
+                    beforeClose: function() { modalOpen = 0; }
+                });
+            };
+            window.loadExample = function(key) {
+                vex.closeAll();
+                modalOpen = 0;
+                if (EXAMPLES[key]) {
+                    NodeImportCpp(EXAMPLES[key].trim());
+                }
+            };
+
+
+
+            var showNodeCode = function()
+            {
+                if (modalOpen === 1) return;
+                modalOpen = 1;
+
+                vex.dialog.defaultOptions.showCloseButton = false;
+                vex.dialog.open({
+                    message: 'Copy paste to your Arduino Sketch',
+                    showCloseButton: false,
+                    buttons: [{ text: 'OK', type: 'submit', className: 'vex-dialog-button-primary' }],
+                    input: [
+                        '<style>',
+                            '.vex-custom-field-wrapper { margin: 1em 0; }',
+                            '.vex-custom-field-wrapper > label { display: inline-block; margin-bottom: .0em; }',
+                        '</style>',
+                        '<div class="vex-custom-field-wrapper">',
+                            '<button class="footer-btn" style="width:100%; margin-bottom:10px; padding:10px; text-align:center;" onclick="var t=document.getElementById(\'generated-cpp-code\'); t.select(); document.execCommand(\'copy\'); this.innerText=\'Copied!\';">Copy to Clipboard</button>',
+                            '<div class="vex-custom-input-wrapper">',
+                                '<textarea id="generated-cpp-code" rows="20" cols="80" style="font-size: 0.6em; border: solid 1px">' + NodeToMozziCpp() + '</textarea>',
+                                '</div>',
+                        '</div>'
+                    ].join(''),
+                    beforeClose: function(){
+                        modalOpen = 0;
+                    }
+                })
+            }
+
+
+
+
+        </script>
+
+        <!-- Canvas Navigation Script (Pan via Scroll + CSS Zoom) -->
+        <script>
+            (function() {
+                var container = document.getElementById('rpd-canvas-container');
+                var isPanning = false;
+                var lastX, lastY;
+                window.currentZoom = 1.0; // Global for patched html.js
+
+                // 1. Setup Container for Native Scrolling
+                container.style.overflow = 'scroll'; 
+                
+                // Add CSS for dark scrollbars
+                var scrollStyle = document.createElement('style');
+                scrollStyle.innerHTML = `
+                    #rpd-canvas-container::-webkit-scrollbar { width: 12px; height: 12px; display: block; }
+                    #rpd-canvas-container::-webkit-scrollbar-track { background: #1a1a1a; border-left: 1px solid #333; border-top: 1px solid #333; }
+                    #rpd-canvas-container::-webkit-scrollbar-thumb { background: #444; border: 1px solid #111; }
+                    #rpd-canvas-container::-webkit-scrollbar-thumb:hover { background: #00ff99; }
+                    /* Force RPD patch to take space relative to this container */
+                    .rpd-patch { position: absolute; top: 0; left: 0; transform-origin: 0 0; } 
+                `;
+                document.head.appendChild(scrollStyle);
+                
+                // Helper to ensure we have room to scroll
+                function ensureCanvasSize() {
+                    var patchCanvas = document.querySelector('.rpd-patch');
+                    if (patchCanvas) {
+                        patchCanvas.style.minWidth = '4000px';
+                        patchCanvas.style.minHeight = '4000px';
+                        // Center initial view if at 0,0
+                        if (container.scrollLeft === 0 && container.scrollTop === 0) {
+                            // container.scrollLeft = 1000; // Disabled as per user request
+                            // container.scrollTop = 1000;
+                        }
+                    }
+                }
+                
+                // Run periodically
+                setInterval(ensureCanvasSize, 1000);
+
+                // Panning Logic (Scroll)
+                container.addEventListener('mousedown', function(e) {
+                    if (e.button === 1 || e.button === 2 || (e.altKey && e.button === 0)) { 
+                        e.preventDefault();
+                        e.stopPropagation(); 
+                        isPanning = true;
+                        lastX = e.clientX;
+                        lastY = e.clientY;
+                        container.style.cursor = 'move';
+                    }
+                }, true);
+                
+                container.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
+
+                window.addEventListener('mousemove', function(e) {
+                    if (!isPanning) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var dx = e.clientX - lastX;
+                    var dy = e.clientY - lastY;
+                    
+                    container.scrollLeft -= dx;
+                    container.scrollTop -= dy;
+                    
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                }, true);
+
+                window.addEventListener('mouseup', function(e) {
+                    if (isPanning) {
+                        isPanning = false;
+                        container.style.cursor = 'default';
+                    }
+                }, true);
+                
+                // Zooming (Wheel direct) - Using CSS Zoom
+                container.addEventListener('wheel', function(e) {
+                    // Prevent default scrolling
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var patchCanvas = document.querySelector('.rpd-patch');
+                    if (!patchCanvas) return;
+
+                    var delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    var newZoom = window.currentZoom * delta;
+
+                    if (newZoom < 0.2) newZoom = 0.2;
+                    if (newZoom > 3.0) newZoom = 3.0;
+                    
+                    window.currentZoom = newZoom;
+
+                    // Apply CSS Zoom
+                    patchCanvas.style.zoom = window.currentZoom;
+                    
+                }, { passive: false, capture: true });
+
+            })();
+        </script>
+    </body>
+</html>
