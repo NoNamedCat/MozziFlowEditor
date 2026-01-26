@@ -7,8 +7,7 @@ patch/add-node erout pot1 input/mozzi_async_analog Async Analog
 patch/add-node erout rout1 signal/router Router
 patch/add-node erout osc1 wave/mozzi_sin Sine
 patch/add-node erout osc2 wave/mozzi_saw Saw
-patch/add-node erout mix1 signal/mozzi_mixer2 Mixer 2
-patch/add-node erout out1 output/mozzi_out Output
+patch/add-node erout mix1 math_audio/add Mixer
 node/turn-on enc1
 node/turn-on cnt1
 node/turn-on pot1
@@ -35,6 +34,6 @@ outlet/connect cnt1:out rout1:idx
 outlet/connect pot1:out rout1:in
 outlet/connect rout1:out0 osc1:freq
 outlet/connect rout1:out1 osc2:freq
-outlet/connect osc1:out mix1:ch1
-outlet/connect osc2:out mix1:ch2
+outlet/connect osc1:out mix1:a
+outlet/connect osc2:out mix1:b
 outlet/connect mix1:out out1:audio_in`;

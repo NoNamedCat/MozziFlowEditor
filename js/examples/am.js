@@ -3,7 +3,7 @@ network/add-patch am AMSynthesis
 patch/open am
 patch/add-node am car wave/mozzi_sin Sine
 patch/add-node am mod wave/mozzi_sin Sine
-patch/add-node am mul math/mul_audio Mul (Audio)
+patch/add-node am mul math_audio/mul Mul (Audio)
 patch/add-node am out output/mozzi_out Output
 node/turn-on car
 node/turn-on mod

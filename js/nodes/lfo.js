@@ -14,7 +14,12 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/sin2048_int8.h>"],
         defaults: {"freq":"1"},
         global: function(n, v) { return "Oscil<SIN2048_NUM_CELLS, CONTROL_RATE> "+v+"(SIN2048_DATA);"; },
-        control: function(n, v, i) { return v+".setFreq((float)"+i.freq+");\n\t"+v+"_out = "+v+".next();"; },
+        setup: function(n, v, i, r, s) { if (s.freq) return v+".setFreq("+i.freq+");"; return ""; },
+        control: function(n, v, i, r, s) { 
+            var code = "";
+            if (!s.freq) code += v+".setFreq("+i.freq+"); ";
+            return code + v+"_out = "+v+".next()"; 
+        },
         audio: function(n, v, i) { return ""; },
     },
     rpdnode: {
@@ -46,7 +51,12 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/triangle2048_int8.h>"],
         defaults: {"freq":"1"},
         global: function(n, v) { return "Oscil<TRIANGLE2048_NUM_CELLS, CONTROL_RATE> "+v+"(TRIANGLE2048_DATA);"; },
-        control: function(n, v, i) { return v+".setFreq((float)"+i.freq+");\n\t"+v+"_out = "+v+".next();"; },
+        setup: function(n, v, i, r, s) { if (s.freq) return v+".setFreq("+i.freq+");"; return ""; },
+        control: function(n, v, i, r, s) { 
+            var code = "";
+            if (!s.freq) code += v+".setFreq("+i.freq+"); ";
+            return code + v+"_out = "+v+".next()"; 
+        },
         audio: function(n, v, i) { return ""; },
     },
     rpdnode: {
@@ -78,7 +88,12 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/square_no_alias_2048_int8.h>"],
         defaults: {"freq":"1"},
         global: function(n, v) { return "Oscil<SQUARE_NO_ALIAS_2048_NUM_CELLS, CONTROL_RATE> "+v+"(SQUARE_NO_ALIAS_2048_DATA);"; },
-        control: function(n, v, i) { return v+".setFreq((float)"+i.freq+");\n\t"+v+"_out = "+v+".next();"; },
+        setup: function(n, v, i, r, s) { if (s.freq) return v+".setFreq("+i.freq+");"; return ""; },
+        control: function(n, v, i, r, s) { 
+            var code = "";
+            if (!s.freq) code += v+".setFreq("+i.freq+"); ";
+            return code + v+"_out = "+v+".next()"; 
+        },
         audio: function(n, v, i) { return ""; },
         inlet_rates: {"freq":"control"},
     },
@@ -111,7 +126,12 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/saw2048_int8.h>"],
         defaults: {"freq":"1"},
         global: function(n, v) { return "Oscil<SAW2048_NUM_CELLS, CONTROL_RATE> "+v+"(SAW2048_DATA);"; },
-        control: function(n, v, i) { return v+".setFreq((float)"+i.freq+");\n\t"+v+"_out = "+v+".next();"; },
+        setup: function(n, v, i, r, s) { if (s.freq) return v+".setFreq("+i.freq+");"; return ""; },
+        control: function(n, v, i, r, s) { 
+            var code = "";
+            if (!s.freq) code += v+".setFreq("+i.freq+"); ";
+            return code + v+"_out = "+v+".next()"; 
+        },
         audio: function(n, v, i) { return ""; },
     },
     rpdnode: {
@@ -142,7 +162,12 @@ NodeLibrary.push({
         includes: ["#include <Phasor.h>","#include <tables/cos4096_int16.h>","#include <mozzi_pgmspace.h>"],
         defaults: {"freq":"1"},
         global: function(n, v) { return 'Phasor<CONTROL_RATE> ' + v + '_ph;'; },
-        control: function(n, v, i) { return v + '_ph.setFreq((float)' + i.freq + ');\n\t' + v + '_out = (int)((FLASH_OR_RAM_READ<const int16_t>(COS4096X16_DATA + (' + v + '_ph.next() >> 20)) + 32768) >> 6);'; },
+        setup: function(n, v, i, r, s) { if (s.freq) return v+"_ph.setFreq("+i.freq+");"; return ""; },
+        control: function(n, v, i, r, s) { 
+            var code = "";
+            if (!s.freq) code += v+"_ph.setFreq("+i.freq+");\n\t";
+            return code + v + '_out = (int)((FLASH_OR_READ_PGM<const int16_t>(COS4096X16_DATA + (' + v + '_ph.next() >> 20)) + 32768) >> 6);'; 
+        },
         audio: function(n,v,i){ return ''; },
     },
     rpdnode: {
@@ -173,7 +198,12 @@ NodeLibrary.push({
         includes: ["#include <Phasor.h>","#include <tables/cos4096_int16.h>","#include <mozzi_pgmspace.h>"],
         defaults: {"freq":"1"},
         global: function(n, v) { return 'Phasor<CONTROL_RATE> ' + v + '_ph;'; },
-        control: function(n, v, i) { return v + '_ph.setFreq((float)' + i.freq + ');\n\t' + v + '_out = (int)((FLASH_OR_RAM_READ<const int16_t>(COS4096X16_DATA + (' + v + '_ph.next() >> 20)) + 32768) >> 4);'; },
+        setup: function(n, v, i, r, s) { if (s.freq) return v+"_ph.setFreq("+i.freq+");"; return ""; },
+        control: function(n, v, i, r, s) { 
+            var code = "";
+            if (!s.freq) code += v+"_ph.setFreq("+i.freq+");\n\t";
+            return code + v + '_out = (int)((FLASH_OR_READ_PGM<const int16_t>(COS4096X16_DATA + (' + v + '_ph.next() >> 20)) + 32768) >> 4);'; 
+        },
         audio: function(n,v,i){ return ''; },
         inlet_rates: {"freq":"control"},
     },
@@ -213,9 +243,11 @@ NodeLibrary.push({
         includes: ["#include <Phasor.h>"],
         defaults: {"freq":"1", "width":"127"},
         global: function(n, v) { return "Phasor<CONTROL_RATE> "+v+";"; },
-        control: function(n, v, i) { 
-            return v+".setFreq((float)"+i.freq+");\n\t" + 
-                   v+"_out = ("+v+".next() >> 24) < (int)"+i.width+" ? 255 : 0;"; 
+        setup: function(n, v, i, r, s) { if (s.freq) return v+".setFreq("+i.freq+");"; return ""; },
+        control: function(n, v, i, r, s) { 
+            var code = "";
+            if (!s.freq) code += v+".setFreq("+i.freq+");\n\t";
+            return code + v+"_out = ("+v+".next() >> 24) < (int)"+i.width+" ? 255 : 0;"; 
         },
         audio: function(n, v, i) { return ""; },
         inlet_rates: {"freq":"control", "width":"control"},
@@ -266,7 +298,12 @@ NodeLibrary.push({
             var size = (n.data && n.data.tableSize) ? n.data.tableSize : "2048";
             return "Oscil<" + size + ", CONTROL_RATE> " + v + "(" + table + ");"; 
         },
-        control: function(n,v,i){ return v + ".setFreq((float)" + i.freq + ");\n\t" + v + "_out = " + v + ".next()"; },
+        setup: function(n, v, i, r, s) { if (s.freq) return v+".setFreq("+i.freq+");"; return ""; },
+        control: function(n,v,i,r,s){ 
+            var code = "";
+            if (!s.freq) code += v+".setFreq("+i.freq+");\n\t";
+            return code + v + "_out = " + v + ".next()"; 
+        },
     },
     renderer: {
         'html': function(bodyElm, node) {

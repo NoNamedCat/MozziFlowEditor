@@ -7,7 +7,7 @@ NodeLibrary.push({
     description: "Adds signals.",
     mozzi: {
         defaults: {"a":"0","b":"0"},
-        audio: function(n,v,i) { return v + "_out = (int)" + i.a + " + (int)" + i.b + ";"; },
+        audio: function(n,v,i) { return v + "_out = " + i.a + " + " + i.b + ";"; },
     },
     rpdnode: {
     "title": "Add",
@@ -22,7 +22,7 @@ NodeLibrary.push({
     description: "Subtracts signals.",
     mozzi: {
         defaults: {"a":"0","b":"0"},
-        audio: function(n,v,i) { return v + "_out = (int)" + i.a + " - (int)" + i.b + ";"; },
+        audio: function(n,v,i) { return v + "_out = " + i.a + " - " + i.b + ";"; },
     },
     rpdnode: {
     "title": "Subtract",
@@ -37,7 +37,7 @@ NodeLibrary.push({
     description: "Multiplies signals.",
     mozzi: {
         defaults: {"a":"0","b":"1"},
-        audio: function(n,v,i) { return v + "_out = (int)((long)" + i.a + " * (int)" + i.b + ");"; },
+        audio: function(n,v,i) { return v + "_out = (int)((long)" + i.a + " * " + i.b + ");"; },
     },
     rpdnode: {
     "title": "Multiply",
@@ -47,30 +47,12 @@ NodeLibrary.push({
 });
 
 NodeLibrary.push({
-    nodetype: 'math/mul_audio',
-    nodeclass: "MathMulAudio",
-    description: "Audio Multiplier.",
-    mozzi: {
-        defaults: {"a":"0","b":"255"},
-        audio: function(n,v,i) { return v + "_out = (int)(((long)" + i.a + " * (int)" + i.b + ") >> 8);"; },
-    },
-    rpdnode: {
-    "title": "Mul (Audio)",
-    "inlets": { 
-        "a": { "type": "mozziflow/string", "color": "bipolar_8" }, 
-        "b": { "type": "mozziflow/string", "color": "unipolar_8" } 
-    },
-    "outlets": { "out": { "type": "mozziflow/string", "color": "bipolar_8" } }
-}
-});
-
-NodeLibrary.push({
     nodetype: 'math/div',
     nodeclass: "MathDiv",
     description: "Divides signals.",
     mozzi: {
         defaults: {"a":"0","b":"1"},
-        audio: function(n,v,i) { return v + "_out = (int)" + i.b + " != 0 ? (int)(((long)" + i.a + " << 8) / (int)" + i.b + ") : 0;"; },
+        audio: function(n,v,i) { return v + "_out = " + i.b + " != 0 ? (int)(((long)" + i.a + " << 8) / " + i.b + ") : 0;"; },
     },
     rpdnode: {
     "title": "Divide",
@@ -217,36 +199,6 @@ NodeLibrary.push({
         inlets: { "in": { "type": "mozziflow/string" } },
         outlets: { "out": { "type": "mozziflow/float_32" } }
     }
-});
-
-NodeLibrary.push({
-    nodetype: 'math/mul_10',
-    nodeclass: "MathMul10",
-    description: "Multiply (10-bit).",
-    mozzi: {
-        defaults: {"a":"0","b":"1023"},
-        audio: function(n,v,i) { return v + '_out = (int)(((long)' + i.a + ' * (int)' + i.b + ') >> 10);'; },
-    },
-    rpdnode: {
-    "title": "Mul 10b",
-    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
-    "outlets": { "out": { "type": "mozziflow/string" } }
-}
-});
-
-NodeLibrary.push({
-    nodetype: 'math/mul_12',
-    nodeclass: "MathMul12",
-    description: "Multiply (12-bit).",
-    mozzi: {
-        defaults: {"a":"0","b":"4095"},
-        audio: function(n,v,i) { return v + '_out = (int)(((long)' + i.a + ' * (int)' + i.b + ') >> 12);'; },
-    },
-    rpdnode: {
-    "title": "Mul 12b",
-    "inlets": { "a": { "type": "mozziflow/string" }, "b": { "type": "mozziflow/string" } },
-    "outlets": { "out": { "type": "mozziflow/string" } }
-}
 });
 
 NodeLibrary.push({
