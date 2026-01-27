@@ -1,7 +1,7 @@
 EXAMPLES['echo'] = `v2.1.1
 network/add-patch root Echo_Enveloped
 patch/open root
-# --- TIMING (Control) ---
+# --- TIMING ---
 patch/add-node root metro signal/mozzi_metronome Metronome
 node/set-data metro eyJyYXRlX21vZGUiOjF9
 node/update-inlet metro bpm 60
@@ -24,7 +24,7 @@ node/update-inlet s1 freq 110
 patch/add-node root vca signal/mozzi_gain Gain
 node/set-data vca eyJyYXRlX21vZGUiOjJ9
 
-patch/add-node root del filter/mozzi_audiodelay Audio Delay
+patch/add-node root del filter/mozzi_audiodelay Audio%20Delay
 node/set-data del eyJyYXRlX21vZGUiOjJ9
 node/update-inlet del delay 128
 

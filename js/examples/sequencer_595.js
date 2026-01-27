@@ -1,7 +1,7 @@
 EXAMPLES['sequencer_595'] = `v2.1.1
 network/add-patch root Sequencer_Shift595
 patch/open root
-# --- LOGIC (All Control Rate) ---
+# --- LOGIC ---
 patch/add-node root clock signal/mozzi_metronome Metronome
 node/set-data clock eyJyYXRlX21vZGUiOjF9
 node/update-inlet clock bpm 120
@@ -17,7 +17,7 @@ node/update-inlet seq s5 32
 node/update-inlet seq s6 64
 node/update-inlet seq s7 128
 
-patch/add-node root out595 output/arduino_shift595_1 Shift 595
+patch/add-node root out595 output/arduino_shift595_1 Shift%20595%20(1)
 node/set-data out595 eyJyYXRlX21vZGUiOjF9
 node/update-inlet out595 data_pin 11
 node/update-inlet out595 latch 12

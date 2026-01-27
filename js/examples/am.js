@@ -1,8 +1,8 @@
 EXAMPLES['am'] = `v2.1.1
 network/add-patch am Amplitude_Modulation
 patch/open am
-# --- MODULATION (Control + Smooth) ---
-patch/add-node am mod wave/mozzi_sin Sine LFO
+# --- MODULATION ---
+patch/add-node am mod lfo/mozzi_lfo_sin Sine%20LFO
 node/set-data mod eyJyYXRlX21vZGUiOjF9
 node/update-inlet mod freq 4
 
@@ -10,8 +10,8 @@ patch/add-node am smooth filter/mozzi_smooth Smooth
 node/set-data smooth eyJyYXRlX21vZGUiOjJ9
 node/update-inlet smooth smooth 0.9
 
-# --- CARRIER (Audio) ---
-patch/add-node am car wave/mozzi_sin Carrier
+# --- CARRIER ---
+patch/add-node am car wave/mozzi_sin Sine
 node/set-data car eyJyYXRlX21vZGUiOjJ9
 node/update-inlet car freq 440
 

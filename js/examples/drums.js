@@ -1,17 +1,17 @@
 EXAMPLES['drums'] = `v2.1.1
 network/add-patch root Drum_Machine
 patch/open root
-# --- TIMING (Control) ---
+# --- TIMING ---
 patch/add-node root m1 signal/mozzi_metronome Metronome
 node/set-data m1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet m1 bpm 124
 
-# --- KICK SYNTH (Audio for fast attack) ---
+# --- KICK SYNTH ---
 patch/add-node root kick wave/mozzi_sin Sine
 node/set-data kick eyJyYXRlX21vZGUiOjJ9
 node/update-inlet kick freq 55
 
-patch/add-node root env signal/mozzi_ead Ead Env
+patch/add-node root env signal/mozzi_ead Ead%20Env
 node/set-data env eyJyYXRlX21vZGUiOjJ9
 node/update-inlet env att 20
 node/update-inlet env dec 200

@@ -1,12 +1,12 @@
 EXAMPLES['quantizer_test'] = `v2.1.1
 network/add-patch root Quantizer_Test
 patch/open root
-# --- MODULATION (Control) ---
-patch/add-node root lfo wave/mozzi_sin LFO
+# --- MODULATION ---
+patch/add-node root lfo wave/mozzi_sin Sine
 node/set-data lfo eyJyYXRlX21vZGUiOjF9
 node/update-inlet lfo freq 0.2
 
-patch/add-node root mapper math/mozzi_map Map Range
+patch/add-node root mapper math/mozzi_map Map%20Range
 node/set-data mapper eyJyYXRlX21vZGUiOjF9
 node/update-inlet mapper in_min -128
 node/update-inlet mapper in_max 127

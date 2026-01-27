@@ -2,16 +2,16 @@ EXAMPLES['pm'] = `v2.1.1
 network/add-patch pm Phase_Modulation
 patch/open pm
 # --- MODULATOR ---
-patch/add-node pm mod wave/mozzi_sin Modulator
+patch/add-node pm mod wave/mozzi_sin Sine
 node/set-data mod eyJyYXRlX21vZGUiOjJ9
 node/update-inlet mod freq 5
 
-patch/add-node pm gain signal/mozzi_gain Index
+patch/add-node pm gain signal/mozzi_gain Gain
 node/set-data gain eyJyYXRlX21vZGUiOjJ9
 node/update-inlet gain gain 128
 
 # --- CARRIER ---
-patch/add-node pm car wave/mozzi_sin Carrier
+patch/add-node pm car wave/mozzi_sin Sine
 node/set-data car eyJyYXRlX21vZGUiOjJ9
 node/update-inlet car freq 220
 

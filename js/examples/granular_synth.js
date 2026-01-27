@@ -1,12 +1,12 @@
 EXAMPLES['granular_synth'] = `v2.1.1
 network/add-patch root Granular_WavePacket
 patch/open root
-# --- SCANNING (Control + Smooth) ---
-patch/add-node root lfo1 wave/mozzi_sin Scan LFO
+# --- SCANNING ---
+patch/add-node root lfo1 wave/mozzi_sin Sine
 node/set-data lfo1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet lfo1 freq 0.5
 
-patch/add-node root mapper math/mozzi_map Map Range
+patch/add-node root mapper math/mozzi_map Map%20Range
 node/set-data mapper eyJyYXRlX21vZGUiOjF9
 node/update-inlet mapper in_min -128
 node/update-inlet mapper in_max 127
@@ -17,7 +17,7 @@ patch/add-node root smooth filter/mozzi_smooth Smooth
 node/set-data smooth eyJyYXRlX21vZGUiOjJ9
 node/update-inlet smooth smooth 0.9
 
-# --- ENGINE (Audio) ---
+# --- ENGINE ---
 patch/add-node root wp1 wave/mozzi_wavepacket WavePacket
 node/set-data wp1 eyJyYXRlX21vZGUiOjJ9
 

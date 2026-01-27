@@ -25,7 +25,7 @@ node/update-inlet saw freq 440
 patch/add-node p1 gain signal/mozzi_gain Gain
 node/set-data gain eyJyYXRlX21vZGUiOjJ9
 
-patch/add-node p1 rev filter/mozzi_reverb Reverb Tank
+patch/add-node p1 rev filter/mozzi_reverb Reverb%20Tank
 node/set-data rev eyJyYXRlX21vZGUiOjJ9
 node/update-inlet rev mix 150
 

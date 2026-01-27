@@ -1,12 +1,12 @@
 EXAMPLES['sh_random'] = `v2.1.1
 network/add-patch root S_H_Random
 patch/open root
-# --- TRIGGER (Control) ---
+# --- TRIGGER ---
 patch/add-node root clock signal/mozzi_metronome Metronome
 node/set-data clock eyJyYXRlX21vZGUiOjF9
 node/update-inlet clock bpm 120
 
-# --- NOISE (Audio) ---
+# --- NOISE ---
 patch/add-node root noise wave/mozzi_noise Noise
 node/set-data noise eyJyYXRlX21vZGUiOjJ9
 

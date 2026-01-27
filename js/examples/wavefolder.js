@@ -6,11 +6,11 @@ patch/add-node root osc wave/mozzi_sin Sine
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
 node/update-inlet osc freq 110
 
-patch/add-node root gain signal/mozzi_gain Pre-Gain
+patch/add-node root gain signal/mozzi_gain Gain
 node/set-data gain eyJyYXRlX21vZGUiOjJ9
 node/update-inlet gain gain 255
 
-patch/add-node root fold filter/mozzi_wavefolder Wave Folder
+patch/add-node root fold filter/mozzi_wavefolder Wave%20Folder
 node/set-data fold eyJyYXRlX21vZGUiOjJ9
 
 patch/add-node root out output/mozzi_out Output

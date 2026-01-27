@@ -6,7 +6,7 @@ patch/add-node root metro signal/mozzi_metronome Metronome
 node/set-data metro eyJyYXRlX21vZGUiOjF9
 node/update-inlet metro bpm 120
 
-# --- NOISE BURST (Audio) ---
+# --- NOISE BURST ---
 patch/add-node root noise wave/mozzi_noise Noise
 node/set-data noise eyJyYXRlX21vZGUiOjJ9
 

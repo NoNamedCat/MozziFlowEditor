@@ -1,17 +1,17 @@
 EXAMPLES['fm'] = `v2.1.1
 network/add-patch fm FM_Synthesis_HiRes
 patch/open fm
-# --- MODULATOR (Audio Rate for FM) ---
-patch/add-node fm mod wave/mozzi_sin Modulator
+# --- MODULATOR ---
+patch/add-node fm mod wave/mozzi_sin Sine
 node/set-data mod eyJyYXRlX21vZGUiOjJ9
 node/update-inlet mod freq 5
 
-patch/add-node fm gain signal/mozzi_gain Index
+patch/add-node fm gain signal/mozzi_gain Gain
 node/set-data gain eyJyYXRlX21vZGUiOjJ9
 node/update-inlet gain gain 150
 
-# --- CARRIER (Audio Rate) ---
-patch/add-node fm car wave/mozzi_sin Carrier
+# --- CARRIER ---
+patch/add-node fm car wave/mozzi_sin Sine
 node/set-data car eyJyYXRlX21vZGUiOjJ9
 node/update-inlet car freq 440
 

@@ -11,14 +11,14 @@ patch/add-node root cnt1 signal/counter Counter
 node/set-data cnt1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet cnt1 max 1
 
-patch/add-node root rout1 signal/router2 Router (2)
+patch/add-node root rout1 signal/router2 Router%20(2)
 node/set-data rout1 eyJyYXRlX21vZGUiOjF9
 
-patch/add-node root osc1 wave/mozzi_sin Sine 1
+patch/add-node root osc1 wave/mozzi_sin Sine
 node/set-data osc1 eyJyYXRlX21vZGUiOjJ9
 node/update-inlet osc1 freq 440
 
-patch/add-node root osc2 wave/mozzi_saw Saw 2
+patch/add-node root osc2 wave/mozzi_saw Saw
 node/set-data osc2 eyJyYXRlX21vZGUiOjJ9
 node/update-inlet osc2 freq 220
 

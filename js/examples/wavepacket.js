@@ -1,12 +1,12 @@
 EXAMPLES['wavepacket'] = `v2.1.1
 network/add-patch root WavePacket_Synth
 patch/open root
-# --- MODULATION (Control + Smooth) ---
-patch/add-node root lfo wave/mozzi_sin LFO
+# --- MODULATION ---
+patch/add-node root lfo wave/mozzi_sin Sine
 node/set-data lfo eyJyYXRlX21vZGUiOjF9
 node/update-inlet lfo freq 0.2
 
-patch/add-node root mapper math/mozzi_map Map Range
+patch/add-node root mapper math/mozzi_map Map%20Range
 node/set-data mapper eyJyYXRlX21vZGUiOjF9
 node/update-inlet mapper in_min -128
 node/update-inlet mapper in_max 127
@@ -17,7 +17,7 @@ patch/add-node root smooth filter/mozzi_smooth Smooth
 node/set-data smooth eyJyYXRlX21vZGUiOjJ9
 node/update-inlet smooth smooth 0.95
 
-# --- ENGINE (Audio) ---
+# --- ENGINE ---
 patch/add-node root wp wave/mozzi_wavepacket WavePacket
 node/set-data wp eyJyYXRlX21vZGUiOjJ9
 

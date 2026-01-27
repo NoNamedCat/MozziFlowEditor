@@ -1,7 +1,7 @@
 EXAMPLES['7segment_display'] = `v2.1.1
 network/add-patch root 7-Segment_Control
 patch/open root
-# --- CONTROL LOGIC (64Hz) ---
+# --- CONTROL LOGIC ---
 patch/add-node root enc1 input/arduino_encoder Encoder
 node/set-data enc1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet enc1 pinA 2
@@ -11,10 +11,10 @@ patch/add-node root cnt1 signal/counter Counter
 node/set-data cnt1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet cnt1 max 9
 
-patch/add-node root drv1 signal/arduino_7seg 7-Seg Driver
+patch/add-node root drv1 signal/arduino_7seg 7-Seg%20Driver
 node/set-data drv1 eyJyYXRlX21vZGUiOjF9
 
-patch/add-node root shft output/arduino_shift595_1 Shift 595
+patch/add-node root shft output/arduino_shift595_1 Shift%20595%20(1)
 node/set-data shft eyJyYXRlX21vZGUiOjF9
 node/update-inlet shft data_pin 11
 node/update-inlet shft latch 12

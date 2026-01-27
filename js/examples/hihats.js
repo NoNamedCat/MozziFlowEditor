@@ -6,17 +6,17 @@ patch/add-node root clock signal/mozzi_metronome Metronome
 node/set-data clock eyJyYXRlX21vZGUiOjF9
 node/update-inlet clock bpm 240
 
-# --- NOISE ENGINE (Audio) ---
+# --- NOISE ENGINE ---
 patch/add-node root noise wave/mozzi_noise Noise
 node/set-data noise eyJyYXRlX21vZGUiOjJ9
 
-patch/add-node root hpf filter/mozzi_svf HighPass Filter
+patch/add-node root hpf filter/mozzi_svf SVF%20Filter
 node/set-data hpf eyJyYXRlX21vZGUiOjJ9
 node/update-inlet hpf cutoff 8000
 node/update-inlet hpf res 200
 
-# --- ENVELOPE (Audio for crispness) ---
-patch/add-node root env signal/mozzi_ead Ead Env
+# --- ENVELOPE ---
+patch/add-node root env signal/mozzi_ead Ead%20Env
 node/set-data env eyJyYXRlX21vZGUiOjJ9
 node/update-inlet env att 20
 node/update-inlet env dec 100

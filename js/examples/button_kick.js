@@ -1,17 +1,17 @@
 EXAMPLES['button_kick'] = `v2.1.1
 network/add-patch bk Button_Kick
-patch/open bc
-# --- INPUT (Control) ---
+patch/open bk
+# --- INPUT ---
 patch/add-node bk btn1 input/arduino_button Button
 node/set-data btn1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet btn1 pin 5
 
-# --- SYNTH (Audio Rate for fast attack) ---
+# --- SYNTH ---
 patch/add-node bk kick wave/mozzi_sin Sine
 node/set-data kick eyJyYXRlX21vZGUiOjJ9
 node/update-inlet kick freq 60
 
-patch/add-node bk env signal/mozzi_ead Ead Env
+patch/add-node bk env signal/mozzi_ead Ead%20Env
 node/set-data env eyJyYXRlX21vZGUiOjJ9
 node/update-inlet env att 20
 node/update-inlet env dec 200

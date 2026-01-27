@@ -7,18 +7,18 @@ node/update-inlet src freq 110
 node/set-data src eyJyYXRlX21vZGUiOjJ9
 
 # --- MODULATOR ---
-patch/add-node bc rate_lfo wave/mozzi_phasor Phaser LFO
+patch/add-node bc rate_lfo wave/mozzi_phasor Phasor
 node/update-inlet rate_lfo freq 2
 node/set-data rate_lfo eyJyYXRlX21vZGUiOjF9
 
-patch/add-node bc mapper math/mozzi_map Map Range
+patch/add-node bc mapper math/mozzi_map Map%20Range
 node/update-inlet mapper in_min 0
 node/update-inlet mapper in_max 255
 node/update-inlet mapper out_min 1
 node/update-inlet mapper out_max 6
 node/set-data mapper eyJyYXRlX21vZGUiOjF9
 
-# --- EFFECT (Native) ---
+# --- EFFECT ---
 patch/add-node bc crush math_audio/bitcrush Bit-Crusher
 node/set-data crush eyJyYXRlX21vZGUiOjJ9
 

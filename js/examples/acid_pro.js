@@ -1,7 +1,7 @@
 EXAMPLES['acid_pro'] = `v2.1.1
 network/add-patch acpro Acid_Pro_Optimized
 patch/open acpro
-# Timing and Sequencing (CONTROL RATE)
+# Timing and Sequencing
 patch/add-node acpro clock signal/mozzi_metronome Metronome
 node/set-data clock eyJyYXRlX21vZGUiOjF9
 node/update-inlet clock bpm 135
@@ -20,7 +20,7 @@ node/update-inlet seq s7 43
 patch/add-node acpro mtof math/mtof Midi->Freq
 node/set-data mtof eyJyYXRlX21vZGUiOjF9
 
-# Synthesis (AUDIO RATE)
+# Synthesis
 patch/add-node acpro osc wave/mozzi_saw Saw
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
 
@@ -31,7 +31,7 @@ node/update-inlet env dec 180
 node/update-inlet env sus 0
 node/update-inlet env rel 50
 
-# Optimized Modulation Chain (Control -> Smooth -> Audio)
+# Optimized Modulation Chain
 patch/add-node acpro mapper math/mozzi_map Map%20Range
 node/set-data mapper eyJyYXRlX21vZGUiOjF9
 node/update-inlet mapper in_min 0
@@ -43,7 +43,7 @@ patch/add-node acpro smooth filter/mozzi_smooth Smooth
 node/set-data smooth eyJyYXRlX21vZGUiOjJ9
 node/update-inlet smooth smooth 0.98
 
-patch/add-node acpro vcf filter/mozzi_svf State Variable
+patch/add-node acpro vcf filter/mozzi_svf SVF%20Filter
 node/set-data vcf eyJyYXRlX21vZGUiOjJ9
 node/update-inlet vcf res 180
 

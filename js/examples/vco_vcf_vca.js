@@ -6,14 +6,14 @@ patch/add-node root clock signal/mozzi_metronome Metronome
 node/set-data clock eyJyYXRlX21vZGUiOjF9
 node/update-inlet clock bpm 120
 
-# --- ENVELOPE (Control + Smooth) ---
+# --- ENVELOPE ---
 patch/add-node root adsr signal/mozzi_adsr ADSR
 node/set-data adsr eyJyYXRlX21vZGUiOjF9
 node/update-inlet adsr att 50
 node/update-inlet adsr dec 100
 node/update-inlet adsr rel 200
 
-patch/add-node root mapper math/mozzi_map Map Range
+patch/add-node root mapper math/mozzi_map Map%20Range
 node/set-data mapper eyJyYXRlX21vZGUiOjF9
 node/update-inlet mapper in_min 0
 node/update-inlet mapper in_max 255
@@ -24,12 +24,12 @@ patch/add-node root smooth filter/mozzi_smooth Smooth
 node/set-data smooth eyJyYXRlX21vZGUiOjJ9
 node/update-inlet smooth smooth 0.95
 
-# --- SIGNAL PATH (Audio) ---
+# --- SIGNAL PATH ---
 patch/add-node root osc wave/mozzi_saw Saw
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
 node/update-inlet osc freq 110
 
-patch/add-node root filter filter/mozzi_svf SVF Filter
+patch/add-node root filter filter/mozzi_svf SVF%20Filter
 node/set-data filter eyJyYXRlX21vZGUiOjJ9
 node/update-inlet filter res 180
 

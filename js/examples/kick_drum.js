@@ -6,13 +6,13 @@ patch/add-node root clock signal/mozzi_metronome Metronome
 node/set-data clock eyJyYXRlX21vZGUiOjF9
 node/update-inlet clock bpm 120
 
-# --- PITCH ENVELOPE (Audio for smooth glide) ---
-patch/add-node root env_pitch signal/mozzi_ead Pitch Env
+# --- PITCH ENVELOPE ---
+patch/add-node root env_pitch signal/mozzi_ead Ead%20Env
 node/set-data env_pitch eyJyYXRlX21vZGUiOjJ9
 node/update-inlet env_pitch att 5
 node/update-inlet env_pitch dec 150
 
-patch/add-node root p_amt math/mozzi_map Pitch Amt
+patch/add-node root p_amt math/mozzi_map Map%20Range
 node/set-data p_amt eyJyYXRlX21vZGUiOjJ9
 node/update-inlet p_amt in_min 0
 node/update-inlet p_amt in_max 255
@@ -24,7 +24,7 @@ patch/add-node root osc wave/mozzi_sin Sine
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
 
 # --- VOLUME ENVELOPE ---
-patch/add-node root env_vol signal/mozzi_ead Vol Env
+patch/add-node root env_vol signal/mozzi_ead Ead%20Env
 node/set-data env_vol eyJyYXRlX21vZGUiOjJ9
 node/update-inlet env_vol att 20
 node/update-inlet env_vol dec 300

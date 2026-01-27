@@ -24,9 +24,9 @@ void updateControl() {
 }
 
 AudioOutput updateAudio() {
-    node_mod_out = oscil_mod.next();
     // Control logic moved to audio loop for node mod
     oscil_mod.setFreq((float)(long)4);
+        node_mod_out = oscil_mod.next();
     // Control logic moved to audio loop for node smooth
     node_smooth_out = smooth_smooth.next((int)(long)node_mod_out);
     node_car_out = oscil_car.next();

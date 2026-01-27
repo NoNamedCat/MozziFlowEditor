@@ -1,12 +1,12 @@
 EXAMPLES['pwm'] = `v2.1.1
 network/add-patch root PWM_PulseWidth
 patch/open root
-# --- MODULATION (Control + Smooth) ---
-patch/add-node root lfo wave/mozzi_sin LFO
+# --- MODULATION ---
+patch/add-node root lfo wave/mozzi_sin Sine
 node/set-data lfo eyJyYXRlX21vZGUiOjF9
 node/update-inlet lfo freq 0.5
 
-patch/add-node root mapper math/mozzi_map Map Range
+patch/add-node root mapper math/mozzi_map Map%20Range
 node/set-data mapper eyJyYXRlX21vZGUiOjF9
 node/update-inlet mapper in_min -128
 node/update-inlet mapper in_max 127
@@ -22,7 +22,7 @@ patch/add-node root osc wave/mozzi_phasor Phasor
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
 node/update-inlet osc freq 110
 
-patch/add-node root cmp math/gt PWM Logic
+patch/add-node root cmp math/gt Greater%20Than
 node/set-data cmp eyJyYXRlX21vZGUiOjJ9
 
 patch/add-node root out output/mozzi_out Output
