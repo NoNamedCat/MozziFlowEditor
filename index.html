@@ -98,15 +98,11 @@
         <script src="js/examples/wavepacket.js"></script>
         <script src="js/examples/acid_pro.js"></script>
 <!-- Mozzi Node Modules -->
-        <script src="js/nodes/wave.js"></script>
-        <script src="js/nodes/filter.js"></script>
-        <script src="js/nodes/signal.js"></script>
-        <script src="js/nodes/input.js"></script>
+        <script src="js/nodes/source.js"></script>
+        <script src="js/nodes/modifier.js"></script>
         <script src="js/nodes/math.js"></script>
-    <script src="js/nodes/math_audio.js"></script>
-        <script src="js/nodes/lfo.js"></script>
-        <script src="js/nodes/logic.js"></script>
-        <script src="js/nodes/output.js"></script>
+        <script src="js/nodes/signal.js"></script>
+        <script src="js/nodes/io.js"></script>
 
         <script src="js/mozziexport.js"></script>
         <script src="js/help_system.js"></script>
@@ -266,17 +262,177 @@
 
                     /* Fixes invisible text like 'Freq / Cutoff' or 'In' inside nodes */
 
-                    .rpd-node .mozzi-inlet-label {
+                                        .rpd-node .mozzi-inlet-label {
 
-                        color: #fff !important;
+                                            color: #fff !important;
 
-                        text-shadow: 1px 1px 0 #000;
+                                            text-shadow: 1px 1px 0 #000;
 
-                        font-size: 0.8em;
+                                            font-size: 0.8em;
 
-                    }
+                                        }
 
-                </style>
+                    
+
+                                                            /* --- RATE SELECTOR UI STYLES (v110.1) --- */
+
+                    
+
+                                                            .node-rate-container {
+
+                    
+
+                                                                margin-top: 5px;
+
+                    
+
+                                                                padding: 2px;
+
+                    
+
+                                                                background: rgba(0,0,0,0.3);
+
+                    
+
+                                                                border-radius: 3px;
+
+                    
+
+                                                                border: 1px solid #333;
+
+                    
+
+                                                                text-align: center;
+
+                    
+
+                                                            }
+
+                    
+
+                                        
+
+                    
+
+                                                            .node-rate-select {
+
+                    
+
+                                                                width: 100%;
+
+                    
+
+                                                                background: transparent;
+
+                    
+
+                                                                color: #0f9; /* Neon green */
+
+                    
+
+                                                                border: none;
+
+                    
+
+                                                                font-size: 10px;
+
+                    
+
+                                                                font-family: monospace;
+
+                    
+
+                                                                outline: none;
+
+                    
+
+                                                                cursor: pointer;
+
+                    
+
+                                                                text-transform: uppercase;
+
+                    
+
+                                                            }
+
+                    
+
+                                        
+
+                    
+
+                                                            .node-rate-select option {
+
+                    
+
+                                                                background: #222;
+
+                    
+
+                                                                color: #fff;
+
+                    
+
+                                                            }
+
+                    
+
+                                        
+
+                    
+
+                                                            /* Bottom border indicators for quick rate identification */
+
+                    
+
+                                                                                                                        .rpd-node.rate-control { border-bottom: 3px solid #3498db !important; } /* Blue */
+
+                    
+
+                                                                                
+
+                    
+
+                                                                                                                        .rpd-node.rate-audio   { border-bottom: 3px solid #e74c3c !important; } /* Red */
+
+                    
+
+                                                                                
+
+                    
+
+                                                                                                                        .rpd-node.rate-auto    { border-bottom: 3px solid #95a5a6 !important; } /* Gray */
+
+                    
+
+                                                            
+
+                    
+
+                                                                                                                        /* Inferred styles for AUTO nodes (Dashed borders) */
+
+                    
+
+                                                                                                                        .rpd-node.rate-auto.rate-inferred-audio { border-bottom: 3px dashed #e74c3c !important; }
+
+                    
+
+                                                                                                                        .rpd-node.rate-auto.rate-inferred-control { border-bottom: 3px dashed #3498db !important; }
+
+                    
+
+                                                                                
+
+                    
+
+                                                                                                                    </style>
+
+                    
+
+                                        
+
+                    
 
             </head>
 

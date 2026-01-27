@@ -471,46 +471,50 @@ _::-moz-range-track, body:last-child .rpd-connector {
 }
 
 /* 
-   CONNECTOR COLORS - High Contrast Palette
+   CONNECTOR COLORS - Visual-only classes (Fix: Desoupled from RPD types)
 */
 
-/* Audio (8-bit Bipolar) - CYAN */
-.rpd-channel-type-mozziflow-bipolar_8 .rpd-connector {
+.mozzi-color-audio .rpd-connector {
     background-color: #00FFFF !important; 
     border-color: #00AAAA !important;
+    box-shadow: 0 0 4px #00FFFF;
 }
 
-/* Control (8-bit Unipolar) - YELLOW */
-.rpd-channel-type-mozziflow-unipolar_8 .rpd-connector {
+.mozzi-color-control .rpd-connector {
     background-color: #FFFF00 !important; 
     border-color: #AAAA00 !important;
+    box-shadow: 0 0 4px #FFFF00;
 }
 
-/* High Res / Frequency (16-bit Unipolar) - GREEN */
-.rpd-channel-type-mozziflow-unipolar_16 .rpd-connector {
+.mozzi-color-freq .rpd-connector {
     background-color: #00AA44 !important; 
     border-color: #006622 !important;
+    box-shadow: 0 0 4px #00AA44;
 }
 
-/* Mod / Phase (16-bit Bipolar) - PURPLE */
-.rpd-channel-type-mozziflow-bipolar_16 .rpd-connector {
+.mozzi-color-mod .rpd-connector {
     background-color: #9900FF !important; 
     border-color: #5500AA !important;
+    box-shadow: 0 0 4px #9900FF;
 }
 
-/* Logic / Gate - RED */
-.rpd-channel-type-mozziflow-logic .rpd-connector {
+.mozzi-color-logic .rpd-connector {
     background-color: #FF0000 !important; 
     border-color: #880000 !important;
+    box-shadow: 0 0 4px #FF0000;
 }
 
-/* Generic / String - WHITE */
-.rpd-channel-type-mozziflow-string .rpd-connector {
+.mozzi-color-float .rpd-connector {
+    background-color: #0066FF !important; 
+    border-color: #0033AA !important;
+    box-shadow: 0 0 4px #0066FF;
+}
+
+.mozzi-color-string .rpd-connector {
     background-color: #DDDDDD !important; 
     border-color: #888888 !important;
 }
-/* Float (32-bit decimal) - ROYAL BLUE */
-.rpd-channel-type-mozziflow-float_32 .rpd-connector {
-    background-color: #0066FF !important; 
-    border-color: #0033AA !important;
-}
+
+/* 
+   LEGACY CONNECTOR COLORS (Keep for safety during transition)
+*/

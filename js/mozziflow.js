@@ -28,8 +28,9 @@ function initAnchoredPalette(patch) {
 
     var nodeEsp = {}
     for (var key in nodeTypes) {
-        if (!key.includes("core") && ! key.includes("nodelist")) 
+        if (!key.includes("core") && !key.includes("nodelist")) {
             nodeEsp[key] = nodeTypes[key]
+        }
     }
 
     var nodeTypesByToolkit = getNodeTypesByToolkit(nodeEsp);

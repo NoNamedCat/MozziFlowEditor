@@ -1,34 +1,36 @@
-
+// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
 #include <tables/sin2048_int8.h>
 
-
-volatile int floatconstant_l4uz_out = 0;
-volatile int mozzisin_d0ol_out = 0;
-volatile int mozzigain_ki7e_out = 0;
-volatile int mozzisin_jrnp_out = 0;
-volatile int shr_lbq6_out = 0;
-Oscil<SIN2048_NUM_CELLS, AUDIO_RATE> mozzisin_d0ol(SIN2048_DATA);
-Oscil<SIN2048_NUM_CELLS, AUDIO_RATE> mozzisin_jrnp(SIN2048_DATA);
+// GLOBALS
+long node_mod_out = 0;
+Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_mod(SIN2048_DATA);
+long node_gain_out = 0;
+long node_car_out = 0;
+Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_car(SIN2048_DATA);
+long node_out_out = 0;
 
 void setup() {
-	startMozzi(CONTROL_RATE);
+    startMozzi();
+    
 }
 
 void updateControl() {
-	mozzisin_d0ol.setFreq((float)0);
-	mozzisin_jrnp.setFreq((float)440);
+    
 }
 
 AudioOutput updateAudio() {
-	mozzisin_d0ol_out = mozzisin_d0ol.next();
-	mozzigain_ki7e_out = (int)(((long)mozzisin_d0ol_out * (int)150) >> 8);
-	mozzisin_jrnp_out = mozzisin_jrnp.phMod((long)mozzigain_ki7e_out);
-	shr_lbq6_out = (int)mozzisin_jrnp_out >> (int)1;
-	return MonoOutput::from8Bit((int)shr_lbq6_out);
+    node_mod_out = oscil_mod.next();
+    // Control logic moved to audio loop for node mod
+    oscil_mod.setFreq((float)5);
+    node_gain_out = (int)((long)node_mod_out * 150 >> 8);
+    node_car_out = oscil_car.phMod((long)node_gain_out);
+    // Control logic moved to audio loop for node car
+    oscil_car.setFreq((float)440);
+    return MonoOutput::from8Bit((int)node_car_out);
 }
 
 void loop() {
-	audioHook();
+    audioHook();
 }

@@ -1,49 +1,44 @@
-
+// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
-#include <Phasor.h>
+#include <Oscil.h>
+#include <Metronome.h>
 #include <mozzi_rand.h>
 #include <ADSR.h>
-#include <mozzi_fixmath.h>
-#include <AudioDelayFeedback.h>
 
-
-volatile int mozzipulse_gd5c_out = 0;
-volatile int mozzinoise_5p0r_out = 0;
-volatile int mozziadsr_8umu_out = 0;
-volatile int mozziadsr_8umu_act = 0;
-volatile int mozzigain_v0oj_out = 0;
-volatile int mozzidelayfb_ekdc_out = 0;
-Phasor<CONTROL_RATE> mozzipulse_gd5c;
-ADSR<CONTROL_RATE, AUDIO_RATE> mozziadsr_8umu; bool mozziadsr_8umu_l=0;
-AudioDelayFeedback<512, LINEAR, int> mozzidelayfb_ekdc;
+// GLOBALS
+long node_metro_out = 0;
+Metronome mozzimetronome_metro; float mozzimetronome_metro_lastbpm = 0;
+long node_noise_out = 0;
+long node_adsr_out = 0;
+ADSR<MOZZI_CONTROL_RATE, MOZZI_AUDIO_RATE> mozziadsr_adsr; bool mozziadsr_adsr_l=0;
+long node_vca_out = 0;
+long node_out_out = 0;
 
 void setup() {
-	randSeed();
-	startMozzi(CONTROL_RATE);
+    startMozzi();
+    mozzimetronome_metro.start();
+    mozziadsr_adsr.setADLevels((uint8_t)255, (uint8_t)128); mozziadsr_adsr.setTimes((unsigned int)0, (unsigned int)60, 65535, (unsigned int)200);
 }
 
 void updateControl() {
-	mozzipulse_gd5c.setFreq((float)1);
-	mozzipulse_gd5c_out = (mozzipulse_gd5c.next() >> 24) < (int)30 ? 255 : 0;
-	bool mozziadsr_8umu_tr=(int)mozzipulse_gd5c_out>0;
-	if(mozziadsr_8umu_tr && !mozziadsr_8umu_l){ mozziadsr_8umu.noteOn((int)1>0); } else if(!mozziadsr_8umu_tr && mozziadsr_8umu_l){ mozziadsr_8umu.noteOff(); }
-	mozziadsr_8umu_l=mozziadsr_8umu_tr;
-	mozziadsr_8umu.setADLevels((uint8_t)255, (uint8_t)0);
-	mozziadsr_8umu.setTimes((unsigned int)0, (unsigned int)60, 65535, (unsigned int)50);
-	mozziadsr_8umu.update();
-	mozziadsr_8umu_act = mozziadsr_8umu.playing() ? 255 : 0;
-	mozzidelayfb_ekdc.setFeedbackLevel((int8_t)((int)255 - 128));
-	mozzidelayfb_ekdc.setDelayTimeCells((uint16_t)140);
+    
 }
 
 AudioOutput updateAudio() {
-	mozzinoise_5p0r_out = (int8_t)((xorshift96()>>24)-128);
-	mozziadsr_8umu_out = mozziadsr_8umu.next();
-	mozzigain_v0oj_out = (int)(((long)mozzinoise_5p0r_out * (int)mozziadsr_8umu_out) >> 8);
-	mozzidelayfb_ekdc_out = mozzidelayfb_ekdc.next((int)mozzigain_v0oj_out);
-	return MonoOutput::from8Bit((int)mozzidelayfb_ekdc_out);
+    // Control logic moved to audio loop for node metro
+    if(mozzimetronome_metro_lastbpm != (float)120) { mozzimetronome_metro.setBPM((float)120); mozzimetronome_metro_lastbpm = (float)120;}
+        node_metro_out = mozzimetronome_metro.ready() ? 255 : 0;
+    node_noise_out = rand((int)256) - 128;
+    // Control logic moved to audio loop for node adsr
+    bool mozziadsr_adsr_tr=(int)node_metro_out>0;
+        if(mozziadsr_adsr_tr && !mozziadsr_adsr_l){ mozziadsr_adsr.noteOn(); } else if(!mozziadsr_adsr_tr && mozziadsr_adsr_l){ mozziadsr_adsr.noteOff(); }
+        mozziadsr_adsr_l=mozziadsr_adsr_tr;
+        mozziadsr_adsr.update();
+        node_adsr_out = mozziadsr_adsr.next();
+    node_vca_out = (int)((long)node_noise_out * node_adsr_out >> 8);
+    return MonoOutput::from8Bit((int)node_vca_out);
 }
 
 void loop() {
-	audioHook();
+    audioHook();
 }

@@ -1,38 +1,40 @@
-
+// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
 #include <tables/sin2048_int8.h>
 #include <WavePacket.h>
 
-
-volatile int mozzisin_l1_out = 0;
-volatile int mozzisin_l2_out = 0;
-volatile int mozzimap_m1_out = 0;
-volatile int mozzimap_m2_out = 0;
-volatile int mozziwavepacket_wp1_out = 0;
-Oscil<SIN2048_NUM_CELLS, CONTROL_RATE> mozzisin_l1(SIN2048_DATA);
-Oscil<SIN2048_NUM_CELLS, CONTROL_RATE> mozzisin_l2(SIN2048_DATA);
-WavePacket<DOUBLE> mozziwavepacket_wp1;
+// GLOBALS
+long node_l1_out = 0;
+Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_l1(SIN2048_DATA);
+long node_l2_out = 0;
+Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_l2(SIN2048_DATA);
+long node_wp1_out = 0;
+WavePacket<DOUBLE> wavepacket_wp1;
+long node_out_out = 0;
 
 void setup() {
-	startMozzi(CONTROL_RATE);
+    startMozzi();
+    wavepacket_wp1.set(100, 50, 100);
 }
 
 void updateControl() {
-	mozzisin_l1.setFreq((float)0.1);
-	mozzisin_l1_out = mozzisin_l1.next();
-	mozzisin_l2.setFreq((float)0.15);
-	mozzisin_l2_out = mozzisin_l2.next();
-	mozzimap_m1_out = map((int)mozzisin_l1_out, (int)-128, (int)127, (int)50, (int)200);
-	mozzimap_m2_out = map((int)mozzisin_l2_out, (int)-128, (int)127, (int)50, (int)1000);
-	int f = (int)mozzimap_m1_out; if(f<1) f=1; mozziwavepacket_wp1.set(f, (int)mozzimap_m2_out, (int)440);
+    
 }
 
 AudioOutput updateAudio() {
-	mozziwavepacket_wp1_out = mozziwavepacket_wp1.next();
-	return MonoOutput::from8Bit((int)mozziwavepacket_wp1_out);
+    node_l1_out = oscil_l1.next();
+    // Control logic moved to audio loop for node l1
+    oscil_l1.setFreq((float)0.1);
+    node_l2_out = oscil_l2.next();
+    // Control logic moved to audio loop for node l2
+    oscil_l2.setFreq((float)0.15);
+    node_wp1_out = wavepacket_wp1.next();
+    // Control logic moved to audio loop for node wp1
+    wavepacket_wp1.set((int)node_l1_out, (int)node_l2_out, (int)0);
+    return MonoOutput::from8Bit((int)node_wp1_out);
 }
 
 void loop() {
-	audioHook();
+    audioHook();
 }

@@ -1,40 +1,43 @@
-
+// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
+#include <Oscil.h>
 #include <Metronome.h>
-#include <Sample.h>
 #include <tables/sin2048_int8.h>
-#include <DCfilter.h>
+#include <Ead.h>
 
-
-volatile int mozzimetronome_m1_out = 0;
-volatile int mozzisample_kick_out = 0;
-volatile int mozzigain_gain_out = 0;
-volatile int mozzidcfilter_dcf_out = 0;
-Metronome mozzimetronome_m1;
-int mozzisample_kick_last_trig = 0;
-Sample<2048, AUDIO_RATE> mozzisample_kick(SIN2048_DATA);
-DCfilter mozzidcfilter_dcf(0.99f);
+// GLOBALS
+long node_m1_out = 0;
+Metronome mozzimetronome_m1; float mozzimetronome_m1_lastbpm = 0;
+long node_kick_out = 0;
+Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_kick(SIN2048_DATA);
+long node_env_out = 0;
+Ead mozziead_env(MOZZI_AUDIO_RATE);
+long node_vca_out = 0;
+long node_out_out = 0;
 
 void setup() {
-	mozzimetronome_m1.start();
-	startMozzi(CONTROL_RATE);
+    startMozzi();
+    mozzimetronome_m1.start();
 }
 
 void updateControl() {
-	mozzimetronome_m1.setBPM((float)124);
-	mozzimetronome_m1_out = mozzimetronome_m1.ready() ? 255 : 0;
-	mozzisample_kick.setFreq((float)1.0);
-	if((int)mozzimetronome_m1_out > 0 && mozzisample_kick_last_trig == 0) mozzisample_kick.start();
-	mozzisample_kick_last_trig = (int)mozzimetronome_m1_out;
+    
 }
 
 AudioOutput updateAudio() {
-	mozzisample_kick_out = mozzisample_kick.next();
-	mozzigain_gain_out = (int)(((long)mozzisample_kick_out * (int)180) >> 8);
-	mozzidcfilter_dcf_out = mozzidcfilter_dcf.next((int)mozzigain_gain_out);
-	return MonoOutput::from8Bit((int)mozzidcfilter_dcf_out);
+    // Control logic moved to audio loop for node m1
+    if(mozzimetronome_m1_lastbpm != (float)124) { mozzimetronome_m1.setBPM((float)124); mozzimetronome_m1_lastbpm = (float)124;}
+        node_m1_out = mozzimetronome_m1.ready() ? 255 : 0;
+    node_kick_out = oscil_kick.next();
+    // Control logic moved to audio loop for node kick
+    oscil_kick.setFreq((float)55);
+    node_env_out = mozziead_env.next();
+    // Control logic moved to audio loop for node env
+    if((int)node_m1_out>0){ mozziead_env.start((unsigned int)20, (unsigned int)200); }
+    node_vca_out = (int)((long)node_kick_out * node_env_out >> 8);
+    return MonoOutput::from8Bit((int)node_vca_out);
 }
 
 void loop() {
-	audioHook();
+    audioHook();
 }

@@ -8,6 +8,6 @@
     "render-nodes": "node scripts/node_renderer/render_all.js"
   },
   "dependencies": {
-    "puppeteer": "^24.35.0"
+    "puppeteer": "^24.36.0"
   }
 }

@@ -1,45 +1,42 @@
-
+// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
-#include <tables/triangle2048_int8.h>
+#include <tables/sin2048_int8.h>
 #include <tables/square_no_alias_2048_int8.h>
-#include <mozzi_fixmath.h>
-#include <AudioDelayFeedback.h>
+#include <AudioDelay.h>
 
-
-volatile int mozzilfotri_lfo_out = 0;
-volatile int mozzisquare_osc_out = 0;
-volatile int arduinobutton_btn_out = 0;
-volatile int mozzigain_vca_out = 0;
-volatile int mozzidelayfb_delay_out = 0;
-Oscil<TRIANGLE2048_NUM_CELLS, CONTROL_RATE> mozzilfotri_lfo(TRIANGLE2048_DATA);
-Oscil<SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> mozzisquare_osc(SQUARE_NO_ALIAS_2048_DATA);
-bool arduinobutton_btn_lS = false;
-AudioDelayFeedback<512, LINEAR, int> mozzidelayfb_delay;
+// GLOBALS
+long node_lfo_out = 0;
+Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_lfo(SIN2048_DATA);
+long node_osc_out = 0;
+Oscil<SQUARE_NO_ALIAS_2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_osc(SQUARE_NO_ALIAS_2048_DATA);
+long node_btn_out = 0;
+long node_del_out = 0;
+AudioDelay<256> mozziaudiodelay_del;
+long node_out_out = 0;
 
 void setup() {
-	pinMode(2, INPUT_PULLUP);
-	startMozzi(CONTROL_RATE);
+    startMozzi();
+    pinMode(2, INPUT_PULLUP);
 }
 
 void updateControl() {
-	mozzilfotri_lfo.setFreq((float)8);
-	mozzilfotri_lfo_out = mozzilfotri_lfo.next();
-	mozzisquare_osc.setFreq((float)mozzilfotri_lfo_out);
-	bool cur = digitalRead(2) == LOW;
-	arduinobutton_btn_out = (cur && !arduinobutton_btn_lS) ? 255 : 0;
-	arduinobutton_btn_lS = cur;
-	mozzidelayfb_delay.setFeedbackLevel((int8_t)((int)220 - 128));
-	mozzidelayfb_delay.setDelayTimeCells((uint16_t)1500);
+    
 }
 
 AudioOutput updateAudio() {
-	mozzisquare_osc_out = mozzisquare_osc.next();
-	mozzigain_vca_out = (int)(((long)mozzisquare_osc_out * (int)arduinobutton_btn_out) >> 8);
-	mozzidelayfb_delay_out = mozzidelayfb_delay.next((int)mozzigain_vca_out);
-	return MonoOutput::from8Bit((int)mozzidelayfb_delay_out);
+    // Control logic moved to audio loop for node lfo
+    oscil_lfo.setFreq((float)0.5);
+        node_lfo_out = oscil_lfo.next();
+    node_osc_out = oscil_osc.next();
+    // Control logic moved to audio loop for node osc
+    oscil_osc.setFreq((float)node_lfo_out);
+    // Control logic moved to audio loop for node btn
+    digitalRead(2) == LOW ? 255 : 0;
+    node_del_out = mozziaudiodelay_del.next((int)node_osc_out, (uint16_t)200);
+    return MonoOutput::from8Bit((int)node_btn_out);
 }
 
 void loop() {
-	audioHook();
+    audioHook();
 }

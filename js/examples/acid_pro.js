@@ -1,10 +1,12 @@
 EXAMPLES['acid_pro'] = `v2.1.1
 network/add-patch acpro Acid_Pro_Replication
 patch/open acpro
-# Timing and Sequencing
+# Timing and Sequencing (CONTROL RATE FORCED)
 patch/add-node acpro clock signal/mozzi_metronome Metronome
+node/set-data clock eyJyYXRlX21vZGUiOjF9
 node/update-inlet clock bpm 135
 patch/add-node acpro seq signal/mozzi_sequencer Sequencer
+node/set-data seq eyJyYXRlX21vZGUiOjF9
 node/update-inlet seq steps 8
 node/update-inlet seq s0 36
 node/update-inlet seq s1 48
@@ -15,10 +17,12 @@ node/update-inlet seq s5 36
 node/update-inlet seq s6 46
 node/update-inlet seq s7 43
 patch/add-node acpro mtof math/mtof Midi->Freq
+node/set-data mtof eyJyYXRlX21vZGUiOjF9
 
-# Synthesis
+# Synthesis (AUDIO RATE DEFAULT)
 patch/add-node acpro osc wave/mozzi_saw Saw
 patch/add-node acpro env signal/mozzi_adsr ADSR
+node/set-data env eyJyYXRlX21vZGUiOjF9
 node/update-inlet env att 5
 node/update-inlet env dec 180
 node/update-inlet env sus 0
@@ -26,15 +30,19 @@ node/update-inlet env rel 50
 patch/add-node acpro vcf filter/mozzi_svf State Variable
 node/update-inlet vcf res 160
 
-# Filter Modulation Chain (cutoff = 30 + ((env * 100) >> 8) << 2)
-patch/add-node acpro c_mul math_audio/mul Mul (Audio)
+# Filter Modulation Chain (CONTROL RATE FORCED)
+# These are math ops for control signals, so they should be control rate
+patch/add-node acpro c_mul math_audio/mul Mul (Control)
+node/set-data c_mul eyJyYXRlX21vZGUiOjF9
 node/update-inlet c_mul b 100
-patch/add-node acpro c_add math/add Add
+patch/add-node acpro c_add math/add Add (Control)
+node/set-data c_add eyJyYXRlX21vZGUiOjF9
 node/update-inlet c_add a 30
-patch/add-node acpro c_shl math/shl Shift Left
+patch/add-node acpro c_shl math/shl Shift Left (Control)
+node/set-data c_shl eyJyYXRlX21vZGUiOjF9
 node/update-inlet c_shl b 2
 
-# VCA and Mastering
+# VCA and Mastering (AUDIO RATE)
 patch/add-node acpro vca math_audio/mul VCA
 patch/add-node acpro vol math_audio/mul Master Vol
 node/update-inlet vol b 80

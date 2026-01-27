@@ -44,13 +44,15 @@ function parseExample(cmdString) {
             const title = parts.slice(4).join(' ');
             
             const def = NodeLibrary.find(d => d.nodetype === type);
-            const nodeClass = def ? def.nodeclass : 'Unknown';
+            // SAFETY FIX: Default to 'Unknown' if class is missing to prevent crashes
+            const nodeClass = (def && def.nodeclass) ? def.nodeclass : 'Unknown';
+            const safeVariable = nodeClass ? nodeClass.toLowerCase() + '_' + id.replace(/[^a-zA-Z0-9]/g, "") : "node_" + id;
             
-            nodes.push({ 
+            nodes.push({
                 nodeid: id, 
                 nodetype: type, 
                 nodeclass: nodeClass,
-                nodevariable: nodeClass.toLowerCase() + "_" + id.replace(/[^a-zA-Z0-9]/g, ""),
+                nodevariable: safeVariable,
                 nodedesc: title,
                 nodeinletvalue: {},
                 nodeoutletvalue: {},
@@ -66,7 +68,7 @@ function parseExample(cmdString) {
             const srcNode = nodes.find(n => n.nodeid === srcNodeId);
             const dstNode = nodes.find(n => n.nodeid === dstNodeId);
 
-            links.push({ 
+            links.push({
                 node_in_id: dstNodeId, 
                 inlet_alias: dstIn, 
                 node_out_id: srcNodeId, 
@@ -84,6 +86,16 @@ function parseExample(cmdString) {
             if (node) {
                 node.nodeinletvalue[inlet] = [inlet, val];
             }
+        } else if (parts[0] === 'node/set-data') {
+            const id = parts[1];
+            const rawData = parts.slice(2).join(' ');
+            try {
+                const data = JSON.parse(Buffer.from(rawData, 'base64').toString('utf8'));
+                const node = nodes.find(n => n.nodeid === id);
+                if (node) {
+                    node.data = data;
+                }
+            } catch (e) { console.error(`Error decoding data for ${id}:`, e); }
         }
     });
 
@@ -92,7 +104,10 @@ function parseExample(cmdString) {
 
 // 4. GENERATE AND EXPORT
 const exampleFiles = fs.readdirSync(examplesDir).filter(f => f.endsWith('.js'));
-console.log(`\nExporting ${exampleFiles.length} examples using internal exporter...\n`);
+console.log(`\nExporting ${exampleFiles.length} examples to individual files and 'all_examples_export.log'...\n`);
+
+const logFile = path.join(root, 'all_examples_export.log');
+fs.writeFileSync(logFile, `// MOZZIFLOW CONSOLIDATED EXPORT AUDIT - ${new Date().toISOString()}\n\n`);
 
 exampleFiles.forEach(file => {
     const exampleName = file.replace('.js', '');
@@ -114,14 +129,22 @@ exampleFiles.forEach(file => {
 
         const cppCode = NodeToMozziCppInternal();
         
+        // Write individual file
         const sketchFolder = path.join(exportDir, exampleName);
         if (!fs.existsSync(sketchFolder)) fs.mkdirSync(sketchFolder, { recursive: true });
         fs.writeFileSync(path.join(sketchFolder, `${exampleName}.ino`), cppCode);
         
+        // Append to combined log
+        fs.appendFileSync(logFile, `\n\n// =========================================================\n`);
+        fs.appendFileSync(logFile, `// EXAMPLE: ${exampleName}\n`);
+        fs.appendFileSync(logFile, `// =========================================================\n\n`);
+        fs.appendFileSync(logFile, cppCode);
+        fs.appendFileSync(logFile, `\n\n`);
+
         if (cppCode.includes("Unknown")) {
              console.warn(`⚠️  [${exampleName}] Exported with Unknown classes.`);
         } else {
-             console.log(`✅ [${exampleName}] Exported successfully.`);
+             console.log(`✅ [${exampleName}] Exported and logged.`);
         }
         
     } catch (err) {

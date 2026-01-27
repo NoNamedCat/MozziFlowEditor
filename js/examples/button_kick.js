@@ -1,16 +1,16 @@
 EXAMPLES['button_kick'] = `v2.1.1
-network/add-patch bkick Button_Drum_Trigger
-patch/open bkick
-patch/add-node bkick btn1 input/arduino_button Button
-patch/add-node bkick kick wave/mozzi_sample Sample
-patch/add-node bkick out1 output/mozzi_out Output
-node/turn-on btn1
-node/turn-on kick
-node/turn-on out1
-node/move btn1 50 150
-node/move kick 300 150
-node/move out1 550 150
-node/set-data kick eyJzYW1wbGVJbmZvIjp7Im5hbWUiOiJraWNrX3B1bHNlLmgiLCJkYXRhIjpbMTI3LDAsLTEyNywwLDEyNywwLC0xMjcsMCwxMjcsMCwtMTI3LDBdLCJjcHAiOiJjb25zdCBpbnQ4X3Qga2lja19kYXRhW10gUFJPR01FTSA9IHsxMjcsMCwtMTI3LDAsMTI3LDAsLTEyNywwLDEyNywwLC0xMjcsMH07In19
+network/add-patch btk Button_Kick
+patch/open btk
+patch/add-node btk btn1 input/arduino_button Button
+patch/add-node btk kick wave/mozzi_sin Sine
+patch/add-node btk env signal/mozzi_ead Ead%20Env
+patch/add-node btk vca math/mul Multiply
+patch/add-node btk out output/mozzi_out Output
+
 node/update-inlet btn1 pin 5
-outlet/connect btn1:out kick:trig
-outlet/connect kick:out out1:audio_in`;
+node/update-inlet kick freq 60
+
+outlet/connect btn1:out env:trig
+outlet/connect kick:out vca:a
+outlet/connect env:out vca:b
+outlet/connect vca:out out:audio_in`;

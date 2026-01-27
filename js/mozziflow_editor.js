@@ -5,13 +5,19 @@ var mozziFlowCount = {};
 var mozziFlowPos = {};
 var mozziFlowRoot = "";
 
+// --- REGISTER UNIVERSAL CHANNEL TYPE (Fix: No more connection errors) ---
+Rpd.channeltype('mozziflow/any', {
+    accept: function() { return true; },
+    adapt: function(val) { return val; }
+});
+
 // Register All Nodes
 NodeLibrary.forEach(function(element){
     if (element.description) {
         element.rpdnode.description = element.description;
     }
 
-    // NEW: Inject Mozzi defaults into RPD inlet definitions so they are used on creation
+    // NEW: Inject Mozzi defaults and COLORS into RPD definitions
     if (element.mozzi && element.mozzi.defaults) {
         Object.keys(element.mozzi.defaults).forEach(function(alias) {
             if (element.rpdnode.inlets && element.rpdnode.inlets[alias]) {
@@ -27,6 +33,35 @@ NodeLibrary.forEach(function(element){
         first: function(bodyElm) {
             var node = this;
             var valDisplays = {};
+
+            // --- INJECTION: Apply Colors to Connectors based on Metadata ---
+            setTimeout(function() {
+                var nodeElm = bodyElm.parentElement;
+                while (nodeElm && !nodeElm.classList.contains('rpd-node')) nodeElm = nodeElm.parentElement;
+                if (!nodeElm) return;
+
+                // Color Inlets
+                if (element.rpdnode.inlets) {
+                    Object.keys(element.rpdnode.inlets).forEach(function(alias) {
+                        var color = element.rpdnode.inlets[alias].color;
+                        if (color) {
+                            var inletElm = nodeElm.querySelector('.rpd-inlet[data-alias="' + alias + '"]');
+                            if (inletElm) inletElm.classList.add('mozzi-color-' + color);
+                        }
+                    });
+                }
+                // Color Outlets
+                if (element.rpdnode.outlets) {
+                    Object.keys(element.rpdnode.outlets).forEach(function(alias) {
+                        var color = element.rpdnode.outlets[alias].color;
+                        if (color) {
+                            var outletElm = nodeElm.querySelector('.rpd-outlet[data-alias="' + alias + '"]');
+                            if (outletElm) outletElm.classList.add('mozzi-color-' + color);
+                        }
+                    });
+                }
+            }, 10);
+
             
             // 1. Get visible inlets from the STATIC library definition
             var inletDefs = element.rpdnode.inlets || {};
@@ -158,9 +193,117 @@ NodeLibrary.forEach(function(element){
             if (element.renderer && element.renderer.html) {
                 element.renderer.html(bodyElm, node);
             }
+
+            // --- RE-INYECCIÓN DEL SELECTOR DE TASA (v110.2) ---
+            if (!node.data) node.data = {};
+
+            var rateContainer = document.createElement('div');
+            rateContainer.className = 'node-rate-container';
+
+            var rateSelect = document.createElement('select');
+            rateSelect.className = 'node-rate-select';
+            rateSelect.title = 'Execution Rate: Auto (Inherit), Control (64Hz), Audio (16kHz)';
+
+            var options = [
+                { val: 0, text: '⏱️ Auto' },
+                { val: 1, text: '📉 Control' },
+                { val: 2, text: '🚀 Audio' }
+            ];
+
+            options.forEach(function(opt) {
+                var o = document.createElement('option');
+                o.value = opt.val;
+                o.textContent = opt.text;
+                if ((node.data.rate_mode || 0) == opt.val) o.selected = true;
+                rateSelect.appendChild(o);
+            });
+
+            rateSelect.addEventListener('change', function() {
+                node.data.rate_mode = parseInt(this.value);
+                updateNodeRateStyle(bodyElm, node.data.rate_mode);
+                // Trigger global update when manual mode changes
+                if (typeof updateVisualInferredRates === 'function') updateVisualInferredRates();
+            });
+
+            rateContainer.appendChild(rateSelect);
+            bodyElm.appendChild(rateContainer);
+
+            // Store reference to the container for external visual updates
+            node._bodyElm = bodyElm;
+
+            // Función local para actualizar estilo
+            function updateNodeRateStyle(elm, mode) {
+                var nodeBox = elm;
+                while (nodeBox && !nodeBox.classList.contains('rpd-node')) {
+                    nodeBox = nodeBox.parentElement;
+                }
+                if (nodeBox) {
+                    nodeBox.classList.remove('rate-auto', 'rate-control', 'rate-audio');
+                    if (mode == 0) nodeBox.classList.add('rate-auto');
+                    if (mode == 1) nodeBox.classList.add('rate-control');
+                    if (mode == 2) nodeBox.classList.add('rate-audio');
+                }
+            }
+            
+            // Hook para actualizar UI desde datos externos (Importación)
+            node._onDataUpdate = function() {
+                if (node.data && node.data.rate_mode !== undefined) {
+                    rateSelect.value = node.data.rate_mode;
+                    updateNodeRateStyle(bodyElm, node.data.rate_mode);
+                }
+            };
+
+            // Aplicar estado inicial
+            setTimeout(function(){ updateNodeRateStyle(bodyElm, node.data.rate_mode || 0); }, 50);
+            // --- FIN DE RE-INYECCIÓN ---
         }
     });
 });
+
+// --- REAL-TIME RATE INFERENCE VISUALIZER ---
+var updateVisualInferredRates = _.debounce(function() {
+    if (typeof calculateNodeRates !== 'function') return;
+
+    // 1. Build a mini-project for the calculator
+    var project = { nodes: {}, links: {} };
+    mozziFlowContainer.forEach(function(node) {
+        project.nodes[node.nodeid] = { 
+            id: node.nodeid, 
+            type: node.nodetype, 
+            data: (node.rpdNode && node.rpdNode.data) ? node.rpdNode.data : {} 
+        };
+    });
+    mozziFlowClassConnection.forEach(function(link, idx) {
+        project.links["link_" + idx] = { 
+            prev_node: link.node_out_id, 
+            next_node: link.node_in_id 
+        };
+    });
+
+    // 2. Calculate Rates
+    var rates = calculateNodeRates(project);
+
+    // 3. Update Styles
+    Object.keys(rates).forEach(function(id) {
+        var node = _.findWhere(mozziFlowContainer, {nodeid: id});
+        if (!node || !node.rpdNode || !node.rpdNode._bodyElm) return;
+
+        // Use the helper to find the .rpd-node container
+        var nodeElm = node.rpdNode._bodyElm;
+        while (nodeElm && !nodeElm.classList.contains('rpd-node')) {
+            nodeElm = nodeElm.parentElement;
+        }
+        if (!nodeElm) return;
+
+        var mode = node.rpdNode.data.rate_mode || 0;
+        nodeElm.classList.remove('rate-inferred-audio', 'rate-inferred-control');
+
+        if (mode === 0) { // Only show inference for AUTO nodes
+            if (rates[id] === "AUDIO") nodeElm.classList.add('rate-inferred-audio');
+            else nodeElm.classList.add('rate-inferred-control');
+        }
+    });
+}, 100);
 
 String.prototype.replaceAll = function(search, replacement) {
     return this.replace(new RegExp(search, 'g'), replacement);
@@ -379,6 +522,9 @@ var importPlainNetwork = function(code) {
                 container.offsetHeight; // force reflow
                 container.style.display = 'block';
             }
+            
+            // Trigger visual rate update after import
+            if (typeof updateVisualInferredRates === 'function') updateVisualInferredRates();
         }, 200);
     }, 150);
 };
@@ -447,13 +593,17 @@ var NodeToPlainNetwork = function() {
                 if (node.nodeinletvalue && node.nodeinletvalue[alias.toLowerCase()]) {
                     val = node.nodeinletvalue[alias.toLowerCase()][1];
                 } 
-                // Priority 2: Fallback to RPD object (often [pool] or stale)
+                // Priority 2: Fallback to RPD object
                 else if (inlet.value !== undefined && inlet.value !== null) {
                     val = inlet.value;
                 }
 
+                // FIX: Strict filter to avoid '[pool]', objects, or empty garbage
                 if (val !== null && val !== undefined && !inlet.link) {
-                    output += "node/update-inlet " + node.nodeid + " " + alias + " " + val + "\n";
+                    var strVal = String(val);
+                    if (strVal !== "[pool]" && strVal !== "[object Object]" && strVal.trim() !== "") {
+                        output += "node/update-inlet " + node.nodeid + " " + alias + " " + val + "\n";
+                    }
                 }
             });
         }
@@ -504,6 +654,9 @@ var NodeToCPPDownload = function() {
 Rpd.events.filter(function(update) { return exportSpec[update.type]; }).onValue(function(update) {
     exportSpec[update.type](update);
     if (update.type === 'node/move') espUpdateNodePosition(update);
+    
+    // Trigger visual rate update for any structural change
+    updateVisualInferredRates();
 });
 
 var editPatchSource = function() {
