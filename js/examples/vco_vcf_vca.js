@@ -1,37 +1,61 @@
 EXAMPLES['vco_vcf_vca'] = `v2.1.1
-network/add-patch root root
+network/add-patch root Classic_Subtractive
 patch/open root
-patch/add-node root tlk7 lfo/mozzi_pulse Pulse%20LFO
-node/move tlk7 50 200
-node/update-inlet tlk7 freq 1
-node/update-inlet tlk7 width 120
-patch/add-node root q7rj wave/mozzi_saw Saw
-node/move q7rj 71 29
-node/update-inlet q7rj freq 110
-patch/add-node root rlfd signal/mozzi_adsr ADSR
-node/move rlfd 315 110
-node/update-inlet rlfd trig 0
-node/update-inlet rlfd rst 0
-node/update-inlet rlfd att 20
-node/update-inlet rlfd lev 255
-node/update-inlet rlfd dec 200
-node/update-inlet rlfd sus 150
-node/update-inlet rlfd rel 800
-patch/add-node root zt91 filter/mozzi_multires MultiRes%20Filter
-node/move zt91 540 41
-node/update-inlet zt91 in 0
-node/update-inlet zt91 cutoff 128
-node/update-inlet zt91 res 100
-patch/add-node root 4f9t signal/mozzi_gain Gain
-node/move 4f9t 854 157
-node/update-inlet 4f9t in 0
-node/update-inlet 4f9t gain 128
-patch/add-node root z6hw output/mozzi_out Output
-node/move z6hw 1098 171
-node/update-inlet z6hw audio_in 0
-outlet/connect tlk7:out rlfd:trig
-outlet/connect q7rj:out zt91:in
-outlet/connect zt91:low 4f9t:in
-outlet/connect rlfd:out 4f9t:gain
-outlet/connect 4f9t:out z6hw:audio_in
-outlet/connect rlfd:out zt91:cutoff`;
+# --- TIMING ---
+patch/add-node root clock signal/mozzi_metronome Metronome
+node/set-data clock eyJyYXRlX21vZGUiOjF9
+node/update-inlet clock bpm 120
+
+# --- ENVELOPE (Control + Smooth) ---
+patch/add-node root adsr signal/mozzi_adsr ADSR
+node/set-data adsr eyJyYXRlX21vZGUiOjF9
+node/update-inlet adsr att 50
+node/update-inlet adsr dec 100
+node/update-inlet adsr rel 200
+
+patch/add-node root mapper math/mozzi_map Map Range
+node/set-data mapper eyJyYXRlX21vZGUiOjF9
+node/update-inlet mapper in_min 0
+node/update-inlet mapper in_max 255
+node/update-inlet mapper out_min 400
+node/update-inlet mapper out_max 4000
+
+patch/add-node root smooth filter/mozzi_smooth Smooth
+node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/update-inlet smooth smooth 0.95
+
+# --- SIGNAL PATH (Audio) ---
+patch/add-node root osc wave/mozzi_saw Saw
+node/set-data osc eyJyYXRlX21vZGUiOjJ9
+node/update-inlet osc freq 110
+
+patch/add-node root filter filter/mozzi_svf SVF Filter
+node/set-data filter eyJyYXRlX21vZGUiOjJ9
+node/update-inlet filter res 180
+
+patch/add-node root vca signal/mozzi_gain Gain
+node/set-data vca eyJyYXRlX21vZGUiOjJ9
+
+patch/add-node root out output/mozzi_out Output
+node/set-data out eyJyYXRlX21vZGUiOjJ9
+
+# --- CONNECTIONS ---
+outlet/connect clock:out adsr:trig
+outlet/connect adsr:out mapper:in
+outlet/connect mapper:out smooth:in
+outlet/connect smooth:out filter:cutoff
+outlet/connect osc:out filter:in
+outlet/connect filter:out vca:in
+outlet/connect adsr:out vca:gain
+outlet/connect vca:out out:audio_in
+
+# --- POSITIONING ---
+node/move clock 20 50
+node/move adsr 200 50
+node/move mapper 400 50
+node/move smooth 600 50
+node/move osc 200 300
+node/move filter 800 200
+node/move vca 1000 200
+node/move out 1200 200
+`;

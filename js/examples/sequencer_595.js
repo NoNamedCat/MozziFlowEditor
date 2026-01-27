@@ -1,20 +1,34 @@
 EXAMPLES['sequencer_595'] = `v2.1.1
-network/add-patch s59 Sequencer_595
-patch/open s59
-patch/add-node s59 m1 signal/mozzi_metronome Metronome
-patch/add-node s59 mux1 input/mux4051_1 Mux%204051
-patch/add-node s59 seq1 signal/mozzi_sequencer Sequencer
-patch/add-node s59 osc1 wave/mozzi_sin Sine
-patch/add-node s59 out1 output/mozzi_out Output
+network/add-patch root Sequencer_Shift595
+patch/open root
+# --- LOGIC (All Control Rate) ---
+patch/add-node root clock signal/mozzi_metronome Metronome
+node/set-data clock eyJyYXRlX21vZGUiOjF9
+node/update-inlet clock bpm 120
 
-node/update-inlet m1 bpm 240
-node/update-inlet mux1 s0 2
-node/update-inlet mux1 s1 3
-node/update-inlet mux1 s2 4
-node/update-inlet mux1 pin A0
+patch/add-node root seq signal/mozzi_sequencer Sequencer
+node/set-data seq eyJyYXRlX21vZGUiOjF9
+node/update-inlet seq s0 1
+node/update-inlet seq s1 2
+node/update-inlet seq s2 4
+node/update-inlet seq s3 8
+node/update-inlet seq s4 16
+node/update-inlet seq s5 32
+node/update-inlet seq s6 64
+node/update-inlet seq s7 128
 
-outlet/connect m1:out seq1:trig
-outlet/connect mux1:ch0 seq1:s0
-outlet/connect mux1:ch1 seq1:s1
-outlet/connect seq1:out osc1:freq
-outlet/connect osc1:out out1:audio_in`;
+patch/add-node root out595 output/arduino_shift595_1 Shift 595
+node/set-data out595 eyJyYXRlX21vZGUiOjF9
+node/update-inlet out595 data_pin 11
+node/update-inlet out595 latch 12
+node/update-inlet out595 clock 13
+
+# --- CONNECTIONS ---
+outlet/connect clock:out seq:trig
+outlet/connect seq:out out595:bits0
+
+# --- POSITIONING ---
+node/move clock 50 100
+node/move seq 250 100
+node/move out595 450 100
+`;

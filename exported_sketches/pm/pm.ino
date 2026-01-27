@@ -1,4 +1,4 @@
-// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
+// MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
 #include <tables/sin2048_int8.h>
@@ -23,11 +23,11 @@ void updateControl() {
 AudioOutput updateAudio() {
     node_mod_out = oscil_mod.next();
     // Control logic moved to audio loop for node mod
-    oscil_mod.setFreq((float)5);
-    node_gain_out = ((int)(((long)node_mod_out * 100) >> 8));
-    node_car_out = oscil_car.next();
+    oscil_mod.setFreq((float)(long)5);
+    node_gain_out = ((int)(((long)node_mod_out * (long)128) >> 8));
+    node_car_out = oscil_car.phMod((long)node_gain_out);
     // Control logic moved to audio loop for node car
-    oscil_car.setFreq((float)node_gain_out);
+    oscil_car.setFreq((float)(long)220);
     return MonoOutput::from8Bit((int)node_car_out);
 }
 

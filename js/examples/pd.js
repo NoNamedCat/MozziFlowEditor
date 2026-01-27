@@ -1,12 +1,40 @@
 EXAMPLES['pd'] = `v2.1.1
-network/add-patch pd PhaseDistortion
-patch/open pd
-patch/add-node pd v1 wave/mozzi_pdresonant PD Resonant
-patch/add-node pd out output/mozzi_out Output
-node/turn-on v1
-node/turn-on out
-node/move v1 250 150
-node/move out 500 150
-node/update-inlet v1 freq 440
-node/update-inlet v1 amount 128
-outlet/connect v1:out out:audio_in`;
+network/add-patch root Phase_Distortion
+patch/open root
+# --- LFO MODULATION (Control + Smooth) ---
+patch/add-node root lfo wave/mozzi_sin LFO
+node/set-data lfo eyJyYXRlX21vZGUiOjF9
+node/update-inlet lfo freq 0.5
+
+patch/add-node root mapper math/mozzi_map Map Range
+node/set-data mapper eyJyYXRlX21vZGUiOjF9
+node/update-inlet mapper in_min -128
+node/update-inlet mapper in_max 127
+node/update-inlet mapper out_min 0
+node/update-inlet mapper out_max 255
+
+patch/add-node root smooth filter/mozzi_smooth Smooth
+node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/update-inlet smooth smooth 0.95
+
+# --- PD ENGINE (Audio) ---
+patch/add-node root osc wave/mozzi_pdresonant PD Resonant
+node/set-data osc eyJyYXRlX21vZGUiOjJ9
+node/update-inlet osc freq 110
+
+patch/add-node root out output/mozzi_out Output
+node/set-data out eyJyYXRlX21vZGUiOjJ9
+
+# --- CONNECTIONS ---
+outlet/connect lfo:out mapper:in
+outlet/connect mapper:out smooth:in
+outlet/connect smooth:out osc:res
+outlet/connect osc:out out:audio_in
+
+# --- POSITIONING ---
+node/move lfo 50 50
+node/move mapper 250 50
+node/move smooth 450 50
+node/move osc 650 150
+node/move out 850 150
+`;

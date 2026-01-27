@@ -39,8 +39,10 @@ node/set-data 98uu eyJyYXRlX21vZGUiOjJ9
 
 patch/add-node root 57t5 math/mozzi_map Map%20Range
 node/move 57t5 703 403
-node/update-inlet 57t5 min 0
-node/update-inlet 57t5 max 200
+node/update-inlet 57t5 in_min 0
+node/update-inlet 57t5 in_max 255
+node/update-inlet 57t5 out_min 0
+node/update-inlet 57t5 out_max 200
 node/set-data 57t5 eyJyYXRlX21vZGUiOjJ9
 
 patch/add-node root z3tz wave/mozzi_saw Saw

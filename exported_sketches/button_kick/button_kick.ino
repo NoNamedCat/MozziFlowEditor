@@ -1,4 +1,4 @@
-// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
+// MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
 #include <tables/sin2048_int8.h>
@@ -27,11 +27,11 @@ AudioOutput updateAudio() {
     digitalRead(5) == LOW ? 255 : 0;
     node_kick_out = oscil_kick.next();
     // Control logic moved to audio loop for node kick
-    oscil_kick.setFreq((float)60);
+    oscil_kick.setFreq((float)(long)60);
     node_env_out = mozziead_env.next();
     // Control logic moved to audio loop for node env
-    if((int)node_btn1_out>0){ mozziead_env.start((unsigned int)20, (unsigned int)200); }
-    node_vca_out = (int)((long)node_kick_out * node_env_out >> 8);
+    if((long)node_btn1_out>0){ mozziead_env.start((unsigned int)(long)20, (unsigned int)(long)200); }
+    node_vca_out = ((int)(((long)node_kick_out * (long)node_env_out) >> 8));
     return MonoOutput::from8Bit((int)node_vca_out);
 }
 

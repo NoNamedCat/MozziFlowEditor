@@ -1,26 +1,46 @@
 EXAMPLES['svf'] = `v2.1.1
-network/add-patch svf SVF_Filter_Noise
-patch/open svf
-patch/add-node svf noise wave/mozzi_noise Noise
-patch/add-node svf lfo wave/mozzi_sin Sine
-patch/add-node svf map math/mozzi_map Map%20Range
-patch/add-node svf f1 filter/mozzi_svf SVF Filter
-patch/add-node svf out output/mozzi_out Output
+network/add-patch root SVF_Filter_Sweep
+patch/open root
+# --- MODULATION (Control + Smooth) ---
+patch/add-node root lfo wave/mozzi_sin Sweep LFO
+node/set-data lfo eyJyYXRlX21vZGUiOjF9
+node/update-inlet lfo freq 0.2
 
-node/move noise 50 50
-node/move lfo 50 250
-node/move map 250 250
-node/move f1 450 150
-node/move out 650 150
+patch/add-node root mapper math/mozzi_map Map Range
+node/set-data mapper eyJyYXRlX21vZGUiOjF9
+node/update-inlet mapper in_min -128
+node/update-inlet mapper in_max 127
+node/update-inlet mapper out_min 200
+node/update-inlet mapper out_max 4000
 
-node/update-inlet lfo freq 1.3
-node/update-inlet map imin -128
-node/update-inlet map imax 127
-node/update-inlet map omin 400
-node/update-inlet map omax 3500
-node/update-inlet f1 res 150
+patch/add-node root smooth filter/mozzi_smooth Smooth
+node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/update-inlet smooth smooth 0.95
 
-outlet/connect lfo:out map:in
-outlet/connect map:out f1:cutoff
-outlet/connect noise:out f1:in
-outlet/connect f1:out out:audio_in`;
+# --- ENGINE (Audio) ---
+patch/add-node root osc wave/mozzi_saw Saw
+node/set-data osc eyJyYXRlX21vZGUiOjJ9
+node/update-inlet osc freq 110
+
+patch/add-node root filter filter/mozzi_svf SVF Filter
+node/set-data filter eyJyYXRlX21vZGUiOjJ9
+node/update-inlet filter res 180
+
+patch/add-node root out output/mozzi_out Output
+node/set-data out eyJyYXRlX21vZGUiOjJ9
+
+# --- CONNECTIONS ---
+outlet/connect lfo:out mapper:in
+outlet/connect mapper:out smooth:in
+outlet/connect smooth:out filter:cutoff
+outlet/connect osc:out filter:in
+outlet/connect filter:out out:audio_in
+
+# --- POSITIONING ---
+node/move lfo 50 50
+node/move mapper 250 50
+node/move smooth 450 50
+node/move osc 50 250
+node/move filter 650 150
+node/move out 850 150
+`;

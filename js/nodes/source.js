@@ -7,7 +7,7 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/sin2048_int8.h>"],
         defaults: { "freq": "440", "phase": "0" },
         global: function(n, v, r) { return "Oscil<SIN2048_NUM_CELLS, "+r+"> "+v+"(SIN2048_DATA);"; },
-        control: function(n,v,i){ return v+".setFreq((float)"+i.freq+");"; },
+        control: function(n,v,i){ return v+".setFreq((float)(long)"+i.freq+");"; },
         audio: function(n, v, i) { return (i.phase && i.phase != "0") ? v+".phMod((long)"+i.phase+")" : v+".next()"; }
     },
     rpdnode: { "title": "Sine", "inlets": { "freq": { "type": "mozziflow/any", "is_control": true, "color": "float" }, "phase": { "type": "mozziflow/any", "color": "mod" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
@@ -21,7 +21,7 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/saw2048_int8.h>"],
         defaults: { "freq": "440" },
         global: function(n, v, r) { return "Oscil<SAW2048_NUM_CELLS, "+r+"> "+v+"(SAW2048_DATA);"; },
-        control: function(n,v,i){ return v+".setFreq((float)"+i.freq+");"; },
+        control: function(n,v,i){ return v+".setFreq((float)(long)"+i.freq+");"; },
         audio: function(n, v, i) { return v+".next()"; }
     },
     rpdnode: { "title": "Saw", "inlets": { "freq": { "type": "mozziflow/any", "is_control": true, "color": "float" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
@@ -35,7 +35,7 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/triangle2048_int8.h>"],
         defaults: { "freq": "440" },
         global: function(n, v, r) { return "Oscil<TRIANGLE2048_NUM_CELLS, "+r+"> "+v+"(TRIANGLE2048_DATA);"; },
-        control: function(n,v,i){ return v+".setFreq((float)"+i.freq+");"; },
+        control: function(n,v,i){ return v+".setFreq((float)(long)"+i.freq+");"; },
         audio: function(n, v, i) { return v+".next()"; }
     },
     rpdnode: { "title": "Triangle", "inlets": { "freq": { "type": "mozziflow/any", "is_control": true, "color": "float" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
@@ -49,7 +49,7 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/square_no_alias_2048_int8.h>"],
         defaults: { "freq": "440" },
         global: function(n, v, r) { return "Oscil<SQUARE_NO_ALIAS_2048_NUM_CELLS, "+r+"> "+v+"(SQUARE_NO_ALIAS_2048_DATA);"; },
-        control: function(n,v,i){ return v+".setFreq((float)"+i.freq+");"; },
+        control: function(n,v,i){ return v+".setFreq((float)(long)"+i.freq+");"; },
         audio: function(n, v, i) { return v+".next()"; }
     },
     rpdnode: { "title": "Square", "inlets": { "freq": { "type": "mozziflow/any", "is_control": true, "color": "float" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
@@ -63,7 +63,7 @@ NodeLibrary.push({
         includes: ["#include <Phasor.h>"],
         defaults: { "freq": "440" },
         global: function(n,v,r){ return "Phasor<"+r+"> "+v+";"; },
-        control: function(n,v,i){ return v+".setFreq((float)"+i.freq+");"; },
+        control: function(n,v,i){ return v+".setFreq((float)(long)"+i.freq+");"; },
         audio: function(n,v,i){ return v+".next()"; }
     },
     rpdnode: { "title": "Phasor", "inlets": { "freq": { "type": "mozziflow/any", "is_control": true, "color": "float" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "freq" } } }
@@ -98,7 +98,7 @@ NodeLibrary.push({
         includes: ["#include <WavePacket.h>"],
         global: function(n,v){ return "WavePacket<DOUBLE> "+v+";"; },
         setup: function(n,v,i){ return v+".set(100, 50, 100);"; },
-        control: function(n,v,i){ return v+".set((int)"+i.fund+", (int)"+i.bw+", (int)"+i.res+");"; },
+        control: function(n,v,i){ return v+".set((int)(long)"+i.fund+", (int)(long)"+i.bw+", (int)(long)"+i.res+");"; },
         audio: function(n,v,i){ return v+".next()"; }
     },
     rpdnode: { "title": "WavePacket", "inlets": { "fund": { "type": "mozziflow/any", "color": "freq" }, "bw": { "type": "mozziflow/any", "color": "control" }, "res": { "type": "mozziflow/any", "color": "control" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
@@ -141,7 +141,7 @@ NodeLibrary.push({
             if (!n.data || !n.data.sample_table) return "// No sample loaded for " + v;
             return "const int8_t " + n.data.sample_name + "_data[] PROGMEM = {" + n.data.sample_table + "};\nSample<" + n.data.sample_size + ", " + r + "> " + v + "(" + n.data.sample_name + "_data);";
         },
-        control: function(n,v,i){ return "if((int)"+i.trig+">0){ "+v+".start(); }"; },
+        control: function(n,v,i){ return "if((long)"+i.trig+">0){ "+v+".start(); }"; },
         audio: function(n,v,i){ return v + ".next()"; }
     },
     rpdnode: { "title": "Sample", "inlets": { "trig": { "type": "mozziflow/any", "color": "logic" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
@@ -155,7 +155,7 @@ NodeLibrary.push({
         includes: ["#include <Oscil.h>","#include <tables/sin2048_int8.h>"],
         defaults: { "freq": "1.0" },
         global: function(n, v, r) { return "Oscil<SIN2048_NUM_CELLS, "+r+"> "+v+"(SIN2048_DATA);"; },
-        control: function(n,v,i){ return v+".setFreq((float)"+i.freq+");\n" + v + ".next()"; }
+        control: function(n,v,i){ return v+".setFreq((float)(long)"+i.freq+");\n" + v + ".next()"; }
     },
     rpdnode: { "title": "Sine LFO", "inlets": { "freq": { "type": "mozziflow/any", "is_control": true, "color": "float" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "control" } } }
 });
@@ -169,7 +169,7 @@ NodeLibrary.push({
         defaults: { "bpm": "120" },
         global: function(n,v){ return "Metronome " + v + "; bool " + v + "_st = 0;"; },
         setup: function(n,v,i){ return v + ".start();"; },
-        control: function(n,v,i){ return v+".setBPM((float)"+i.bpm+");\nif("+v+".ready()){ "+v+"_st = !"+v+"_st; }\n" + v + "_st ? 255 : 0"; }
+        control: function(n,v,i){ return v+".setBPM((float)(long)"+i.bpm+");\nif("+v+".ready()){ "+v+"_st = !"+v+"_st; }\n" + v + "_st ? 255 : 0"; }
     },
     rpdnode: { "title": "Pulse LFO", "inlets": { "bpm": { "type": "mozziflow/any", "color": "float" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "logic" } } }
 });

@@ -1,14 +1,38 @@
 EXAMPLES['quantizer_test'] = `v2.1.1
-network/add-patch qtz Quantizer_Test
-patch/open qtz
-patch/add-node qtz lfo lfo/mozzi_lfo_sin Sine%20LFO
-patch/add-node qtz q1 signal/mozzi_quantizer Quantizer
-patch/add-node qtz osc wave/mozzi_sin Sine
-patch/add-node qtz out output/mozzi_out Output
+network/add-patch root Quantizer_Test
+patch/open root
+# --- MODULATION (Control) ---
+patch/add-node root lfo wave/mozzi_sin LFO
+node/set-data lfo eyJyYXRlX21vZGUiOjF9
+node/update-inlet lfo freq 0.2
 
-node/update-inlet lfo freq 0.5
-node/update-inlet osc freq 440
+patch/add-node root mapper math/mozzi_map Map Range
+node/set-data mapper eyJyYXRlX21vZGUiOjF9
+node/update-inlet mapper in_min -128
+node/update-inlet mapper in_max 127
+node/update-inlet mapper out_min 36
+node/update-inlet mapper out_max 72
 
-outlet/connect lfo:out q1:in
-outlet/connect q1:out osc:freq
-outlet/connect osc:out out:audio_in`;
+patch/add-node root mtof math/mtof Midi->Freq
+node/set-data mtof eyJyYXRlX21vZGUiOjF9
+
+# --- AUDIO ---
+patch/add-node root osc wave/mozzi_sin Sine
+node/set-data osc eyJyYXRlX21vZGUiOjJ9
+
+patch/add-node root out output/mozzi_out Output
+node/set-data out eyJyYXRlX21vZGUiOjJ9
+
+# --- CONNECTIONS ---
+outlet/connect lfo:out mapper:in
+outlet/connect mapper:out mtof:note
+outlet/connect mtof:out osc:freq
+outlet/connect osc:out out:audio_in
+
+# --- POSITIONING ---
+node/move lfo 50 150
+node/move mapper 250 150
+node/move mtof 450 150
+node/move osc 650 150
+node/move out 850 150
+`;

@@ -9,8 +9,8 @@ NodeLibrary.push({
         includes: ["#include <ResonantFilter.h>"],
         defaults: { "cutoff": "128", "res": "0" },
         global: function(n,v){ return "LowPassFilter "+v+";"; },
-        control: function(n,v,i){ return v+".setCutoffFreqAndResonance((uint8_t)"+i.cutoff+", (uint8_t)"+i.res+");"; },
-        audio: function(n,v,i){ return v+".next((int)"+i.in+")"; }
+        control: function(n,v,i){ return v+".setCutoffFreqAndResonance((uint8_t)(long)"+i.cutoff+", (uint8_t)(long)"+i.res+");"; },
+        audio: function(n,v,i){ return v+".next((int)(long)"+i.in+")"; }
     },
     rpdnode: { "title": "LowPass", "inlets": { "in": { "type": "mozziflow/any", "color": "audio" }, "cutoff": { "type": "mozziflow/any", "is_control": true, "color": "control" }, "res": { "type": "mozziflow/any", "is_control": true, "color": "control" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
 });
@@ -45,8 +45,8 @@ NodeLibrary.push({
             var mode = (n.data && n.data.mode) ? n.data.mode : "LOWPASS";
             return "StateVariable<" + mode + "> " + v + ";"; 
         },
-        control: function(n,v,i){ return v+".setCentreFreq((unsigned int)"+i.cutoff+");\n"+v+".setResonance((uint8_t)"+i.res+");"; },
-        audio: function(n,v,i){ return v+".next((int)"+i.in+")"; }
+        control: function(n,v,i){ return v+".setCentreFreq((unsigned int)(long)"+i.cutoff+");\n"+v+".setResonance((uint8_t)(long)"+i.res+");"; },
+        audio: function(n,v,i){ return v+".next((int)(long)"+i.in+")"; }
     },
     rpdnode: { "title": "SVF Filter", "inlets": { "in": { "type": "mozziflow/any", "color": "audio" }, "cutoff": { "type": "mozziflow/any", "is_control": true, "color": "freq", "label": "Freq" }, "res": { "type": "mozziflow/any", "is_control": true, "color": "control", "label": "Res" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
 });
@@ -59,9 +59,9 @@ NodeLibrary.push({
         includes: ["#include <ResonantFilter.h>"],
         defaults: { "cutoff": "128", "res": "0" },
         global: function(n,v){ return "MultiResonantFilter<uint8_t> " + v + ";"; },
-        control: function(n,v,i){ return v+".setCutoffFreqAndResonance((uint8_t)"+i.cutoff+", (uint8_t)"+i.res+");"; },
+        control: function(n,v,i){ return v+".setCutoffFreqAndResonance((uint8_t)(long)"+i.cutoff+", (uint8_t)(long)"+i.res+");"; },
         audio: function(n,v,i){ 
-            return v + ".next((int)" + i.in + ");\n" +
+            return v + ".next((int)(long)" + i.in + ");\n" +
                    "node_" + n.id + "_low = " + v + ".low();\n" +
                    "node_" + n.id + "_high = " + v + ".high();\n" +
                    "node_" + n.id + "_band = " + v + ".band();\n" +
@@ -78,7 +78,7 @@ NodeLibrary.push({
         rate: "audio",
         includes: ["#include <DCfilter.h>"],
         global: function(n,v){ return "DCfilter "+v+"(0.9f);"; },
-        audio: function(n,v,i){ return v+".next((int)"+i.in+")"; }
+        audio: function(n,v,i){ return v+".next((int)(long)"+i.in+")"; }
     },
     rpdnode: { "title": "DC Filter", "inlets": { "in": { "type": "mozziflow/any", "color": "audio" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
 });
@@ -92,7 +92,7 @@ NodeLibrary.push({
         defaults: { "mix": "128" },
         global: function(n,v){ return "ReverbTank "+v+";"; },
         audio: function(n,v,i){ 
-            return "((int)(((long)"+i.in+" * (255 - "+i.mix+") + (long)"+v+".next((int)"+i.in+") * "+i.mix+") >> 8))";
+            return "((int)(((long)"+i.in+" * (255 - (long)"+i.mix+") + (long)"+v+".next((int)(long)"+i.in+") * (long)"+i.mix+") >> 8))";
         }
     },
     rpdnode: { "title": "Reverb Tank", "inlets": { "in": { "type": "mozziflow/any", "color": "audio" }, "mix": { "type": "mozziflow/any", "color": "control" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
@@ -105,7 +105,7 @@ NodeLibrary.push({
         rate: "audio",
         includes: ["#include <WaveFolder.h>"],
         global: function(n,v){ return "WaveFolder<int> "+v+";"; },
-        audio: function(n,v,i){ return v+".next((int)"+i.in+")"; }
+        audio: function(n,v,i){ return v+".next((int)(long)"+i.in+")"; }
     },
     rpdnode: { "title": "Wave Folder", "inlets": { "in": { "type": "mozziflow/any", "color": "audio" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
 });
@@ -118,7 +118,7 @@ NodeLibrary.push({
         includes: ["#include <AudioDelay.h>"],
         defaults: { "delay": "128" },
         global: function(n,v){ return "AudioDelay<256> "+v+";"; },
-        audio: function(n,v,i){ return v+".next((int)"+i.in+", (uint16_t)"+i.delay+")"; }
+        audio: function(n,v,i){ return v+".next((int)(long)"+i.in+", (uint16_t)(long)"+i.delay+")"; }
     },
     rpdnode: { "title": "Audio Delay", "inlets": { "in": { "type": "mozziflow/any", "color": "audio" }, "delay": { "type": "mozziflow/any", "color": "freq" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
 });
@@ -130,7 +130,7 @@ NodeLibrary.push({
         rate: "audio", 
         is_inline: true, 
         defaults: { "gain": "255" },
-        audio: function(n,v,i){ return "((int)(((long)"+i.in+" * "+i.gain+") >> 8))"; } 
+        audio: function(n,v,i){ return "((int)(((long)"+i.in+" * (long)"+i.gain+") >> 8))"; } 
     },
     rpdnode: { "title": "Gain", "inlets": { "in": { "type": "mozziflow/any", "color": "audio" }, "gain": { "type": "mozziflow/any", "is_control": true, "color": "control" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "audio" } } }
 });

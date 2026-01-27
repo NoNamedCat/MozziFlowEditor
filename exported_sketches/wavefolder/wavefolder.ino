@@ -1,16 +1,15 @@
-// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
+// MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
 #include <tables/sin2048_int8.h>
 #include <WaveFolder.h>
 
 // GLOBALS
-long node_s1_out = 0;
-Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_s1(SIN2048_DATA);
-long node_l2_out = 0;
-Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_l2(SIN2048_DATA);
-long node_fld_out = 0;
-WaveFolder<int> mozziwavefolder_fld;
+long node_osc_out = 0;
+Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_osc(SIN2048_DATA);
+long node_gain_out = 0;
+long node_fold_out = 0;
+WaveFolder<int> mozziwavefolder_fold;
 long node_out_out = 0;
 
 void setup() {
@@ -23,14 +22,12 @@ void updateControl() {
 }
 
 AudioOutput updateAudio() {
-    node_s1_out = oscil_s1.next();
-    // Control logic moved to audio loop for node s1
-    oscil_s1.setFreq((float)440);
-    node_l2_out = oscil_l2.next();
-    // Control logic moved to audio loop for node l2
-    oscil_l2.setFreq((float)0.2);
-    node_fld_out = mozziwavefolder_fld.next((int)node_s1_out);
-    return MonoOutput::from8Bit((int)node_fld_out);
+    node_osc_out = oscil_osc.next();
+    // Control logic moved to audio loop for node osc
+    oscil_osc.setFreq((float)(long)110);
+    node_gain_out = ((int)(((long)node_osc_out * (long)255) >> 8));
+    node_fold_out = mozziwavefolder_fold.next((int)(long)node_gain_out);
+    return MonoOutput::from8Bit((int)node_fold_out);
 }
 
 void loop() {

@@ -1,14 +1,19 @@
-// MOZZIFLOW v110.9 BALANCED CORE REFINED SKETCH
+// MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
+#include <tables/sin2048_int8.h>
+#include <Smooth.h>
 #include <Phasor.h>
 
 // GLOBALS
-long node_ph1_out = 0;
-Phasor<MOZZI_AUDIO_RATE> phasor_ph1;
-long node_ph2_out = 0;
-Phasor<MOZZI_AUDIO_RATE> phasor_ph2;
-long node_sub_out = 0;
+long node_lfo_out = 0;
+Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_lfo(SIN2048_DATA);
+long node_mapper_out = 0;
+long node_smooth_out = 0;
+Smooth<int> smooth_smooth(0.95f);
+long node_osc_out = 0;
+Phasor<MOZZI_AUDIO_RATE> phasor_osc;
+long node_cmp_out = 0;
 long node_out_out = 0;
 
 void setup() {
@@ -21,14 +26,17 @@ void updateControl() {
 }
 
 AudioOutput updateAudio() {
-    node_ph1_out = phasor_ph1.next();
-    // Control logic moved to audio loop for node ph1
-    phasor_ph1.setFreq((float)55);
-    node_ph2_out = phasor_ph2.next();
-    // Control logic moved to audio loop for node ph2
-    phasor_ph2.setFreq((float)55.2);
-    node_sub_out = (int)node_ph1_out - (int)node_ph2_out;
-    return MonoOutput::from8Bit((int)node_sub_out);
+    node_lfo_out = oscil_lfo.next();
+    // Control logic moved to audio loop for node lfo
+    oscil_lfo.setFreq((float)(long)0.5);
+    node_mapper_out = map((long)node_lfo_out, (long)-128, (long)127, (long)10, (long)245);
+    // Control logic moved to audio loop for node smooth
+    node_smooth_out = smooth_smooth.next((int)(long)node_mapper_out);
+    node_osc_out = phasor_osc.next();
+    // Control logic moved to audio loop for node osc
+    phasor_osc.setFreq((float)(long)110);
+    node_cmp_out = ((long)node_osc_out > (long)node_smooth_out ? 255 : 0);
+    return MonoOutput::from8Bit((int)node_cmp_out);
 }
 
 void loop() {

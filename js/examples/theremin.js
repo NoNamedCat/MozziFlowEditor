@@ -1,20 +1,40 @@
 EXAMPLES['theremin'] = `v2.1.1
-network/add-patch thm Theremin_Sim
-patch/open thm
-patch/add-node thm ana input/mozzi_async_analog Async%20Analog
-patch/add-node thm sm signal/mozzi_smooth Smooth
-patch/add-node thm map math/mozzi_intmap IntMap
-patch/add-node thm osc wave/mozzi_sin Sine
-patch/add-node thm echo filter/mozzi_audiodelay Audio%20Delay
-patch/add-node thm out output/mozzi_out Output
+network/add-patch root Theremin_Stable
+patch/open root
+# --- SENSOR INPUT (Control) ---
+patch/add-node root p1 wave/mozzi_sin Sensor Sim
+node/set-data p1 eyJyYXRlX21vZGUiOjF9
+node/update-inlet p1 freq 0.1
 
-node/update-inlet ana pin A0
-node/update-inlet map min 220
-node/update-inlet map max 880
-node/update-inlet echo delay 128
+patch/add-node root mapper math/mozzi_map Map Range
+node/set-data mapper eyJyYXRlX21vZGUiOjF9
+node/update-inlet mapper in_min -128
+node/update-inlet mapper in_max 127
+node/update-inlet mapper out_min 200
+node/update-inlet mapper out_max 1000
 
-outlet/connect ana:out sm:in
-outlet/connect sm:out map:in
-outlet/connect map:out osc:freq
-outlet/connect osc:out echo:in
-outlet/connect echo:out out:audio_in`;
+# --- STABILIZER (Crucial for physical sensors) ---
+patch/add-node root smooth filter/mozzi_smooth Smooth
+node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/update-inlet smooth smooth 0.95
+
+# --- SYNTH (Audio) ---
+patch/add-node root osc wave/mozzi_sin Sine
+node/set-data osc eyJyYXRlX21vZGUiOjJ9
+
+patch/add-node root out output/mozzi_out Output
+node/set-data out eyJyYXRlX21vZGUiOjJ9
+
+# --- CONNECTIONS ---
+outlet/connect p1:out mapper:in
+outlet/connect mapper:out smooth:in
+outlet/connect smooth:out osc:freq
+outlet/connect osc:out out:audio_in
+
+# --- POSITIONING ---
+node/move p1 50 150
+node/move mapper 250 150
+node/move smooth 450 150
+node/move osc 650 150
+node/move out 850 150
+`;

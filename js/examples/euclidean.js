@@ -1,49 +1,49 @@
 EXAMPLES['euclidean'] = `v2.1.1
-network/add-patch euc Euclidean_Rhythm
-patch/open euc
-# Master Clock
-patch/add-node euc clock signal/mozzi_metronome Metronome
-node/move clock 50 150
+network/add-patch root Euclidean_Rhythms
+patch/open root
+# --- LOGIC (Control) ---
+patch/add-node root clock signal/mozzi_metronome Metronome
+node/set-data clock eyJyYXRlX21vZGUiOjF9
 node/update-inlet clock bpm 240
 
-# Counter to select the active beat
-patch/add-node euc cnt1 signal/counter Counter
-node/move cnt1 250 250
+patch/add-node root cnt1 signal/counter Counter
+node/set-data cnt1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet cnt1 max 3
 
-# Router to distribute clock pulses
-patch/add-node euc rout signal/router4 Router
-node/move rout 450 150
+patch/add-node root rout signal/router4 Router (4)
+node/set-data rout eyJyYXRlX21vZGUiOjF9
 
-# Sound Engine
-patch/add-node euc osc wave/mozzi_sin Sine
-node/move osc 650 350
+# --- SYNTH (Audio Rate for punch) ---
+patch/add-node root osc wave/mozzi_sin Sine
+node/set-data osc eyJyYXRlX21vZGUiOjJ9
 node/update-inlet osc freq 60
 
-patch/add-node euc env signal/mozzi_ead Ead%20Env
-node/move env 650 100
+patch/add-node root env signal/mozzi_ead Ead Env
+node/set-data env eyJyYXRlX21vZGUiOjJ9
 node/update-inlet env att 5
 node/update-inlet env dec 150
 
-patch/add-node euc vca math/mul Multiply
-node/move vca 850 250
+patch/add-node root vca signal/mozzi_gain Gain
+node/set-data vca eyJyYXRlX21vZGUiOjJ9
 
-patch/add-node euc out output/mozzi_out Output
-node/move out 1050 250
+patch/add-node root out output/mozzi_out Output
+node/set-data out eyJyYXRlX21vZGUiOjJ9
 
-# Connections
-# 1. Clock drives both counter and router input
+# --- CONNECTIONS ---
 outlet/connect clock:out cnt1:up
-outlet/connect clock:out rout:in
-
-# 2. Counter output controls WHICH router outlet is active
 outlet/connect cnt1:out rout:idx
-
-# 3. Use only Outlet 0 to trigger the sound (Beat 1 of 4)
+outlet/connect clock:out rout:in
 outlet/connect rout:out0 env:trig
-
-# 4. Audio Path
-outlet/connect osc:out vca:a
-outlet/connect env:out vca:b
+outlet/connect osc:out vca:in
+outlet/connect env:out vca:gain
 outlet/connect vca:out out:audio_in
+
+# --- POSITIONING ---
+node/move clock 50 100
+node/move cnt1 250 50
+node/move rout 450 100
+node/move osc 450 250
+node/move env 650 250
+node/move vca 850 150
+node/move out 1050 150
 `;

@@ -1,21 +1,40 @@
 EXAMPLES['bitcrusher'] = `v2.1.1
-network/add-patch bit Bit_Crusher
-patch/open bit
-# Simulates sample rate reduction using S&H clocked by audio phasor
-patch/add-node bit src wave/mozzi_sin Sine
-patch/add-node bit rate_phasor wave/mozzi_phasor Phasor
-patch/add-node bit sh signal/mozzi_sh S&H
-patch/add-node bit out output/mozzi_out Output
-
-node/move src 50 50
-node/move rate_phasor 50 200
-node/move sh 300 125
-node/move out 500 125
-
+network/add-patch bc BitCrusher_Native
+patch/open bc
+# --- SOURCE ---
+patch/add-node bc src wave/mozzi_sin Sine
 node/update-inlet src freq 110
-node/update-inlet rate_phasor freq 400
-# 400Hz sample rate = heavy aliasing
+node/set-data src eyJyYXRlX21vZGUiOjJ9
 
-outlet/connect src:out sh:in
-outlet/connect rate_phasor:out sh:trig
-outlet/connect sh:out out:audio_in`;
+# --- MODULATOR ---
+patch/add-node bc rate_lfo wave/mozzi_phasor Phaser LFO
+node/update-inlet rate_lfo freq 2
+node/set-data rate_lfo eyJyYXRlX21vZGUiOjF9
+
+patch/add-node bc mapper math/mozzi_map Map Range
+node/update-inlet mapper in_min 0
+node/update-inlet mapper in_max 255
+node/update-inlet mapper out_min 1
+node/update-inlet mapper out_max 6
+node/set-data mapper eyJyYXRlX21vZGUiOjF9
+
+# --- EFFECT (Native) ---
+patch/add-node bc crush math_audio/bitcrush Bit-Crusher
+node/set-data crush eyJyYXRlX21vZGUiOjJ9
+
+patch/add-node bc out output/mozzi_out Output
+node/set-data out eyJyYXRlX21vZGUiOjJ9
+
+# --- CONNECTIONS ---
+outlet/connect rate_lfo:out mapper:in
+outlet/connect mapper:out crush:bits
+outlet/connect src:out crush:in
+outlet/connect crush:out out:audio_in
+
+# --- POSITIONING ---
+node/move src 50 50
+node/move rate_lfo 50 250
+node/move mapper 250 250
+node/move crush 450 150
+node/move out 650 150
+`;

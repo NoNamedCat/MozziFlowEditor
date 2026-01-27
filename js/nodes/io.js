@@ -77,4 +77,3 @@ NodeLibrary.push({
     mozzi: { rate: "audio", is_inline: true, audio: function(n,v,i){ return "MonoOutput::from8Bit((int)"+i.audio_in+")"; } },
     rpdnode: { "title": "Output", "inlets": { "audio_in": { "type": "mozziflow/any", "color": "audio" } } }
 });
-NodeLibrary.push({ nodetype: 'output/mozzi_output', nodeclass: "MozziOut", mozzi: { rate: "audio", is_inline: true, audio: function(n,v,i){ return "MonoOutput::from8Bit((int)"+i.audio_in+")"; } }, rpdnode: { "title": "Output (Legacy)", "inlets": { "audio_in": { "type": "mozziflow/any", "color": "audio" } } } });
