@@ -81,6 +81,7 @@ function exportToMozzi(project, canvas) {
     var links = project.links;
     var codeParts = {
         includes: new Set(["#include <Mozzi.h>", "#include <Oscil.h>", "#include <FixMath.h>"]),
+        definitions: new Set(),
         globals: [],
         setup: [],
         control: [],
@@ -113,23 +114,6 @@ function exportToMozzi(project, canvas) {
     // --- 2. INFERENCIA DE TASAS Y DETECCIÓN DE CONFIG AGNOSTICA ---
     var nodeRates = calculateNodeRates(project);
     
-    // Auto-detect config from Master Output node
-    var masterNode = Object.values(nodes).find(n => n.type === "output/mozzi_master");
-    if (masterNode && masterNode.data) {
-        if (masterNode.data.channels) {
-            codeParts.includes.add("#define MOZZI_AUDIO_CHANNELS " + masterNode.data.channels);
-        }
-        if (masterNode.data.mode) {
-            codeParts.includes.add("#define MOZZI_AUDIO_MODE " + masterNode.data.mode);
-        }
-    } else {
-        // Fallback detection for legacy patches
-        var isStereoLegacy = Object.values(nodes).some(n => n.type.includes("stereo"));
-        if (isStereoLegacy) {
-            codeParts.includes.add("#define MOZZI_AUDIO_CHANNELS MOZZI_STEREO");
-        }
-    }
-
     // --- 3. REGISTRO GLOBAL ---
     var declaredSignals = new Set();
     sortedNodeIds.forEach(id => {
@@ -183,6 +167,7 @@ function exportToMozzi(project, canvas) {
         }
 
         if (def.mozzi.includes) def.mozzi.includes.forEach(inc => codeParts.includes.add(inc));
+        if (def.mozzi.definitions) def.mozzi.definitions.forEach(defStr => codeParts.definitions.add(defStr));
 
         function processCode(code, targetVar, isOutput) {
             if (!code) return null;
@@ -255,7 +240,10 @@ function exportToMozzi(project, canvas) {
     }
 
     finalCode += "// MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH\n";
-    finalCode += Array.from(codeParts.includes).filter(inc => !inc.includes("MOZZI_AUDIO")).join('\n') + '\n\n';
+    finalCode += Array.from(codeParts.includes).join('\n') + '\n\n';
+    if (codeParts.definitions.size > 0) {
+        finalCode += "// CUSTOM DEFINITIONS\n" + Array.from(codeParts.definitions).join('\n\n') + '\n\n';
+    }
     finalCode += "// GLOBALS\n" + codeParts.globals.join('\n') + '\n\n';
     finalCode += "void setup() {\n    startMozzi();\n    " + codeParts.setup.join('\n    ') + "\n}\n\n";
     finalCode += "void updateControl() {\n    " + codeParts.control.join('\n    ') + "\n}\n\n";

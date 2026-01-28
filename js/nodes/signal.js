@@ -46,9 +46,19 @@ NodeLibrary.push({
         rate: "audio",
         includes: ["#include <Ead.h>"],
         defaults: { "att": "20", "dec": "200" },
-        global: function(n,v){ return "Ead "+v+"(MOZZI_AUDIO_RATE);"; },
-        control: function(n,v,i){ return "if((long)"+i.trig+">0){ "+v+".start((unsigned int)(long)"+i.att+", (unsigned int)(long)"+i.dec+"); }"; },
-        audio: function(n,v,i){ return "node_" + n.id + "_out = (long)" + v + ".next()"; }
+        global: function(n,v,r){ return "Ead "+v+"("+r+"); bool "+v+"_last = 0;"; },
+        control: function(n,v,i){ 
+            return "bool "+v+"_trig = (long)"+i.trig+">0;\n" +
+                   "if("+v+"_trig && !"+v+"_last){ "+v+".start((unsigned int)(long)"+i.att+", (unsigned int)(long)"+i.dec+"); }\n" +
+                   v+"_last = "+v+"_trig;\n" +
+                   "node_" + n.id + "_out = (long)" + v + ".next()";
+        },
+        audio: function(n,v,i){ 
+            return "bool "+v+"_trig = (long)"+i.trig+">0;\n" +
+                   "if("+v+"_trig && !"+v+"_last){ "+v+".start((unsigned int)(long)"+i.att+", (unsigned int)(long)"+i.dec+"); }\n" +
+                   v+"_last = "+v+"_trig;\n" +
+                   "node_" + n.id + "_out = (long)" + v + ".next()";
+        }
     },
     rpdnode: { "title": "Ead Env", "inlets": { "trig": { "type": "mozziflow/bool" }, "att": { "type": "mozziflow/uint16", "label": "att" }, "dec": { "type": "mozziflow/uint16", "label": "dec" } }, "outlets": { "out": { "type": "mozziflow/long" } } }
 });

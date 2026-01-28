@@ -22,7 +22,7 @@ long node_rout_out = 0;
 long node_osc_out = 0;
 Oscil<SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> oscil_osc(SIN2048_DATA); float last_f_osc=0;
 long node_env_out = 0;
-Ead mozziead_env(MOZZI_AUDIO_RATE);
+Ead mozziead_env(MOZZI_AUDIO_RATE); bool mozziead_env_last = 0;
 long node_vca_out = 0;
 long node_norm_out = 0;
 long node_out_out = 0;
@@ -48,13 +48,14 @@ void updateControl() {
         node_rout_out3 = ( (long)node_cnt1_out == 3 ) ? (long)node_clock_out : 0;
     // Parameter update for audio node osc
         if(last_f_osc != (float)60){ oscil_osc.setFreq((float)60); last_f_osc = (float)60; }
-    // Parameter update for audio node env
-        if((long)node_rout_out0>0){ mozziead_env.start((unsigned int)(long)5, (unsigned int)(long)150); }
 }
 
 AudioOutput updateAudio() {
     node_osc_out = oscil_osc.next();
-    node_env_out = (long)mozziead_env.next();
+    bool mozziead_env_trig = (long)node_rout_out0>0;
+        if(mozziead_env_trig && !mozziead_env_last){ mozziead_env.start((unsigned int)(long)5, (unsigned int)(long)150); }
+        mozziead_env_last = mozziead_env_trig;
+        node_env_out = (long)mozziead_env.next();
     node_vca_out = ((long)node_osc_out * (long)node_env_out);
     node_norm_out = ((long)node_vca_out >> (int)8);
     return MonoOutput::from8Bit((int)node_norm_out);

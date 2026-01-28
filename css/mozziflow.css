@@ -524,3 +524,20 @@ _::-moz-range-track, body:last-child .rpd-connector {
     background-color: #EEEEEE !important; 
     border-color: #888888 !important;
 }
+
+/* RATE INFERENCE VISUALIZATION (Bottom Line) */
+.rpd-node.rate-audio {
+    border-bottom: 2px solid #00FFFF !important; /* Cyan */
+}
+.rpd-node.rate-inferred-audio {
+    border-bottom: 2px dashed #00FFFF !important; /* Cyan Dashed */
+}
+.rpd-node.rate-control {
+    border-bottom: 2px solid #FFFF00 !important; /* Yellow */
+}
+.rpd-node.rate-inferred-control {
+    border-bottom: 2px dashed #FFFF00 !important; /* Yellow Dashed */
+}
+.rpd-node.rate-auto {
+    /* Default state, usually inferred control if not connected to audio */
+}
