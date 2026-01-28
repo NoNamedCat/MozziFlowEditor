@@ -50,7 +50,6 @@ function initAnchoredPalette(patch) {
                                       li.data(elmData);
                                       li.attr('class', 'rpd-palette-item rpd-category-' + nodeTypeDef.toolkit);
                                       
-                                      // FIX: Access description from the global RPD registry
                                       var realDef = nodeTypes[nodeType];
                                       if (realDef && realDef.description) {
                                           li.attr('title', realDef.description);
@@ -60,7 +59,6 @@ function initAnchoredPalette(patch) {
 
                                       li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || String.fromCharCode(160));
                                       
-                                      // Fix: Use prettier title from NodeLibrary if available
                                       var displayName = nodeTypeDef.name;
                                       if (typeof NodeLibrary !== 'undefined') {
                                           var libEntry = NodeLibrary.find(function(n) { return n.nodetype === nodeType; });
@@ -96,19 +94,23 @@ function initAnchoredPalette(patch) {
     nodeList.addCtrlSpaceAndArrows();
 }
 
-// Basic String Channel Type
-Rpd.channeltype('mozziflow/string', {
-    readonly: false,
-    accept: function(val) { return true; },
-    adapt: function(val) { return (val); }
+// =============================================================================
+// TECHNICAL CHANNEL TYPES (v111.37)
+// =============================================================================
+
+[
+    'int8', 'uint8', 'int16', 'uint16', 'long', 'bool', 'float'
+].forEach(function(type) {
+    Rpd.channeltype('mozziflow/' + type, {
+        readonly: false,
+        accept: function(val) { return true; },
+        adapt: function(val) { return val; }
+    });
+    Rpd.channelrenderer('mozziflow/' + type, 'html', {});
 });
 
-// New Float Channel Type
-Rpd.channeltype('mozziflow/float_32', {
-    readonly: false,
-    accept: function(val) { return true; },
-    adapt: function(val) { return parseFloat(val); }
-});
-
+// Backward Compatibility Aliases
+Rpd.channeltype('mozziflow/any', { readonly: false, accept: function(v){return true;}, adapt: function(v){return v;} });
+Rpd.channelrenderer('mozziflow/any', 'html', {});
+Rpd.channeltype('mozziflow/string', { readonly: false, accept: function(v){return true;}, adapt: function(v){return v;} });
 Rpd.channelrenderer('mozziflow/string', 'html', {});
-Rpd.channelrenderer('mozziflow/float_32', 'html', {});

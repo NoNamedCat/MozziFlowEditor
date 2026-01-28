@@ -3,11 +3,13 @@ network/add-patch bc BitCrusher_Native
 patch/open bc
 # --- SOURCE ---
 patch/add-node bc src wave/mozzi_sin Sine
-node/update-inlet src freq 110
 node/set-data src eyJyYXRlX21vZGUiOjJ9
+node/update-inlet src freq 110
+node/set-data src eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- MODULATOR ---
 patch/add-node bc rate_lfo wave/mozzi_phasor Phasor
+node/set-data rate_lfo eyJyYXRlX21vZGUiOjJ9
 node/update-inlet rate_lfo freq 2
 node/set-data rate_lfo eyJyYXRlX21vZGUiOjF9
 
@@ -20,10 +22,10 @@ node/set-data mapper eyJyYXRlX21vZGUiOjF9
 
 # --- EFFECT ---
 patch/add-node bc crush math_audio/bitcrush Bit-Crusher
-node/set-data crush eyJyYXRlX21vZGUiOjJ9
+node/set-data crush eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
-patch/add-node bc out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node bc out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect rate_lfo:out mapper:in

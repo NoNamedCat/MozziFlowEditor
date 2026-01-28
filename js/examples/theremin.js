@@ -2,7 +2,7 @@ EXAMPLES['theremin'] = `v2.1.1
 network/add-patch root Theremin_Stable
 patch/open root
 # --- SENSOR INPUT ---
-patch/add-node root p1 wave/mozzi_sin Sine
+patch/add-node root p1 lfo/mozzi_lfo_sin Sine%20LFO
 node/set-data p1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet p1 freq 0.1
 
@@ -15,15 +15,15 @@ node/update-inlet mapper out_max 1000
 
 # --- STABILIZER ---
 patch/add-node root smooth filter/mozzi_smooth Smooth
-node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/set-data smooth eyJyYXRlX21vZGUiOjF9
 node/update-inlet smooth smooth 0.95
 
 # --- SYNTH ---
 patch/add-node root osc wave/mozzi_sin Sine
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
 
-patch/add-node root out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node root out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect p1:out mapper:in

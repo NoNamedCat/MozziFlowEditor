@@ -41,11 +41,18 @@
                                  .call(function(tr) {
                                      // MozziFlow Color Hack: Read from definition or fallback to Library lookup
                                      var c = 'string';
-                                     if (inlet.def && inlet.def.color) c = inlet.def.color;
+                                     // Prioritize standard RPD type (e.g. 'mozziflow/int8' -> 'int8')
+                                     if (inlet.def && inlet.def.type && inlet.def.type.indexOf('mozziflow/') === 0) {
+                                         c = inlet.def.type.split('/')[1];
+                                     }
+                                     // Fallback to legacy 'color' prop
+                                     else if (inlet.def && inlet.def.color) c = inlet.def.color;
                                      else if (global.NodeLibrary && inlet.node && inlet.node.type) {
                                          var def = global.NodeLibrary.find(function(n) { return n.nodetype === inlet.node.type; });
                                          if (def && def.rpdnode && def.rpdnode.inlets && def.rpdnode.inlets[inlet.alias]) {
-                                             c = def.rpdnode.inlets[inlet.alias].color || 'string';
+                                            var idef = def.rpdnode.inlets[inlet.alias];
+                                            if (idef.type && idef.type.indexOf('mozziflow/') === 0) c = idef.type.split('/')[1];
+                                            else c = idef.color || 'string';
                                          }
                                      }
                                      tr.classed('rpd-channel-type-mozziflow-' + c, true);
@@ -61,11 +68,17 @@
                 var outletElm = d3.select(document.createElement('tr')).attr('class', 'rpd-outlet')
                                   .call(function(tr) {
                                       var c = 'string';
-                                      if (outlet.def && outlet.def.color) c = outlet.def.color;
+                                      // Prioritize standard RPD type (e.g. 'mozziflow/int8' -> 'int8')
+                                      if (outlet.def && outlet.def.type && outlet.def.type.indexOf('mozziflow/') === 0) {
+                                          c = outlet.def.type.split('/')[1];
+                                      }
+                                      else if (outlet.def && outlet.def.color) c = outlet.def.color;
                                       else if (global.NodeLibrary && outlet.node && outlet.node.type) {
                                           var def = global.NodeLibrary.find(function(n) { return n.nodetype === outlet.node.type; });
                                           if (def && def.rpdnode && def.rpdnode.outlets && def.rpdnode.outlets[outlet.alias]) {
-                                              c = def.rpdnode.outlets[outlet.alias].color || 'string';
+                                              var odef = def.rpdnode.outlets[outlet.alias];
+                                              if (odef.type && odef.type.indexOf('mozziflow/') === 0) c = odef.type.split('/')[1];
+                                              else c = odef.color || 'string';
                                           }
                                       }
                                       tr.classed('rpd-channel-type-mozziflow-' + c, true);

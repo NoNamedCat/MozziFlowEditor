@@ -1,6 +1,7 @@
 // MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
+#include <FixMath.h>
 
 // GLOBALS
 long node_enc1_up = 0;
@@ -9,7 +10,6 @@ long node_enc1_out = 0;
 bool arduinoencoder_enc1_last;
 long node_cnt1_out = 0;
 int mozzicounter_cnt1_c = 0; bool mozzicounter_cnt1_ul = 0; bool mozzicounter_cnt1_dl = 0;
-long node_drv1_d0 = 0;
 long node_drv1_out = 0;
 long node_shft_out = 0;
 
@@ -31,7 +31,7 @@ void updateControl() {
         if(mozzicounter_cnt1_c > (long)9) mozzicounter_cnt1_c = 0; if(mozzicounter_cnt1_c < 0) mozzicounter_cnt1_c = (long)9;
         node_cnt1_out = mozzicounter_cnt1_c;
     node_drv1_out = ((int[]){0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F})[(int)(long)node_cnt1_out % 10];
-    digitalWrite(12, LOW); shiftOut(11, 13, MSBFIRST, (uint8_t)node_drv1_d0); digitalWrite(12, HIGH);
+    digitalWrite(12, LOW); shiftOut(11, 13, MSBFIRST, (uint8_t)node_drv1_out); digitalWrite(12, HIGH);
 }
 
 AudioOutput updateAudio() {

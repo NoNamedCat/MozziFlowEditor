@@ -34,35 +34,6 @@ NodeLibrary.forEach(function(element){
             var node = this;
             var valDisplays = {};
 
-            // --- INJECTION: Apply Colors to Connectors based on Metadata ---
-            setTimeout(function() {
-                var nodeElm = bodyElm.parentElement;
-                while (nodeElm && !nodeElm.classList.contains('rpd-node')) nodeElm = nodeElm.parentElement;
-                if (!nodeElm) return;
-
-                // Color Inlets
-                if (element.rpdnode.inlets) {
-                    Object.keys(element.rpdnode.inlets).forEach(function(alias) {
-                        var color = element.rpdnode.inlets[alias].color;
-                        if (color) {
-                            var inletElm = nodeElm.querySelector('.rpd-inlet[data-alias="' + alias + '"]');
-                            if (inletElm) inletElm.classList.add('mozzi-color-' + color);
-                        }
-                    });
-                }
-                // Color Outlets
-                if (element.rpdnode.outlets) {
-                    Object.keys(element.rpdnode.outlets).forEach(function(alias) {
-                        var color = element.rpdnode.outlets[alias].color;
-                        if (color) {
-                            var outletElm = nodeElm.querySelector('.rpd-outlet[data-alias="' + alias + '"]');
-                            if (outletElm) outletElm.classList.add('mozzi-color-' + color);
-                        }
-                    });
-                }
-            }, 10);
-
-            
             // 1. Get visible inlets from the STATIC library definition
             var inletDefs = element.rpdnode.inlets || {};
             var visibleInletAliases = Object.keys(inletDefs).filter(function(alias) {
@@ -295,10 +266,18 @@ var updateVisualInferredRates = _.debounce(function() {
         }
         if (!nodeElm) return;
 
-        var mode = node.rpdNode.data.rate_mode || 0;
-        nodeElm.classList.remove('rate-inferred-audio', 'rate-inferred-control');
+        // 3. Update Styles (REGLA v111.3)
+        var mode = parseInt(node.rpdNode.data.rate_mode || 0);
+        
+        // Limpieza de Clases CSS: Eliminar todas antes de aplicar la nueva
+        nodeElm.classList.remove('rate-auto', 'rate-audio', 'rate-control', 'rate-inferred-audio', 'rate-inferred-control');
 
-        if (mode === 0) { // Only show inference for AUTO nodes
+        if (mode === 1) { // Manual CONTROL
+            nodeElm.classList.add('rate-control');
+        } else if (mode === 2) { // Manual AUDIO
+            nodeElm.classList.add('rate-audio');
+        } else { // AUTO (Inference)
+            nodeElm.classList.add('rate-auto');
             if (rates[id] === "AUDIO") nodeElm.classList.add('rate-inferred-audio');
             else nodeElm.classList.add('rate-inferred-control');
         }

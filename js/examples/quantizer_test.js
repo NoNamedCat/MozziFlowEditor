@@ -3,6 +3,7 @@ network/add-patch root Quantizer_Test
 patch/open root
 # --- MODULATION ---
 patch/add-node root lfo wave/mozzi_sin Sine
+node/set-data lfo eyJyYXRlX21vZGUiOjJ9
 node/set-data lfo eyJyYXRlX21vZGUiOjF9
 node/update-inlet lfo freq 0.2
 
@@ -19,9 +20,10 @@ node/set-data mtof eyJyYXRlX21vZGUiOjF9
 # --- AUDIO ---
 patch/add-node root osc wave/mozzi_sin Sine
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
+node/set-data osc eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
-patch/add-node root out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node root out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect lfo:out mapper:in

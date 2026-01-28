@@ -7,12 +7,14 @@ patch/add-node root 5auw signal/mozzi_ead Ead%20Env
 node/update-inlet 5auw att 10
 node/update-inlet 5auw dec 200
 patch/add-node root 3gcd wave/mozzi_saw Saw
+node/set-data 3gcd eyJyYXRlX21vZGUiOjJ9
 node/update-inlet 3gcd freq 55
 patch/add-node root cfnu filter/mozzi_multires MultiRes%20Filter
+node/set-data cfnu eyJyYXRlX21vZGUiOjJ9
 node/update-inlet cfnu res 220
 patch/add-node root 776e math/shr Shift%20Right
 node/update-inlet 776e b 2
-patch/add-node root k154 output/mozzi_out Output
+patch/add-node root k154 output/mozzi_master Output
 outlet/connect aoov:out 5auw:trig
 outlet/connect 3gcd:out cfnu:in
 outlet/connect 5auw:out cfnu:cutoff

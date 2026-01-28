@@ -3,6 +3,7 @@ network/add-patch root WavePacket_Synth
 patch/open root
 # --- MODULATION ---
 patch/add-node root lfo wave/mozzi_sin Sine
+node/set-data lfo eyJyYXRlX21vZGUiOjJ9
 node/set-data lfo eyJyYXRlX21vZGUiOjF9
 node/update-inlet lfo freq 0.2
 
@@ -15,14 +16,16 @@ node/update-inlet mapper out_max 250
 
 patch/add-node root smooth filter/mozzi_smooth Smooth
 node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/set-data smooth eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 node/update-inlet smooth smooth 0.95
 
 # --- ENGINE ---
 patch/add-node root wp wave/mozzi_wavepacket WavePacket
 node/set-data wp eyJyYXRlX21vZGUiOjJ9
+node/set-data wp eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
-patch/add-node root out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node root out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect lfo:out mapper:in

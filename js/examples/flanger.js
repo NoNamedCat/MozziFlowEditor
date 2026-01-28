@@ -4,10 +4,12 @@ patch/open root
 # --- AUDIO ---
 patch/add-node root osc wave/mozzi_sin Sine
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
+node/set-data osc eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 node/update-inlet osc freq 220
 
 # --- MODULATION ---
 patch/add-node root lfo wave/mozzi_sin Sine
+node/set-data lfo eyJyYXRlX21vZGUiOjJ9
 node/set-data lfo eyJyYXRlX21vZGUiOjF9
 node/update-inlet lfo freq 0.2
 
@@ -20,14 +22,16 @@ node/update-inlet mapper out_max 100
 
 patch/add-node root smooth filter/mozzi_smooth Smooth
 node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/set-data smooth eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 node/update-inlet smooth smooth 0.98
 
 # --- EFFECT ---
 patch/add-node root del filter/mozzi_audiodelay Audio%20Delay
 node/set-data del eyJyYXRlX21vZGUiOjJ9
+node/set-data del eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
-patch/add-node root out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node root out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect lfo:out mapper:in

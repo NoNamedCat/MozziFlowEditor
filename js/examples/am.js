@@ -7,7 +7,7 @@ node/set-data mod eyJyYXRlX21vZGUiOjF9
 node/update-inlet mod freq 4
 
 patch/add-node am smooth filter/mozzi_smooth Smooth
-node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/set-data smooth eyJyYXRlX21vZGUiOjF9
 node/update-inlet smooth smooth 0.9
 
 # --- CARRIER ---
@@ -18,19 +18,24 @@ node/update-inlet car freq 440
 patch/add-node am mul signal/mozzi_gain Gain
 node/set-data mul eyJyYXRlX21vZGUiOjJ9
 
-patch/add-node am out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node am norm math/shr Shift%20Right
+node/update-inlet norm b 7
+
+patch/add-node am out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect mod:out smooth:in
 outlet/connect smooth:out mul:gain
 outlet/connect car:out mul:in
-outlet/connect mul:out out:audio_in
+outlet/connect mul:out norm:a
+outlet/connect norm:out out:audio_in
 
 # --- POSITIONING ---
 node/move mod 50 50
 node/move smooth 250 50
 node/move car 50 250
 node/move mul 450 150
-node/move out 650 150
+node/move norm 600 150
+node/move out 750 150
 `;

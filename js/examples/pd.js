@@ -14,21 +14,20 @@ node/update-inlet mapper out_min 0
 node/update-inlet mapper out_max 255
 
 patch/add-node root smooth filter/mozzi_smooth Smooth
-node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/set-data smooth eyJyYXRlX21vZGUiOjF9
 node/update-inlet smooth smooth 0.95
 
-# --- PD ENGINE ---
-patch/add-node root osc wave/mozzi_pdresonant PD%20Resonant
+# --- ENGINE ---
+patch/add-node root osc wave/mozzi_saw Saw
 node/set-data osc eyJyYXRlX21vZGUiOjJ9
 node/update-inlet osc freq 110
 
-patch/add-node root out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node root out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect lfo:out mapper:in
 outlet/connect mapper:out smooth:in
-outlet/connect smooth:out osc:res
 outlet/connect osc:out out:audio_in
 
 # --- POSITIONING ---

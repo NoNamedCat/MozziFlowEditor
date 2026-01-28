@@ -16,14 +16,16 @@ node/set-data rout1 eyJyYXRlX21vZGUiOjF9
 
 patch/add-node root osc1 wave/mozzi_sin Sine
 node/set-data osc1 eyJyYXRlX21vZGUiOjJ9
+node/set-data osc1 eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 node/update-inlet osc1 freq 440
 
 patch/add-node root osc2 wave/mozzi_saw Saw
 node/set-data osc2 eyJyYXRlX21vZGUiOjJ9
+node/set-data osc2 eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 node/update-inlet osc2 freq 220
 
-patch/add-node root out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node root out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect enc1:up cnt1:up

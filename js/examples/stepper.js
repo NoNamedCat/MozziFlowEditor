@@ -12,6 +12,10 @@ node/update-inlet seq s0 1
 node/update-inlet seq s1 2
 node/update-inlet seq s2 4
 node/update-inlet seq s3 8
+node/update-inlet seq s4 1
+node/update-inlet seq s5 2
+node/update-inlet seq s6 4
+node/update-inlet seq s7 8
 
 patch/add-node root out595 output/arduino_shift595_1 Shift%20595%20(1)
 node/set-data out595 eyJyYXRlX21vZGUiOjF9

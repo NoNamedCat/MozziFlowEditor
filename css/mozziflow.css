@@ -128,39 +128,42 @@ html, body {
 }
 .footer-credits { color: #555; font-style: italic; }
 
-/* Footer Legend Styles */
+/* Footer Legend Styles - Updated with Technical Type Names */
 .footer-legend {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 12px;
     width: 100%;
-    padding-top: 2px;
+    padding-top: 4px;
     border-top: 1px solid #222;
     margin-top: 2px;
+    flex-wrap: wrap; /* Ensure it fits on smaller screens */
 }
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 5px;
-    color: #888;
+    gap: 6px;
+    color: #999;
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 .legend-item i {
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
 }
-.bg-audio { background-color: #00FFFF; box-shadow: 0 0 4px #00FFFF; }
-.bg-control { background-color: #FFFF00; box-shadow: 0 0 4px #FFFF00; }
-.bg-freq { background-color: #00AA44; box-shadow: 0 0 4px #00AA44; }
-.bg-mod { background-color: #9900FF; box-shadow: 0 0 4px #9900FF; }
-.bg-logic { background-color: #FF0000; box-shadow: 0 0 4px #FF0000; }
-.bg-float { background-color: #0066FF; box-shadow: 0 0 4px #0066FF; }
-.bg-generic { background-color: #DDDDDD; box-shadow: 0 0 2px #FFFFFF; }
+
+.bg-int8    { background-color: #00FFFF; box-shadow: 0 0 6px #00FFFF; } /* Cyan */
+.bg-uint8   { background-color: #FFFF00; box-shadow: 0 0 6px #FFFF00; } /* Yellow */
+.bg-uint16  { background-color: #00FF66; box-shadow: 0 0 6px #00FF66; } /* Spring Green */
+.bg-int16   { background-color: #CC00FF; box-shadow: 0 0 6px #CC00FF; } /* Vivid Purple */
+.bg-long    { background-color: #FF6600; box-shadow: 0 0 6px #FF6600; } /* Deep Orange */
+.bg-bool    { background-color: #FF0000; box-shadow: 0 0 6px #FF0000; } /* Red */
+.bg-float   { background-color: #0066FF; box-shadow: 0 0 6px #0066FF; } /* Blue */
+.bg-generic { background-color: #EEEEEE; box-shadow: 0 0 2px #FFFFFF; } /* Near White */
 
 .rpd-mozziflow-nodelist .rpd-nodelist-selected {
     background-color: rgba(0, 255, 153, 0.2) !important;
@@ -471,50 +474,53 @@ _::-moz-range-track, body:last-child .rpd-connector {
 }
 
 /* 
-   CONNECTOR COLORS - Visual-only classes (Fix: Desoupled from RPD types)
+   CONNECTOR COLORS - Updated with Technical Type Names
+   Synchronized with Quartz style (rpd-channel-type-mozziflow-[type])
 */
 
-.mozzi-color-audio .rpd-connector {
+.rpd-channel-type-mozziflow-int8 .rpd-connector {
     background-color: #00FFFF !important; 
     border-color: #00AAAA !important;
-    box-shadow: 0 0 4px #00FFFF;
+    box-shadow: 0 0 6px #00FFFF;
 }
 
-.mozzi-color-control .rpd-connector {
+.rpd-channel-type-mozziflow-uint8 .rpd-connector {
     background-color: #FFFF00 !important; 
     border-color: #AAAA00 !important;
-    box-shadow: 0 0 4px #FFFF00;
+    box-shadow: 0 0 6px #FFFF00;
 }
 
-.mozzi-color-freq .rpd-connector {
-    background-color: #00AA44 !important; 
-    border-color: #006622 !important;
-    box-shadow: 0 0 4px #00AA44;
+.rpd-channel-type-mozziflow-uint16 .rpd-connector {
+    background-color: #00FF66 !important; 
+    border-color: #00AA44 !important;
+    box-shadow: 0 0 6px #00FF66;
 }
 
-.mozzi-color-mod .rpd-connector {
-    background-color: #9900FF !important; 
-    border-color: #5500AA !important;
-    box-shadow: 0 0 4px #9900FF;
+.rpd-channel-type-mozziflow-int16 .rpd-connector {
+    background-color: #CC00FF !important; 
+    border-color: #9900CC !important;
+    box-shadow: 0 0 6px #CC00FF;
 }
 
-.mozzi-color-logic .rpd-connector {
+.rpd-channel-type-mozziflow-bool .rpd-connector {
     background-color: #FF0000 !important; 
     border-color: #880000 !important;
-    box-shadow: 0 0 4px #FF0000;
+    box-shadow: 0 0 6px #FF0000;
 }
 
-.mozzi-color-float .rpd-connector {
+.rpd-channel-type-mozziflow-float .rpd-connector {
     background-color: #0066FF !important; 
     border-color: #0033AA !important;
-    box-shadow: 0 0 4px #0066FF;
+    box-shadow: 0 0 6px #0066FF;
 }
 
-.mozzi-color-string .rpd-connector {
-    background-color: #DDDDDD !important; 
+.rpd-channel-type-mozziflow-long .rpd-connector {
+    background-color: #FF6600 !important; 
+    border-color: #AA4400 !important;
+    box-shadow: 0 0 6px #FF6600;
+}
+
+.rpd-channel-type-mozziflow-any .rpd-connector {
+    background-color: #EEEEEE !important; 
     border-color: #888888 !important;
 }
-
-/* 
-   LEGACY CONNECTOR COLORS (Keep for safety during transition)
-*/

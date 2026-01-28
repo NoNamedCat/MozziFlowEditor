@@ -14,7 +14,7 @@ node/update-inlet mapper out_min 200
 node/update-inlet mapper out_max 4000
 
 patch/add-node root smooth filter/mozzi_smooth Smooth
-node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/set-data smooth eyJyYXRlX21vZGUiOjF9
 node/update-inlet smooth smooth 0.95
 
 # --- ENGINE ---
@@ -23,11 +23,11 @@ node/set-data osc eyJyYXRlX21vZGUiOjJ9
 node/update-inlet osc freq 110
 
 patch/add-node root filter filter/mozzi_svf SVF%20Filter
-node/set-data filter eyJyYXRlX21vZGUiOjJ9
+node/set-data filter eyJtb2RlIjoiTE9XUEFTUyIsInJhdGVfbW9kZSI6Mn0=
 node/update-inlet filter res 180
 
-patch/add-node root out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node root out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect lfo:out mapper:in

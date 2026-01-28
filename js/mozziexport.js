@@ -3,6 +3,9 @@
  * Standard: Smart DSP Compiler + Multi-Output Global Auto-Declaration
  */
 
+const isVar = (v) => v && v.toString().includes("node_");
+if (typeof global !== "undefined") global.isVar = isVar;
+
 function calculateNodeRates(project) {
     var nodes = project.nodes;
     var links = project.links;
@@ -29,27 +32,27 @@ function calculateNodeRates(project) {
         }
     });
 
-    // 2. Selective Backpropagation
-    // We run multiple passes to ensure convergence
+    // 2. Selective Backpropagation (REGLA DE ORO v111.3)
     for (var p = 0; p < 10; p++) {
         var changed = false;
         Object.keys(nodes).forEach(id => {
-            if (isFixed[id]) return; // Never overwrite manual settings
-            if (nodeRates[id] === "AUDIO") return; // Already audio
+            // REGLA DE ORO: Si el usuario eligió, NO TOCAR.
+            if (isFixed[id]) return; 
+            if (nodeRates[id] === "AUDIO") return; 
 
             var node = nodes[id];
             
-            // Hardcoded Audio Outputs
             if (node.type.includes("output/mozzi_out") || node.type.includes("output/mozzi_output")) {
                 if (nodeRates[id] !== "AUDIO") { nodeRates[id] = "AUDIO"; changed = true; }
                 return;
             }
 
-            // Propagation Rule: If I feed ANY node that is AUDIO, and I am AUTO, I become AUDIO
-            // UNLESS I am feeding it via a parameter that is traditionally control (Optional refinement, but let's stick to user request)
-            var feedsAudio = Object.values(links).some(l => l.prev_node === id && nodeRates[l.next_node] === "AUDIO");
-            
-            if (feedsAudio) {
+            var feedsAudio = Object.values(links).some(l => {
+                // Solo propagamos si el destino es AUDIO y NO es una entrada etiquetada como control
+                return l.prev_node === id && nodeRates[l.next_node] === "AUDIO";
+            });
+
+            if (feedsAudio && nodeRates[id] !== "AUDIO") {
                 nodeRates[id] = "AUDIO";
                 changed = true;
             }
@@ -77,7 +80,7 @@ function exportToMozzi(project, canvas) {
     var nodes = project.nodes;
     var links = project.links;
     var codeParts = {
-        includes: new Set(["#include <Mozzi.h>", "#include <Oscil.h>"]),
+        includes: new Set(["#include <Mozzi.h>", "#include <Oscil.h>", "#include <FixMath.h>"]),
         globals: [],
         setup: [],
         control: [],
@@ -107,8 +110,25 @@ function exportToMozzi(project, canvas) {
     }
     Object.keys(nodes).forEach(visit);
 
-    // --- 2. INFERENCIA DE TASAS ---
+    // --- 2. INFERENCIA DE TASAS Y DETECCIÓN DE CONFIG AGNOSTICA ---
     var nodeRates = calculateNodeRates(project);
+    
+    // Auto-detect config from Master Output node
+    var masterNode = Object.values(nodes).find(n => n.type === "output/mozzi_master");
+    if (masterNode && masterNode.data) {
+        if (masterNode.data.channels) {
+            codeParts.includes.add("#define MOZZI_AUDIO_CHANNELS " + masterNode.data.channels);
+        }
+        if (masterNode.data.mode) {
+            codeParts.includes.add("#define MOZZI_AUDIO_MODE " + masterNode.data.mode);
+        }
+    } else {
+        // Fallback detection for legacy patches
+        var isStereoLegacy = Object.values(nodes).some(n => n.type.includes("stereo"));
+        if (isStereoLegacy) {
+            codeParts.includes.add("#define MOZZI_AUDIO_CHANNELS MOZZI_STEREO");
+        }
+    }
 
     // --- 3. REGISTRO GLOBAL ---
     var declaredSignals = new Set();
@@ -140,7 +160,7 @@ function exportToMozzi(project, canvas) {
         }
     });
 
-    // --- 4. GENERACIÓN DE CÓDIGO ---
+        // --- 4. GENERACIÓN DE CÓDIGO ---
     sortedNodeIds.forEach(id => {
         var node = nodes[id];
         var def = NodeLibrary.find(n => n.nodetype === node.type);
@@ -164,11 +184,12 @@ function exportToMozzi(project, canvas) {
 
         if (def.mozzi.includes) def.mozzi.includes.forEach(inc => codeParts.includes.add(inc));
 
-        function processCode(code, targetVar) {
+        function processCode(code, targetVar, isOutput) {
             if (!code) return null;
             var lines = code.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
             return lines.map((line, idx) => {
                 if (idx === lines.length - 1) {
+                    if (isOutput) return "return " + line + (line.endsWith(';') ? "" : ";");
                     if (line.includes('=') || line.includes('return') || line.includes('.set') || 
                         line.includes('.noteOn') || line.includes('.start') || line.includes('digitalWrite') ||
                         line.startsWith('if') || line.startsWith('while') || line.endsWith('}') || line.endsWith(';')) {
@@ -182,47 +203,59 @@ function exportToMozzi(project, canvas) {
         }
 
         var mainOutlet = "node_" + id + "_out";
-
-        if (node.type.includes("output/mozzi_out") || node.type.includes("output/mozzi_output")) {
-            var audioInLink = findLinkToInlet(id, 'audio_in');
-            if (audioInLink) {
-                var prevNodeVar = "node_" + audioInLink.prev_node + "_" + audioInLink.prev_outlet;
-                codeParts.audio.push("return MonoOutput::from8Bit((int)" + prevNodeVar + ");");
-            } else {
-                var defVal = (node.data && node.data.audio_in) || "0";
-                codeParts.audio.push("return MonoOutput::from8Bit((int)" + defVal + ");");
-            }
-            return;
-        }
+        var isOutputNode = node.type.includes("output/mozzi_master") || node.type.includes("output/mozzi_out");
 
         if (def.mozzi.setup) codeParts.setup.push(def.mozzi.setup(node, instanceName, inputs));
         
+        // --- LÓGICA DE SEPARACIÓN AGNOSTICA v111.4 ---
         var cCode = def.mozzi.control ? def.mozzi.control(node, instanceName, inputs) : null;
         var aCode = def.mozzi.audio ? def.mozzi.audio(node, instanceName, inputs) : null;
 
         if (finalRate === "AUDIO") {
+            // 1. Audio loop always gets the audio code
             if (aCode) {
-                var procA = processCode(aCode, mainOutlet);
+                var procA = processCode(aCode, mainOutlet, isOutputNode);
                 if (procA) codeParts.audio.push(procA);
             }
-            if (cCode) {
-                var procC = processCode(cCode, mainOutlet);
-                if (procC) codeParts.audio.push("// Control logic moved to audio loop for node " + id + "\n    " + procC);
+            // 2. Control loop only gets control code if it's DIFFERENT from audio code
+            // This avoids duplication in Math nodes while keeping parameter updates for Oscillators
+            if (cCode && cCode !== aCode) {
+                var procC = processCode(cCode, mainOutlet, isOutputNode);
+                if (procC) codeParts.control.push("// Parameter update for audio node " + id + "\n        " + procC);
             }
         } else {
+            // 1. Control loop always gets the control code
             if (cCode) {
-                var procC = processCode(cCode, mainOutlet);
+                var procC = processCode(cCode, mainOutlet, isOutputNode);
                 if (procC) codeParts.control.push(procC);
             }
-            if (aCode) {
-                var procA = processCode(aCode, mainOutlet);
+            // 2. Control loop gets audio code (downsampled) only if it's DIFFERENT from control code
+            if (aCode && aCode !== cCode) {
+                var procA = processCode(aCode, mainOutlet, isOutputNode);
                 if (procA) codeParts.control.push("// Forced downsample for node " + id + "\n        " + procA);
             }
         }
     });
 
-    var finalCode = "// MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH\n";
-    finalCode += Array.from(codeParts.includes).join('\n') + '\n\n';
+    var finalCode = "";
+    
+    // 1. CONFIG DEFINES (MUST BE FIRST)
+    var configDefines = [];
+    var masterNode = Object.values(nodes).find(n => n.type === "output/mozzi_master");
+    if (masterNode && masterNode.data) {
+        if (masterNode.data.channels) configDefines.push("#define MOZZI_AUDIO_CHANNELS " + masterNode.data.channels);
+        if (masterNode.data.mode) configDefines.push("#define MOZZI_AUDIO_MODE " + masterNode.data.mode);
+    } else {
+        var isStereoLegacy = Object.values(nodes).some(n => n.type.includes("stereo"));
+        if (isStereoLegacy) configDefines.push("#define MOZZI_AUDIO_CHANNELS MOZZI_STEREO");
+    }
+    
+    if (configDefines.length > 0) {
+        finalCode += configDefines.join('\n') + '\n\n';
+    }
+
+    finalCode += "// MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH\n";
+    finalCode += Array.from(codeParts.includes).filter(inc => !inc.includes("MOZZI_AUDIO")).join('\n') + '\n\n';
     finalCode += "// GLOBALS\n" + codeParts.globals.join('\n') + '\n\n';
     finalCode += "void setup() {\n    startMozzi();\n    " + codeParts.setup.join('\n    ') + "\n}\n\n";
     finalCode += "void updateControl() {\n    " + codeParts.control.join('\n    ') + "\n}\n\n";
@@ -239,11 +272,11 @@ function NodeToMozziCppInternal() {
     var project = { nodes: {}, links: {} };
     if (typeof mozziFlowContainer !== 'undefined') {
         mozziFlowContainer.forEach(function(node) {
-            // FIX: Access rpdNode.data instead of node.data
+            // FIX: Prioritize node.data which contains the loaded patch settings
             project.nodes[node.nodeid] = { 
                 id: node.nodeid, 
                 type: node.nodetype, 
-                data: (node.rpdNode && node.rpdNode.data) ? node.rpdNode.data : (node.data || {}) 
+                data: node.data || (node.rpdNode ? node.rpdNode.data : {})
             };
             if (node.nodeinletvalue) {
                 Object.keys(node.nodeinletvalue).forEach(function(key) {

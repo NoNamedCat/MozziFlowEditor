@@ -1,6 +1,7 @@
 // MOZZIFLOW v111.0 BALANCED CORE REFINED SKETCH
 #include <Mozzi.h>
 #include <Oscil.h>
+#include <FixMath.h>
 #include <Metronome.h>
 
 // GLOBALS

@@ -24,7 +24,7 @@ node/update-inlet shft clock 13
 outlet/connect enc1:up cnt1:up
 outlet/connect enc1:down cnt1:down
 outlet/connect cnt1:out drv1:val
-outlet/connect drv1:d0 shft:bits0
+outlet/connect drv1:out shft:bits0
 
 # --- POSITIONING ---
 node/move enc1 50 100

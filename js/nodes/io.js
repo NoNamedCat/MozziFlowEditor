@@ -1,15 +1,17 @@
-// Mozzi Node Definitions - IO (Iron Integrity v111.9)
+// Mozzi Node Definitions - IO (Iron Integrity v111.35)
+// Technical Type Colors - No functional labels
+
 NodeLibrary.push({
     nodetype: 'input/constant',
     mozzi: { rate: "control", is_inline: true, control: function(n,v,i) { return (n.data && n.data.val) ? n.data.val : "0"; } },
-    rpdnode: { "title": "Constant", "inlets": { "val": { "type": "mozziflow/any", "color": "control", "default": "0", "hidden": true } }, "outlets": { "out": { "type": "mozziflow/any", "color": "control" } } }
+    rpdnode: { "title": "Constant", "inlets": { "val": { "type": "mozziflow/long", "default": "0", "hidden": true } }, "outlets": { "out": { "type": "mozziflow/long" } } }
 });
 
 NodeLibrary.push({
     nodetype: 'input/arduino_button',
     nodeclass: "ArduinoButton",
     mozzi: { rate: "control", is_inline: true, setup: function(n,v,i){ return "pinMode("+i.pin+", INPUT_PULLUP);"; }, control: function(n,v,i){ return "digitalRead("+i.pin+") == LOW ? 255 : 0"; } },
-    rpdnode: { "title": "Button", "inlets": { "pin": { "type": "mozziflow/any", "is_control": true, "color": "control" } }, "outlets": { "out": { "type": "mozziflow/any", "color": "logic" } } }
+    rpdnode: { "title": "Button", "inlets": { "pin": { "type": "mozziflow/uint8", "is_control": true, "label": "pin" } }, "outlets": { "out": { "type": "mozziflow/bool" } } }
 });
 
 NodeLibrary.push({
@@ -27,7 +29,7 @@ NodeLibrary.push({
                    "}\n"+v+"_last = "+v+"_cur;";
         } 
     },
-    rpdnode: { "title": "Encoder", "inlets": { "pinA": { "type": "mozziflow/any", "is_control": true, "color": "control" }, "pinB": { "type": "mozziflow/any", "is_control": true, "color": "control" } }, "outlets": { "up": { "type": "mozziflow/any", "color": "logic" }, "down": { "type": "mozziflow/any", "color": "logic" } } }
+    rpdnode: { "title": "Encoder", "inlets": { "pinA": { "type": "mozziflow/uint8", "is_control": true, "label": "pinA" }, "pinB": { "type": "mozziflow/uint8", "is_control": true, "label": "pinB" } }, "outlets": { "up": { "type": "mozziflow/bool" }, "down": { "type": "mozziflow/bool" } } }
 });
 
 [1, 2, 3, 4].forEach(idx => {
@@ -48,13 +50,13 @@ NodeLibrary.push({
                 return code.trim();
             } 
         },
-        rpdnode: { "title": "Mux 4051 (" + idx + ")", "inlets": { "s0": { "type": "mozziflow/any", "color": "control" }, "s1": { "type": "mozziflow/any", "color": "control" }, "s2": { "type": "mozziflow/any", "color": "control" }, "pin": { "type": "mozziflow/any", "color": "control" } }, "outlets": { "ch0": { "type": "mozziflow/any", "color": "control" }, "ch1": { "type": "mozziflow/any", "color": "control" }, "ch2": { "type": "mozziflow/any", "color": "control" }, "ch3": { "type": "mozziflow/any", "color": "control" }, "ch4": { "type": "mozziflow/any", "color": "control" }, "ch5": { "type": "mozziflow/any", "color": "control" }, "ch6": { "type": "mozziflow/any", "color": "control" }, "ch7": { "type": "mozziflow/any", "color": "control" } } }
+        rpdnode: { "title": "Mux 4051 (" + idx + ")", "inlets": { "s0": { "type": "mozziflow/uint8", "label": "s0" }, "s1": { "type": "mozziflow/uint8", "label": "s1" }, "s2": { "type": "mozziflow/uint8", "label": "s2" }, "pin": { "type": "mozziflow/uint8", "label": "pin" } }, "outlets": { "ch0": { "type": "mozziflow/long" }, "ch1": { "type": "mozziflow/long" }, "ch2": { "type": "mozziflow/long" }, "ch3": { "type": "mozziflow/long" }, "ch4": { "type": "mozziflow/long" }, "ch5": { "type": "mozziflow/long" }, "ch6": { "type": "mozziflow/long" }, "ch7": { "type": "mozziflow/long" } } }
     });
 });
 
 [1, 2, 3, 4].forEach(num => {
-    var inlets = { "data_pin": { "type": "mozziflow/any", "color": "control" }, "latch": { "type": "mozziflow/any", "color": "control" }, "clock": { "type": "mozziflow/any", "color": "control" } };
-    for(var b=0; b<num; b++) inlets["bits"+b] = { "type": "mozziflow/any", "color": "control" };
+    var inlets = { "data_pin": { "type": "mozziflow/uint8", "label": "data" }, "latch": { "type": "mozziflow/uint8", "label": "latch" }, "clock": { "type": "mozziflow/uint8", "label": "clock" } };
+    for(var b=0; b<num; b++) inlets["bits"+b] = { "type": "mozziflow/uint8", "label": "bits"+b };
     NodeLibrary.push({
         nodetype: 'output/arduino_shift595_' + num,
         nodeclass: "ArduinoShift595_" + num,
@@ -72,8 +74,93 @@ NodeLibrary.push({
 });
 
 NodeLibrary.push({
-    nodetype: 'output/mozzi_out',
-    nodeclass: "MozziOut",
-    mozzi: { rate: "audio", is_inline: true, audio: function(n,v,i){ return "MonoOutput::from8Bit((int)"+i.audio_in+")"; } },
-    rpdnode: { "title": "Output", "inlets": { "audio_in": { "type": "mozziflow/any", "color": "audio" } } }
+    nodetype: 'output/mozzi_master',
+    nodeclass: "MozziMaster",
+    renderer: {
+        'html': function(bodyElm, node) {
+            if (!node.data) node.data = {};
+            if (!node.data.channels) node.data.channels = "MOZZI_MONO";
+            if (!node.data.mode) node.data.mode = "MOZZI_OUTPUT_PWM";
+            if (!node.data.resolution) node.data.resolution = "8bit";
+            
+            if (!node._ui_master) {
+                var container = document.createElement('div');
+                container.style.padding = "5px"; container.style.fontSize = "9px";
+                
+                // Channel Selector
+                var labelChan = document.createElement('div'); labelChan.innerText = "Channels:";
+                var selChan = document.createElement('select'); selChan.style.width = "100%";
+                [["Mono", "MOZZI_MONO"], ["Stereo", "MOZZI_STEREO"]].forEach(opt => {
+                    var o = document.createElement('option'); o.value = opt[1]; o.innerText = opt[0];
+                    if (node.data.channels === opt[1]) o.selected = true;
+                    selChan.appendChild(o);
+                });
+                selChan.onchange = function() { node.data.channels = this.value; };
+                
+                // Resolution Selector
+                var labelRes = document.createElement('div'); labelRes.innerText = "Output Resolution:";
+                var selRes = document.createElement('select'); selRes.style.width = "100%";
+                [["8-bit", "8bit"], ["16-bit", "16bit"], ["32-bit (SFix)", "32bit"]].forEach(opt => {
+                    var o = document.createElement('option'); o.value = opt[1]; o.innerText = opt[0];
+                    if (node.data.resolution === opt[1]) o.selected = true;
+                    selRes.appendChild(o);
+                });
+                selRes.onchange = function() { node.data.resolution = this.value; };
+
+                // Mode Selector
+                var labelMode = document.createElement('div'); labelMode.innerText = "Hardware Mode:";
+                var selMode = document.createElement('select'); selMode.style.width = "100%";
+                [
+                    ["PWM (1-pin)", "MOZZI_OUTPUT_PWM"],
+                    ["PWM (2-pin / Hi-Fi)", "MOZZI_OUTPUT_2PIN_PWM"],
+                    ["Internal DAC", "MOZZI_OUTPUT_INTERNAL_DAC"],
+                    ["I2S External DAC", "MOZZI_OUTPUT_I2S_DAC"],
+                    ["PDM via I2S", "MOZZI_OUTPUT_PDM_VIA_I2S"],
+                    ["Custom External", "MOZZI_OUTPUT_EXTERNAL_CUSTOM"]
+                ].forEach(opt => {
+                    var o = document.createElement('option'); o.value = opt[1]; o.innerText = opt[0];
+                    if (node.data.mode === opt[1]) o.selected = true;
+                    selMode.appendChild(o);
+                });
+                selMode.onchange = function() { node.data.mode = this.value; };
+
+                container.appendChild(labelChan); container.appendChild(selChan);
+                container.appendChild(labelRes); container.appendChild(selRes);
+                container.appendChild(labelMode); container.appendChild(selMode);
+                bodyElm.appendChild(container);
+                node._ui_master = true;
+            }
+        }
+    },
+    mozzi: { 
+        rate: "audio", is_inline: true, 
+        audio: function(n,v,i){ 
+            var isStereo = (i.l && i.l.includes("node_")) || (i.r && i.r.includes("node_"));
+            var res = (n.data && n.data.resolution) ? n.data.resolution : "8bit";
+            
+            var render = function(sig) {
+                if (res === "8bit") return "MonoOutput::from8Bit((int)"+sig+")";
+                if (res === "16bit") return "MonoOutput::from16Bit((int)"+sig+")";
+                return "MonoOutput::fromSFix(SFix<15,16>("+sig+", true))";
+            };
+
+            if (isStereo) {
+                var left = i.l || "0";
+                var right = i.r || "0";
+                if (res === "32bit") return "StereoOutput::fromSFix(SFix<15,16>("+left+", true), SFix<15,16>("+right+", true))";
+                if (res === "16bit") return "StereoOutput::from16Bit((int)"+left+", (int)"+right+")";
+                return "StereoOutput::from8Bit((int)"+left+", (int)"+right+")";
+            } else {
+                return render(i.audio_in || "0");
+            }
+        } 
+    },
+    rpdnode: { 
+        "title": "Master Output", 
+        "inlets": { 
+            "audio_in": { "type": "mozziflow/long", "label": "mono" },
+            "l": { "type": "mozziflow/long", "label": "L" }, 
+            "r": { "type": "mozziflow/long", "label": "R" } 
+        } 
+    }
 });

@@ -6,20 +6,20 @@ patch/add-node pm mod wave/mozzi_sin Sine
 node/set-data mod eyJyYXRlX21vZGUiOjJ9
 node/update-inlet mod freq 5
 
-patch/add-node pm gain signal/mozzi_gain Gain
+patch/add-node pm gain math/mul Multiply
 node/set-data gain eyJyYXRlX21vZGUiOjJ9
-node/update-inlet gain gain 128
+node/update-inlet gain b 10000
 
 # --- CARRIER ---
 patch/add-node pm car wave/mozzi_sin Sine
 node/set-data car eyJyYXRlX21vZGUiOjJ9
 node/update-inlet car freq 220
 
-patch/add-node pm out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node pm out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
-outlet/connect mod:out gain:in
+outlet/connect mod:out gain:a
 outlet/connect gain:out car:phase
 outlet/connect car:out out:audio_in
 

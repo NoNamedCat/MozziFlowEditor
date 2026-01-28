@@ -3,6 +3,7 @@ network/add-patch root Granular_WavePacket
 patch/open root
 # --- SCANNING ---
 patch/add-node root lfo1 wave/mozzi_sin Sine
+node/set-data lfo1 eyJyYXRlX21vZGUiOjJ9
 node/set-data lfo1 eyJyYXRlX21vZGUiOjF9
 node/update-inlet lfo1 freq 0.5
 
@@ -15,14 +16,16 @@ node/update-inlet mapper out_max 500
 
 patch/add-node root smooth filter/mozzi_smooth Smooth
 node/set-data smooth eyJyYXRlX21vZGUiOjJ9
+node/set-data smooth eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 node/update-inlet smooth smooth 0.9
 
 # --- ENGINE ---
 patch/add-node root wp1 wave/mozzi_wavepacket WavePacket
 node/set-data wp1 eyJyYXRlX21vZGUiOjJ9
+node/set-data wp1 eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
-patch/add-node root out output/mozzi_out Output
-node/set-data out eyJyYXRlX21vZGUiOjJ9
+patch/add-node root out output/mozzi_master Output
+node/set-data out eyJjaGFubmVscyI6Ik1PWlpJX01PTk8iLCJtb2RlIjoiTU9aWklfT1VUUFVUX1BXTSIsInJhdGVfbW9kZSI6Mn0=
 
 # --- CONNECTIONS ---
 outlet/connect lfo1:out mapper:in
