@@ -2,6 +2,18 @@
 // Technical Type Colors - No functional labels
 
 NodeLibrary.push({
+    nodetype: 'input/mozzi_analog_read',
+    nodeclass: "MozziAnalogRead",
+    mozzi: { 
+        rate: "control", 
+        is_inline: true,
+        includes: ["#include <mozzi_analog.h>"], 
+        control: function(n,v,i) { return "mozziAnalogRead((uint8_t)" + i.pin + ")"; } 
+    },
+    rpdnode: { "title": "Analog Input", "inlets": { "pin": { "type": "mozziflow/uint8", "label": "pin" } }, "outlets": { "out": { "type": "mozziflow/long" } } }
+});
+
+NodeLibrary.push({
     nodetype: 'input/constant',
     mozzi: { rate: "control", is_inline: true, control: function(n,v,i) { return (n.data && n.data.val) ? n.data.val : "0"; } },
     rpdnode: { "title": "Constant", "inlets": { "val": { "type": "mozziflow/long", "default": "0", "hidden": true } }, "outlets": { "out": { "type": "mozziflow/long" } } }
@@ -71,6 +83,30 @@ NodeLibrary.push({
         },
         rpdnode: { "title": "Shift 595 (" + num + ")", "inlets": inlets }
     });
+});
+
+NodeLibrary.push({
+    nodetype: 'output/arduino_digital_write',
+    nodeclass: "ArduinoDigitalWrite",
+    mozzi: { 
+        rate: "control", 
+        is_inline: true,
+        setup: function(n,v,i){ return "pinMode("+i.pin+", OUTPUT);"; },
+        control: function(n,v,i) { return "digitalWrite((uint8_t)" + i.pin + ", (long)" + i.val + " > 0 ? HIGH : LOW)"; } 
+    },
+    rpdnode: { "title": "Digital Write", "inlets": { "pin": { "type": "mozziflow/uint8", "label": "pin" }, "val": { "type": "mozziflow/bool", "label": "val" } } }
+});
+
+NodeLibrary.push({
+    nodetype: 'output/arduino_analog_write',
+    nodeclass: "ArduinoAnalogWrite",
+    mozzi: { 
+        rate: "control", 
+        is_inline: true,
+        setup: function(n,v,i){ return "pinMode("+i.pin+", OUTPUT);"; },
+        control: function(n,v,i) { return "analogWrite((uint8_t)" + i.pin + ", (int)" + i.val + ")"; } 
+    },
+    rpdnode: { "title": "Analog Write (PWM)", "inlets": { "pin": { "type": "mozziflow/uint8", "label": "pin" }, "val": { "type": "mozziflow/uint8", "label": "val" } } }
 });
 
 NodeLibrary.push({
