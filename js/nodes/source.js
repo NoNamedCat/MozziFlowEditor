@@ -67,8 +67,8 @@ _oscConfigs.forEach(function(cfg) {
             },
             control: function(n,v,i){
                 if(n.data.cfg_freq_mode === "fixed") {
-                    // Expecting SFix input or converting float to Q16n16
-                    return "if(last_f_" + n.id + " != (Q16n16)" + i.freq + "){ " + v + ".setFreq_Q16n16((Q16n16)" + i.freq + "); last_f_" + n.id + " = (Q16n16)" + i.freq + "; }";
+                    var val = (i.freq.indexOf("node_") === -1) ? "float_to_Q16n16(" + i.freq + ")" : "(Q16n16)" + i.freq;
+                    return "if(last_f_" + n.id + " != (Q16n16)" + val + "){ " + v + ".setFreq_Q16n16((Q16n16)" + val + "); last_f_" + n.id + " = (Q16n16)" + val + "; }";
                 }
                 return "if(last_f_" + n.id + " != " + i.freq + "){ " + v + ".setFreq((float)" + i.freq + "); last_f_" + n.id + " = " + i.freq + "; }"; 
             },
