@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>MozziFlowEditor - Visual Audio Designer</title>
+
+        <!-- replace double equals signs with double dashes to get html head like below generated -->
+        <!-- gulp html-head ==style quartz ==renderer html ==toolkit util ==toolkit timbre ==root .. -->
+
+        <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
+        <!-- gulp ==style quartz ==renderer html ==toolkit util ==toolkit timbre -->
+
+        <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: html -->
+        <!-- <link rel="stylesheet" href="vendor/render/html.css"></style> -->
+        <!-- RPD Style: quartz (html) -->
+        <!-- <link rel="stylesheet" href="vendor/style/quartz/html.css"></style> -->
+        <!-- RPD Toolkit: timbre (html) -->
+        <!-- <link rel="stylesheet" href="vendor/timbre/html.css"></style> -->
+        <!-- RPD Toolkit: util (html) -->
+        <link rel="stylesheet" href="vendor/util/html.css"></style>
+        <!-- <link rel="stylesheet" href="vendor/rpd.css"></style> -->
+
+        <!-- Timbre -->
+        <!-- <script src="http://mohayonao.github.io/timbre.js/timbre.js"></script> -->
+
+        <!-- Mithril -->
+        <script src="vendor/mithril_1.1.6.js"></script>
+        <!-- Kefir -->
+        <script src="vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="vendor/rpd.min.js"></script>
+        <!-- RPD Style Patch (Must load after RPD) -->
+        <script src="vendor/style/quartz/html.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="vendor/util/shared.js"></script>
+        <!-- <script src="vendor/util/toolkit.js"></script> -->
+        <!-- RPD Toolkit: util (html) -->
+        <!-- <script src="vendor/util/html.js"></script> -->
+ 
+        <!-- RPD Toolkit: timbre -->
+        <!-- <script src="../src/toolkit/timbre/shared.js"></script> -->
+        <!-- <script src="../src/toolkit/timbre/toolkit.js"></script> -->
+        <!-- RPD Toolkit: timbre (html) -->
+        <!-- <script src="../src/toolkit/timbre/html.js"></script> -->
+        <!-- <script src="../src/io/json.js"></script> -->
+
+        <script src="vendor/vex.combined.min.js"></script>
+        <script>vex.defaultOptions.className = 'vex-theme-wireframe'</script>
+        <link rel="stylesheet" href="vendor/vex.css" />
+        <link rel="stylesheet" href="vendor/vex-theme-wireframe.css" />
+
+        <!-- drag drop file open -->
+        <script src="vendor/filereader.js"></script>
+
+        <!-- underscore -->
+        <script src="vendor/underscore.js"></script>
+        <script src="vendor/hotkeys.min.js"></script>
+
+                <!-- MozziFlow custom node -->
+                <script src="js/mozziflow.js"></script>
+                <script src="js/sample_converter.js"></script>
+                <script src="js/huffman_converter.js"></script>
+                
+                                <!-- Examples Registry and Individual Patches -->
+        <script>var EXAMPLES = {};</script>
+        <script src="js/examples/basic_patches.js"></script>
+        <script src="js/examples/synthesis_patches.js"></script>
+        <script src="js/examples/midi_patches.js"></script>
+        <script src="js/examples/hardware_patches.js"></script>
+<!-- Mozzi Node Modules -->
+        <script src="js/nodes/source.js"></script>
+        <script src="js/nodes/lfo.js"></script>
+        <script src="js/nodes/filter.js"></script>
+        <script src="js/nodes/mixer.js"></script>
+        <script src="js/nodes/envelope.js"></script>
+        <script src="js/nodes/signal.js"></script>
+        <script src="js/nodes/casting.js"></script>
+        <script src="js/nodes/math.js"></script>
+        <script src="js/nodes/logic.js"></script>
+        <script src="js/nodes/io.js"></script>
+        <script src="js/nodes/ch32x035.js"></script>
+
+        <script src="js/mozziexport.js"></script>
+        <script src="js/help_system.js"></script>
+
+        <!-- MozziFlow system -->
+        <script src="js/mozziflow_editor.js"></script>
+
+                <link rel="stylesheet" href="css/mozziflow.css"></style>        <link rel="stylesheet" href="css/help.css"></style>
+
+                <link id="theme_css" rel="stylesheet" href="css/rpd-dark.css"></style>
+
+            </head>
+
+        
+
+    <body id="main">
+        
+        <div id="editor-content">
+            <div id="node-palette" class="rpd-mozziflow-nodelist">
+                <div class="palette-header">Mozzi Nodes</div>
+            </div>
+
+            <div id="rpd-canvas-container"></div>
+            
+            <!-- Full-Screen Help Overlay -->
+            <div id="help-overlay" class="help-overlay hidden">
+                <div class="help-top-bar">
+                    <h2>MOZZIFLOW NODE REFERENCE</h2>
+                    <button class="close-help-btn" onclick="toggleHelp()">CLOSE [X]</button>
+                </div>
+                <div class="help-main-layout">
+                    <div id="help-nodes-list" class="help-nodes-list">
+                        <!-- Node list populated via JS -->
+                    </div>
+                    <div id="help-detail-view" class="help-detail-view">
+                        <div class="help-empty-state">
+                            <p>Select a node from the left to see documentation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer id="app-footer">
+            <div class="footer-row-top">
+                <span class="footer-title">MozziFlowEditor</span>
+                <div class="footer-buttons">
+                    <button class="footer-btn" onclick="toggleHelp()">Help (?)</button>
+                    <button class="footer-btn" onclick="showExamples()">Examples</button>
+                    <button class="footer-btn" onclick="editPatchSource()">Source (ALT+P)</button>
+                    <button class="footer-btn" onclick="showNodeCode()">Code (ALT+E)</button>
+                    <button class="footer-btn" onclick="NodeToCPPDownload()">Download (ALT+S)</button>
+                </div>
+                <span class="footer-credits">By NoNamedCat, based on espnode86 by Budi Prakosa</span>
+            </div>
+            <div class="footer-legend">
+                <span class="legend-item"><i class="bg-int8"></i> int8</span>
+                <span class="legend-item"><i class="bg-uint8"></i> uint8</span>
+                <span class="legend-item"><i class="bg-int16"></i> int16</span>
+                <span class="legend-item"><i class="bg-uint16"></i> uint16</span>
+                <span class="legend-item"><i class="bg-int32"></i> int32</span>
+                <span class="legend-item"><i class="bg-uint32"></i> uint32</span>
+                <span class="legend-item"><i class="bg-float"></i> float</span>
+                <span class="legend-item"><i class="bg-q8"></i> Q8</span>
+                <span class="legend-item"><i class="bg-q16"></i> Q16</span>
+                <span class="legend-item"><i class="bg-q32"></i> Q32</span>
+                <span class="legend-item"><i class="bg-sfix8"></i> SFix8</span>
+                <span class="legend-item"><i class="bg-sfix16"></i> SFix16</span>
+                <span class="legend-item"><i class="bg-sfix32_16"></i> SFix32_16</span>
+                <span class="legend-item"><i class="bg-ufix16_16"></i> UFix16_16</span>
+            </div>
+        </footer>
+        
+        <script>
+            var modalOpen = 0;
+
+            function replaceAll(str, find, replace) {
+                return str.replace(new RegExp(find, 'g'), replace);
+            }
+
+            Rpd.renderNext('html', document.getElementById('rpd-canvas-container'), { style: 'quartz', fullPage: false });
+                        
+            var root = Rpd.addPatch('root');
+            mozziFlowRoot = root;
+            initAnchoredPalette(root);
+
+            // Force a resize event to ensure RPD canvas computes its dimensions correctly
+            window.dispatchEvent(new Event('resize'));
+
+            // Palette is now anchored, no need to add it as a node
+            // var nodeList = root.addNode('mozziflow/nodelist');
+
+            FileReaderJS.setupDrop(document.body, {
+                readAsDefault: "Text",
+                on: {
+                    load: function(e, file) {
+                        NodeImportCpp(e.target.result);
+                    // mozziFlowRoot.close();
+                    // mozziFlowReset();
+                    // NodeImportCpp(e.target.result);
+                    }
+                }
+            });
+        
+            var chooseTheme = function(theme) {
+                console.log(theme);
+                document.getElementById('theme_css').href = 'css/' + theme;
+            }
+
+            hotkeys('alt+p,alt+e,alt+s,ctrl+1,ctrl+2,ctrl+3,ctrl+4', function(event, handler) {
+                event.preventDefault();
+
+                switch(handler.key){
+                    case "alt+p": editPatchSource(); break;
+                    case "alt+e": showNodeCode(); break;
+                    case "alt+s": NodeToCPPDownload(); break;
+                    case "ctrl+1": chooseTheme('rpd-pink.css'); break;
+                    case "ctrl+2": chooseTheme('rpd-coco.css'); break;
+                    case "ctrl+3": chooseTheme('rpd-dark.css'); break;
+                    case "ctrl+4": chooseTheme('rpd-90s.css'); break;
+                }
+
+                return false;
+            });
+
+            var showExamples = function() {
+                if (modalOpen === 1) return;
+                modalOpen = 1;
+                
+                var categories = ["BASIC", "SYNTHESIS", "MIDI", "HARDWARE", "TESTING"];
+                var catColors = { "BASIC": "#00d4ff", "SYNTHESIS": "#ff0055", "MIDI": "#0055ff", "HARDWARE": "#aa00ff", "TESTING": "#00ff99" };
+                
+                var contentHtml = '<div class="ex-modal-container">';
+                
+                categories.forEach(function(cat) {
+                    contentHtml += '<div class="ex-cat-wrapper">';
+                    contentHtml += '<div class="ex-cat-header" style="border-left: 4px solid ' + catColors[cat] + '; color: ' + catColors[cat] + ';" onclick="this.nextElementSibling.classList.toggle(\'collapsed\')">' + cat + ' <span style="float:right; font-size:8px;">[TOGGLE]</span></div>';
+                    contentHtml += '<div class="ex-cat-content">';
+                    
+                    Object.keys(EXAMPLES).forEach(function(key) {
+                        var ex = EXAMPLES[key];
+                        if (ex.category === cat) {
+                            contentHtml += '<div class="ex-item" onclick="loadExample(\'' + key + '\')">';
+                            contentHtml += '<div class="ex-item-title">' + ex.title + '</div>';
+                            contentHtml += '<div class="ex-item-desc">' + ex.description + '</div>';
+                            contentHtml += '</div>';
+                        }
+                    });
+                    contentHtml += '</div></div>';
+                });
+                
+                contentHtml += '</div>';
+
+                vex.dialog.open({
+                    message: 'MOZZIFLOW PATCH LIBRARY',
+                    showCloseButton: true,
+                    buttons: [],
+                    input: [
+                        '<style>',
+                            '.vex-content { background: #0a0a0a !important; color: #eee !important; border: 1px solid #333 !important; box-shadow: 0 0 20px rgba(0,255,153,0.2) !important; }',
+                            '.vex-dialog-message { font-family: monospace !important; color: #0f9 !important; letter-spacing: 2px !important; font-weight: bold !important; border-bottom: 1px solid #222 !important; padding-bottom: 10px !important; }',
+                            '.ex-modal-container { max-height: 500px; overflow-y: auto; background: #0a0a0a; padding: 5px; }',
+                            '.ex-cat-wrapper { margin-bottom: 5px; }',
+                            '.ex-cat-header { background: #1a1a1a; padding: 10px; font-family: monospace; font-size: 11px; cursor: pointer; user-select: none; transition: background 0.2s; }',
+                            '.ex-cat-header:hover { background: #252525; }',
+                            '.ex-cat-content { overflow: hidden; transition: max-height 0.3s ease-out; max-height: 1000px; background: rgba(0,0,0,0.3); }',
+                            '.ex-cat-content.collapsed { max-height: 0; }',
+                            '.ex-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #1a1a1a; transition: all 0.2s; border-left: 2px solid transparent; }',
+                            '.ex-item:hover { background: rgba(0,255,153,0.05); border-left-color: #0f9; padding-left: 18px; }',
+                            '.ex-item-title { color: #0ff; font-size: 12px; font-weight: bold; font-family: monospace; }',
+                            '.ex-item-desc { color: #666; font-size: 9px; font-style: italic; margin-top: 4px; font-family: monospace; }',
+                        '</style>',
+                        contentHtml
+                    ].join(''),
+                    beforeClose: function() { modalOpen = 0; }
+                });
+            };
+            window.loadExample = function(key) {
+                vex.closeAll();
+                modalOpen = 0;
+                if (EXAMPLES[key] && EXAMPLES[key].code) {
+                    NodeImportCpp(EXAMPLES[key].code.trim());
+                }
+            };
+
+
+
+            var showNodeCode = function()
+            {
+                if (modalOpen === 1) return;
+                modalOpen = 1;
+
+                vex.dialog.defaultOptions.showCloseButton = false;
+                vex.dialog.open({
+                    message: 'Copy paste to your Arduino Sketch',
+                    showCloseButton: false,
+                    buttons: [{ text: 'OK', type: 'submit', className: 'vex-dialog-button-primary' }],
+                    input: [
+                        '<style>',
+                            '.vex-custom-field-wrapper { margin: 1em 0; }',
+                            '.vex-custom-field-wrapper > label { display: inline-block; margin-bottom: .0em; }',
+                        '</style>',
+                        '<div class="vex-custom-field-wrapper">',
+                            '<button class="footer-btn" style="width:100%; margin-bottom:10px; padding:10px; text-align:center;" onclick="var t=document.getElementById(\'generated-cpp-code\'); t.select(); document.execCommand(\'copy\'); this.innerText=\'Copied!\';">Copy to Clipboard</button>',
+                            '<div class="vex-custom-input-wrapper">',
+                                '<textarea id="generated-cpp-code" rows="20" cols="80" style="font-size: 0.6em; border: solid 1px">' + NodeToMozziCpp() + '</textarea>',
+                                '</div>',
+                        '</div>'
+                    ].join(''),
+                    beforeClose: function(){
+                        modalOpen = 0;
+                    }
+                })
+            }
+
+
+
+
+        </script>
+
+        <!-- Canvas Navigation Script (Pan via Scroll + CSS Zoom) -->
+        <script>
+            (function() {
+                var container = document.getElementById('rpd-canvas-container');
+                var isPanning = false;
+                var lastX, lastY;
+                window.currentZoom = 1.0; // Global for patched html.js
+
+                // 1. Setup Container for Native Scrolling
+                container.style.overflow = 'scroll'; 
+                
+                // Add CSS for dark scrollbars
+                var scrollStyle = document.createElement('style');
+                scrollStyle.innerHTML = `
+                    #rpd-canvas-container::-webkit-scrollbar { width: 12px; height: 12px; display: block; }
+                    #rpd-canvas-container::-webkit-scrollbar-track { background: #1a1a1a; border-left: 1px solid #333; border-top: 1px solid #333; }
+                    #rpd-canvas-container::-webkit-scrollbar-thumb { background: #444; border: 1px solid #111; }
+                    #rpd-canvas-container::-webkit-scrollbar-thumb:hover { background: #00ff99; }
+                    /* Force RPD patch to take space relative to this container */
+                    .rpd-patch { position: absolute; top: 0; left: 0; transform-origin: 0 0; } 
+                `;
+                document.head.appendChild(scrollStyle);
+                
+                // Helper to ensure we have room to scroll
+                function ensureCanvasSize() {
+                    var patchCanvas = document.querySelector('.rpd-patch');
+                    if (patchCanvas) {
+                        patchCanvas.style.minWidth = '4000px';
+                        patchCanvas.style.minHeight = '4000px';
+                        // Center initial view if at 0,0
+                        if (container.scrollLeft === 0 && container.scrollTop === 0) {
+                            // container.scrollLeft = 1000; // Disabled as per user request
+                            // container.scrollTop = 1000;
+                        }
+                    }
+                }
+                
+                // Run periodically
+                setInterval(ensureCanvasSize, 1000);
+
+                // Panning Logic (Scroll)
+                container.addEventListener('mousedown', function(e) {
+                    if (e.button === 1 || e.button === 2 || (e.altKey && e.button === 0)) { 
+                        e.preventDefault();
+                        e.stopPropagation(); 
+                        isPanning = true;
+                        lastX = e.clientX;
+                        lastY = e.clientY;
+                        container.style.cursor = 'move';
+                    }
+                }, true);
+                
+                container.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
+
+                window.addEventListener('mousemove', function(e) {
+                    if (!isPanning) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var dx = e.clientX - lastX;
+                    var dy = e.clientY - lastY;
+                    
+                    container.scrollLeft -= dx;
+                    container.scrollTop -= dy;
+                    
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                }, true);
+
+                window.addEventListener('mouseup', function(e) {
+                    if (isPanning) {
+                        isPanning = false;
+                        container.style.cursor = 'default';
+                    }
+                }, true);
+                
+                // Zooming (Wheel direct) - Using CSS Zoom
+                container.addEventListener('wheel', function(e) {
+                    // Prevent default scrolling
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var patchCanvas = document.querySelector('.rpd-patch');
+                    if (!patchCanvas) return;
+
+                    var delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    var newZoom = window.currentZoom * delta;
+
+                    if (newZoom < 0.2) newZoom = 0.2;
+                    if (newZoom > 3.0) newZoom = 3.0;
+                    
+                    window.currentZoom = newZoom;
+
+                    // Apply CSS Zoom
+                    patchCanvas.style.zoom = window.currentZoom;
+                    
+                }, { passive: false, capture: true });
+
+            })();
+        </script>
+    </body>
+</html>

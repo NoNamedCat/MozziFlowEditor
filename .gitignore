@@ -1,0 +1,6 @@
+node_modules/
+dist/
+scripts/node_renderer/node_modules/
+scripts/node_renderer/output/
+.DS_Store
+*.log

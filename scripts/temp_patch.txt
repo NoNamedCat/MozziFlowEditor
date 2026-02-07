@@ -1,0 +1,34 @@
+v2.1.1
+network/add-patch root root
+patch/open root
+patch/add-node root m1 midi/midi_note MIDI%20Note
+node/move m1 100 100
+node/set-data m1 eyJudW1fdiI6MSwiY2ZnX2NoIjoiMSJ9
+patch/add-node root c1 midi/midi_cc MIDI%20CC
+node/move c1 100 350
+node/set-data c1 eyJudW1fY2MiOjEsImNmZ19jaCI6IjEiLCJjZmdfY2MwIjoiNzQifQ==
+patch/add-node root x1 input/mux4051 Mux%204051
+node/move x1 100 600
+node/set-data x1 eyJudW1fY2hpcHMiOjEsImNmZ19zMCI6IlBBMiIsImNmZ19zMSI6IlBBMiIsImNmZ19zMiI6IlBBMyIsImNmZ19waW4wIjoiUEE0In0=
+patch/add-node root o1 wave/mozzi_sin Sine
+node/move o1 400 100
+patch/add-node root a1 signal/mozzi_adsr ADSR
+node/move a1 600 100
+patch/add-node root f1 filter/mozzi_lowpass Filter
+node/move f1 800 100
+patch/add-node root mu1 math/multiply Volume
+node/move mu1 1000 100
+patch/add-node root s1 output/shift595_bits Shift%20Out
+node/move s1 400 450
+node/set-data s1 eyJudW1fY2hpcHMiOjEsImNmZ19kYXRhIjoiUEIwIiwiY2ZnX2xhdGNoIjoiUEIxIiwiY2ZnX2Nsb2NrIjoiUEIyIn0=
+patch/add-node root out output/mozzi_out Audio%20Out
+node/move out 1200 100
+outlet/connect m1:f0 o1:freq
+outlet/connect m1:g0 a1:trigger
+outlet/connect o1:out a1:in
+outlet/connect a1:out f1:in
+outlet/connect c1:v0 f1:cutoff
+outlet/connect f1:out mu1:a
+outlet/connect x1:ch0 mu1:b
+outlet/connect mu1:out out:in
+outlet/connect m1:g0 s1:b0

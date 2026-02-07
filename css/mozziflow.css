@@ -1,0 +1,198 @@
+/* 
+   MOZZIFLOW MASTER STYLESHEET (v6.4 Restoration of UI & Layout)
+   Restoring full sidebar, footer and legend styles while keeping node fixes.
+*/
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0; padding: 0;
+    height: 100vh; width: 100vw;
+    background-color: #000;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    grid-template-columns: 100%;
+    overflow: hidden;
+}
+
+#node-palette {
+    position: absolute;
+    left: 0; top: 0; bottom: 0; 
+    width: 220px;
+    background-color: #1a1a1a;
+    border-right: 1px solid #333;
+    z-index: 1000;
+    padding: 15px;
+    overflow-y: auto;
+    color: #eee;
+    font-family: 'PT Mono', monospace;
+}
+
+/* Sidebar Custom Scrollbar */
+#node-palette::-webkit-scrollbar,
+#help-nodes-list::-webkit-scrollbar { width: 6px; }
+#node-palette::-webkit-scrollbar-track,
+#help-nodes-list::-webkit-scrollbar-track { background: #111; }
+#node-palette::-webkit-scrollbar-thumb,
+#help-nodes-list::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+#node-palette::-webkit-scrollbar-thumb:hover,
+#help-nodes-list::-webkit-scrollbar-thumb:hover { background: #00ff99; box-shadow: 0 0 5px #00ff99; }
+
+.palette-header {
+    font-size: 1.1em; font-weight: bold;
+    margin-bottom: 15px; padding-bottom: 8px;
+    border-bottom: 1px solid #444;
+    color: #00ff99; text-transform: uppercase; letter-spacing: 1px;
+}
+
+#editor-content {
+    grid-row: 1; grid-column: 1;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: row; min-height: 0;
+}
+
+#rpd-canvas-container {
+    position: relative; flex: 1;
+    margin-left: 220px; overflow: auto;
+    background-color: #111; z-index: 50; height: 100%;
+}
+
+#app-footer {
+    grid-row: 2; grid-column: 1;
+    background-color: #0a0a0a; border-top: 1px solid #333;
+    color: #666; font-family: 'PT Mono', monospace;
+    font-size: 10px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 4px 15px; z-index: 2000;
+    white-space: nowrap; overflow: hidden; gap: 2px;
+}
+
+.footer-row-top { display: flex; align-items: center; justify-content: center; width: 100%; gap: 10px; }
+.footer-title { color: #00ff99; font-weight: bold; }
+.footer-btn {
+    background: #1a1a1a; color: #aaa; border: 1px solid #444;
+    padding: 2px 8px; margin: 0 4px;
+    font-family: 'PT Mono', monospace; font-size: 9px;
+    cursor: pointer; border-radius: 3px; transition: all 0.2s;
+}
+.footer-btn:hover { background: #00ff99; color: #000; border-color: #00ff99; }
+.footer-credits { color: #555; font-style: italic; }
+
+.footer-legend {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; width: 100%; padding-top: 4px;
+    border-top: 1px solid #222; margin-top: 2px; flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; color: #999; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+.legend-item i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+
+/* Legend Background Colors */
+.bg-int8      { background-color: #00ff99; box-shadow: 0 0 6px #00ff99; }
+.bg-uint8     { background-color: #00cc7a; box-shadow: 0 0 6px #00cc7a; }
+.bg-int16     { background-color: #3399ff; box-shadow: 0 0 6px #3399ff; }
+.bg-uint16    { background-color: #0066ff; box-shadow: 0 0 6px #0066ff; }
+.bg-int32     { background-color: #ff33cc; box-shadow: 0 0 6px #ff33cc; }
+.bg-uint32    { background-color: #cc0099; box-shadow: 0 0 6px #cc0099; }
+.bg-float     { background-color: #ffff00; box-shadow: 0 0 6px #ffff00; }
+.bg-q8        { background-color: #99ff33; box-shadow: 0 0 6px #99ff33; }
+.bg-q16       { background-color: #ffaa33; box-shadow: 0 0 6px #ffaa33; }
+.bg-q32       { background-color: #cc3300; box-shadow: 0 0 6px #cc3300; }
+.bg-sfix8     { background-color: #00ffcc; box-shadow: 0 0 6px #00ffcc; }
+.bg-sfix16    { background-color: #00ccff; box-shadow: 0 0 6px #00ccff; }
+.bg-sfix32_16 { background-color: #ee3300; box-shadow: 0 0 6px #ee3300; }
+.bg-ufix16_16 { background-color: #ffcc00; box-shadow: 0 0 6px #ffcc00; }
+
+/* Sidebar List & Categories */
+.rpd-mozziflow-nodelist .rpd-nodelist-selected { background-color: rgba(0, 255, 153, 0.2) !important; }
+.rpd-mozziflow-nodelist dl { width: 100%; margin: 6px 0 0 0; padding: 0; }
+.rpd-mozziflow-nodelist dl > dd { margin: 10px 0; padding: 0; }
+.rpd-mozziflow-nodelist ul { margin: 0; padding: 0; list-style: none; display: block; }
+.rpd-mozziflow-nodelist li {
+    cursor: pointer; padding: 3px 6px; margin: 2px 0;
+    background-color: #252525; border-left: 3px solid #555;
+    transition: all 0.2s ease; color: #bbb !important;
+    font-size: 0.72em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rpd-mozziflow-nodelist li:hover { background-color: #333; transform: translateX(3px); }
+
+.rpd-palette-category {
+    font-size: 0.65em; color: #666; font-weight: bold;
+    margin: 22px 0 6px 0; letter-spacing: 1.5px;
+    border-bottom: 1px solid #333; padding-bottom: 4px;
+}
+
+/* Category Color Identity (Sidebar Borders) */
+.rpd-category-wave     { border-left-color: #00d4ff !important; }
+.rpd-category-lfo      { border-left-color: #00cccc !important; }
+.rpd-category-filter   { border-left-color: #ff0055 !important; }
+.rpd-category-mixer    { border-left-color: #ff3300 !important; }
+.rpd-category-envelope { border-left-color: #ff00ff !important; }
+.rpd-category-signal   { border-left-color: #ffcc00 !important; }
+.rpd-category-math     { border-left-color: #ff6600 !important; }
+.rpd-category-logic    { border-left-color: #ffffff !important; }
+.rpd-category-input    { border-left-color: #aa00ff !important; }
+.rpd-category-output   { border-left-color: #00ff66 !important; }
+.rpd-category-ch32x035 { border-left-color: #0055ff !important; }
+.rpd-category-casting  { border-left-color: #888888 !important; }
+.rpd-category-custom   { border-left-color: #00ff99 !important; }
+
+/* Category Color Identity (Node Title Bars) */
+.rpd-node.rpd-category-wave .rpd-title     { background-color: #00d4ff !important; color: #000 !important; }
+.rpd-node.rpd-category-lfo .rpd-title      { background-color: #00cccc !important; color: #000 !important; }
+.rpd-node.rpd-category-filter .rpd-title   { background-color: #ff0055 !important; color: #fff !important; }
+.rpd-node.rpd-category-mixer .rpd-title    { background-color: #ff3300 !important; color: #fff !important; }
+.rpd-node.rpd-category-envelope .rpd-title { background-color: #ff00ff !important; color: #000 !important; }
+.rpd-node.rpd-category-signal .rpd-title   { background-color: #ffcc00 !important; color: #000 !important; }
+.rpd-node.rpd-category-math .rpd-title     { background-color: #ff6600 !important; color: #fff !important; }
+.rpd-node.rpd-category-logic .rpd-title    { background-color: #ffffff !important; color: #000 !important; }
+.rpd-node.rpd-category-input .rpd-title    { background-color: #aa00ff !important; color: #fff !important; }
+.rpd-node.rpd-category-output .rpd-title   { background-color: #00ff66 !important; color: #000 !important; }
+.rpd-node.rpd-category-ch32x035 .rpd-title { background-color: #0055ff !important; color: #fff !important; }
+.rpd-node.rpd-category-casting .rpd-title  { background-color: #888888 !important; color: #fff !important; }
+.rpd-node.rpd-category-custom .rpd-title   { background-color: #00ff99 !important; color: #000 !important; }
+
+/* Connector Size & Style (The Fix) */
+.rpd-node .rpd-connector {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    border-style: solid !important;
+    border-width: 2px !important;
+    margin-left: -6px !important;
+    margin-top: 0px !important;
+    z-index: 100;
+}
+
+/* Neutralize RPD Internal States */
+.rpd-fresh .rpd-connector, .rpd-stale .rpd-connector, .rpd-error .rpd-connector { 
+    transition: none !important;
+}
+
+/* Technical Type Hierarchy (Connectors & Links) */
+.rpd-channel-type-mozziflow-bool .rpd-connector, .rpd-link-type-mozziflow-bool { background-color: #ffffff !important; border-color: #ffffff !important; stroke: #ffffff !important; }
+.rpd-channel-type-mozziflow-int8_t .rpd-connector, .rpd-link-type-mozziflow-int8_t { background-color: #00ff99 !important; border-color: #00ff99 !important; stroke: #00ff99 !important; }
+.rpd-channel-type-mozziflow-uint8_t .rpd-connector, .rpd-link-type-mozziflow-uint8_t { background-color: #00cc7a !important; border-color: #00cc7a !important; stroke: #00cc7a !important; }
+.rpd-channel-type-mozziflow-int16_t .rpd-connector, .rpd-link-type-mozziflow-int16_t { background-color: #3399ff !important; border-color: #3399ff !important; stroke: #3399ff !important; }
+.rpd-channel-type-mozziflow-uint16_t .rpd-connector, .rpd-link-type-mozziflow-uint16_t { background-color: #0066ff !important; border-color: #0066ff !important; stroke: #0066ff !important; }
+.rpd-channel-type-mozziflow-int32_t .rpd-connector, .rpd-link-type-mozziflow-int32_t { background-color: #ff33cc !important; border-color: #ff33cc !important; stroke: #ff33cc !important; }
+.rpd-channel-type-mozziflow-uint32_t .rpd-connector, .rpd-link-type-mozziflow-uint32_t { background-color: #cc0099 !important; border-color: #cc0099 !important; stroke: #cc0099 !important; }
+.rpd-channel-type-mozziflow-float .rpd-connector, .rpd-link-type-mozziflow-float { background-color: #ffff00 !important; border-color: #ffff00 !important; stroke: #ffff00 !important; }
+.rpd-channel-type-mozziflow-sfix32_16 .rpd-connector, .rpd-link-type-mozziflow-sfix32_16 { background-color: #ee3300 !important; border-color: #ee3300 !important; stroke: #ee3300 !important; }
+
+/* Node Body & Process Target Area */
+.rpd-node { border: 1px solid #333; }
+.rpd-node .rpd-content { border-top: 1px solid #444; }
+.rpd-body { padding: 9px 6px; }
+.rpd-process-target { min-width: 40px; min-height: 20px; }
+
+/* Search Box */
+.rpd-mozziflow-nodelist input {
+    width: 100%; background: #000; border: 1px solid #444;
+    color: #00ff99; padding: 6px; box-sizing: border-box;
+    font-family: inherit; margin-bottom: 10px; font-size: 0.9em;
+}
+
+/* Inlet / Outlet Values */
+.mozzi-inlet-values { padding: 4px 8px; background: rgba(0,0,0,0.3); border-radius: 4px; margin-top: 5px; }
+.mozzi-inlet-row { font-size: 10px; font-family: 'PT Mono', monospace; line-height: 1.6; display: flex; align-items: center; justify-content: space-between; }
+.mozzi-inlet-val-input { background: transparent; border: none; border-bottom: 1px solid #444; color: #eee; font-size: 10px; width: 50px; text-align: right; outline: none; }

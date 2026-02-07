@@ -1,0 +1,13 @@
+{
+  "name": "mozzifloweditor",
+  "version": "1.0.0",
+  "description": "Visual Audio Designer for Mozzi",
+  "scripts": {
+    "test": "node test/verify_mozzi_designer.js",
+    "build-docs": "node scripts/rebuild_database.js && node scripts/inject_docs.js && node scripts/node_renderer/render_all.js && node scripts/generate_manual.js",
+    "render-nodes": "node scripts/node_renderer/render_all.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.36.0"
+  }
+}
