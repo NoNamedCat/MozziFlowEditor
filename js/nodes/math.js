@@ -1,5 +1,5 @@
-// Mozzi Node Definitions - MATH (v7.1 Clean)
-// Operaciones numéricas puras y escalado de señales
+// Mozzi Node Definitions - MATH (v8.0 Gold)
+// Operaciones numéricas puras y escalado de señales con precisión variable
 
 var createMathInput = function(label, node, key, defaultValue, container) {
     var row = document.createElement('div');
@@ -20,32 +20,46 @@ var createMathInput = function(label, node, key, defaultValue, container) {
     container.appendChild(row);
 };
 
-var createDomainSelector = function(node, container) {
+var createMathDomainSelector = function(node, container) {
     var row = document.createElement('div');
     row.style.display = "flex"; row.style.justifyContent = "space-between"; row.style.marginBottom = "4px";
     var sel = document.createElement('select');
     sel.style.width = "100%"; sel.style.fontSize = "9px"; sel.style.background = "#222"; sel.style.color = "#0ff";
-    // FIX: Binding
     sel.className = 'mozzi-inlet-val-input';
     sel.setAttribute('data-alias', 'domain');
-
     var opts = [["int", "Int (Fast)"], ["sfix", "FixMath (Safe)"], ["float", "Float (Precise)"]];
     opts.forEach(function(o){ 
         var opt = document.createElement('option'); opt.value = o[0]; opt.innerText = o[1];
         if(node.data.cfg_domain === o[0]) opt.selected = true;
         sel.appendChild(opt); 
     });
-    sel.onchange = function() { node.data.cfg_domain = this.value; };
+    sel.onchange = function() { node.data.cfg_domain = this.value; if (node._onDataUpdate) node._onDataUpdate(); };
     if(!node.data.cfg_domain) node.data.cfg_domain = "int";
     row.appendChild(sel);
     container.appendChild(row);
 };
 
-var genMathCode = function(node, i, op) {
-    var d = node.data.cfg_domain || "int";
-    if (d === "sfix") return "node_" + node.id + "_out = (SFix<15,0>(" + i.a + ") " + op + " SFix<15,0>(" + i.b + ")).asInt();";
-    if (d === "float") return "node_" + node.id + "_out = (int32_t)((float)" + i.a + " " + op + " (float)" + i.b + ");";
-    return "node_" + node.id + "_out = (" + i.a + " " + op + " " + i.b + ");";
+var createPrecisionSelector = function(node, container) {
+    var row = document.createElement('div');
+    row.style.display = "flex"; row.style.justifyContent = "space-between"; row.style.marginBottom = "4px";
+    var lbl = document.createElement('span'); lbl.innerText = "BITS:"; lbl.style.fontSize = "8px"; row.appendChild(lbl);
+    var sel = document.createElement('select');
+    sel.style.width = "60%"; sel.style.fontSize = "9px"; sel.style.background = "#222"; sel.style.color = "#fc0";
+    sel.className = 'mozzi-inlet-val-input';
+    sel.setAttribute('data-alias', 'precision');
+    var opts = [["int32_t", "32-bit (Safe)"], ["int16_t", "16-bit (Std)"], ["int8_t", "8-bit (Lofi)"], ["uint8_t", "u8 (Raw)"]];
+    opts.forEach(function(o){ 
+        var opt = document.createElement('option'); opt.value = o[0]; opt.innerText = o[1];
+        if(node.data.cfg_precision === o[0]) opt.selected = true;
+        sel.appendChild(opt); 
+    });
+    sel.onchange = function() { node.data.cfg_precision = this.value; };
+    if(!node.data.cfg_precision) node.data.cfg_precision = "int32_t";
+    
+    if (node.data.cfg_domain === 'int' || !node.data.cfg_domain) {
+        row.appendChild(sel);
+        container.appendChild(row);
+    }
 };
 
 NodeLibrary.push({
@@ -56,24 +70,34 @@ NodeLibrary.push({
         'html': function(bodyElm, node) {
             if (!node.data) node.data = {};
             var container = document.createElement('div');
-            container.style.padding = "5px"; container.style.background = "rgba(0,255,153,0.05)";
-            container.style.border = "1px solid #0f9"; container.style.marginBottom = "5px";
-            createDomainSelector(node, container);
+            container.style.padding = "5px"; container.style.background = "rgba(100,100,255,0.05)";
+            container.style.border = "1px solid #66f"; container.style.marginBottom = "5px";
+            createMathDomainSelector(node, container);
+            createPrecisionSelector(node, container);
             createMathInput("VAL B", node, "b", "0", container);
             bodyElm.appendChild(container);
         }
     },
-    mozzi: { 
-        rate: "audio", is_inline: true, 
-        audio: function(n,v,i) { return genMathCode(n, i, "+"); } 
+    mozzi: {
+        rate: "audio", is_inline: true,
+        inputs: {
+            "a": { type: function(n) { return (n.data.cfg_domain === "float") ? "float" : ((n.data.cfg_domain === "sfix") ? "SFix<15,16>" : (n.data.cfg_precision || "int32_t")); } },
+            "b": { type: function(n) { return (n.data.cfg_domain === "float") ? "float" : ((n.data.cfg_domain === "sfix") ? "SFix<15,16>" : (n.data.cfg_precision || "int32_t")); } }
+        },
+        output_type: function(n) { 
+            var d = n.data.cfg_domain || "int";
+            if (d === "float") return "float";
+            if (d === "sfix") return "SFix<15,16>";
+            return n.data.cfg_precision || "int32_t";
+        },
+        audio: function(n,v,i){
+            var d = n.data.cfg_domain || "int";
+            if (d === "sfix") return "node_" + n.id + "_out = (SFix<15,16>(" + i.a + ") + SFix<15,16>(" + i.b + "));";
+            return "node_" + n.id + "_out = " + i.a + " + " + i.b + ";";
+        }
     },
-    help: {
-        summary: "Arithmetic addition of two signals.",
-        usage: "Adds signal A and B. Select 'FixMath' domain if mixing different signal types to avoid errors.",
-        inlets: { "a": "Input A.", "b": "Input B." },
-        outlets: { "out": "Summed signal." }
-    },
-    rpdnode: { "title": "Add", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
+    help: { summary: "Arithmetic addition (A + B).", usage: "Supports Int/Fix/Float. Lower precision allows for intentional overflow." },
+    rpdnode: { "title": "Add", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "label": "b", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
 });
 
 NodeLibrary.push({
@@ -84,24 +108,34 @@ NodeLibrary.push({
         'html': function(bodyElm, node) {
             if (!node.data) node.data = {};
             var container = document.createElement('div');
-            container.style.padding = "5px"; container.style.background = "rgba(0,255,153,0.05)";
-            container.style.border = "1px solid #0f9"; container.style.marginBottom = "5px";
-            createDomainSelector(node, container);
+            container.style.padding = "5px"; container.style.background = "rgba(100,100,255,0.05)";
+            container.style.border = "1px solid #66f"; container.style.marginBottom = "5px";
+            createMathDomainSelector(node, container);
+            createPrecisionSelector(node, container);
             createMathInput("VAL B", node, "b", "0", container);
             bodyElm.appendChild(container);
         }
     },
-    mozzi: { 
-        rate: "audio", is_inline: true, 
-        audio: function(n,v,i) { return genMathCode(n, i, "-"); } 
+    mozzi: {
+        rate: "audio", is_inline: true,
+        inputs: {
+            "a": { type: function(n) { return (n.data.cfg_domain === "float") ? "float" : ((n.data.cfg_domain === "sfix") ? "SFix<15,16>" : (n.data.cfg_precision || "int32_t")); } },
+            "b": { type: function(n) { return (n.data.cfg_domain === "float") ? "float" : ((n.data.cfg_domain === "sfix") ? "SFix<15,16>" : (n.data.cfg_precision || "int32_t")); } }
+        },
+        output_type: function(n) { 
+            var d = n.data.cfg_domain || "int";
+            if (d === "float") return "float";
+            if (d === "sfix") return "SFix<15,16>";
+            return n.data.cfg_precision || "int32_t";
+        },
+        audio: function(n,v,i){
+            var d = n.data.cfg_domain || "int";
+            if (d === "sfix") return "node_" + n.id + "_out = (SFix<15,16>(" + i.a + ") - SFix<15,16>(" + i.b + "));";
+            return "node_" + n.id + "_out = " + i.a + " - " + i.b + ";";
+        }
     },
-    help: {
-        summary: "Arithmetic subtraction.",
-        usage: "Subtracts B from A.",
-        inlets: { "a": "Input A.", "b": "Input B." },
-        outlets: { "out": "Resulting signal." }
-    },
-    rpdnode: { "title": "Subtract", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
+    help: { summary: "Arithmetic subtraction (A - B).", usage: "A - B." },
+    rpdnode: { "title": "Sub", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "label": "b", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
 });
 
 NodeLibrary.push({
@@ -112,24 +146,34 @@ NodeLibrary.push({
         'html': function(bodyElm, node) {
             if (!node.data) node.data = {};
             var container = document.createElement('div');
-            container.style.padding = "5px"; container.style.background = "rgba(0,255,153,0.05)";
-            container.style.border = "1px solid #0f9"; container.style.marginBottom = "5px";
-            createDomainSelector(node, container);
+            container.style.padding = "5px"; container.style.background = "rgba(100,100,255,0.05)";
+            container.style.border = "1px solid #66f"; container.style.marginBottom = "5px";
+            createMathDomainSelector(node, container);
+            createPrecisionSelector(node, container);
             createMathInput("VAL B", node, "b", "1", container);
             bodyElm.appendChild(container);
         }
     },
-    mozzi: { 
-        rate: "audio", is_inline: true, 
-        audio: function(n,v,i) { return genMathCode(n, i, "*"); } 
+    mozzi: {
+        rate: "audio", is_inline: true, defaults: { "b": "1" },
+        inputs: {
+            "a": { type: function(n) { return (n.data.cfg_domain === "float") ? "float" : ((n.data.cfg_domain === "sfix") ? "SFix<15,16>" : (n.data.cfg_precision || "int32_t")); } },
+            "b": { type: function(n) { return (n.data.cfg_domain === "float") ? "float" : ((n.data.cfg_domain === "sfix") ? "SFix<15,16>" : (n.data.cfg_precision || "int32_t")); } }
+        },
+        output_type: function(n) { 
+            var d = n.data.cfg_domain || "int";
+            if (d === "float") return "float";
+            if (d === "sfix") return "SFix<15,16>";
+            return n.data.cfg_precision || "int32_t";
+        },
+        audio: function(n,v,i){
+            var d = n.data.cfg_domain || "int";
+            if (d === "sfix") return "node_" + n.id + "_out = (SFix<15,16>(" + i.a + ") * SFix<15,16>(" + i.b + "));";
+            return "node_" + n.id + "_out = " + i.a + " * " + i.b + ";";
+        }
     },
-    help: {
-        summary: "Arithmetic multiplication.",
-        usage: "Multiplies A by B. 'FixMath' domain recommended for scaling (e.g. A * 0.5).",
-        inlets: { "a": "Input A.", "b": "Multiplier." },
-        outlets: { "out": "Product." }
-    },
-    rpdnode: { "title": "Multiply", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
+    help: { summary: "Arithmetic multiplication (A * B).", usage: "A * B." },
+    rpdnode: { "title": "Mul", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "label": "b", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
 });
 
 NodeLibrary.push({
@@ -140,32 +184,35 @@ NodeLibrary.push({
         'html': function(bodyElm, node) {
             if (!node.data) node.data = {};
             var container = document.createElement('div');
-            container.style.padding = "5px"; container.style.background = "rgba(0,255,153,0.05)";
-            container.style.border = "1px solid #0f9"; container.style.marginBottom = "5px";
-            createDomainSelector(node, container);
+            container.style.padding = "5px"; container.style.background = "rgba(100,100,255,0.05)";
+            container.style.border = "1px solid #66f"; container.style.marginBottom = "5px";
+            createMathDomainSelector(node, container);
+            createPrecisionSelector(node, container);
             createMathInput("VAL B", node, "b", "1", container);
             bodyElm.appendChild(container);
         }
     },
-    mozzi: { 
-        rate: "audio", is_inline: true, 
-        audio: function(n,v,i) {
+    mozzi: {
+        rate: "audio", is_inline: true, defaults: { "b": "1" },
+        inputs: {
+            "a": { type: function(n) { return (n.data.cfg_domain === "float") ? "float" : ((n.data.cfg_domain === "sfix") ? "SFix<15,16>" : (n.data.cfg_precision || "int32_t")); } },
+            "b": { type: function(n) { return (n.data.cfg_domain === "float") ? "float" : ((n.data.cfg_domain === "sfix") ? "SFix<15,16>" : (n.data.cfg_precision || "int32_t")); } }
+        },
+        output_type: function(n) { 
             var d = n.data.cfg_domain || "int";
+            if (d === "float") return "float";
+            if (d === "sfix") return "SFix<15,16>";
+            return n.data.cfg_precision || "int32_t";
+        },
+        audio: function(n,v,i){
             var check = "(" + i.b + " != 0)";
-            // FixMath does not support division operator. Use inverse multiplication.
-            // SFix<15,0>.inv() returns approx SFix<0,15>. Result is SFix<15,15>. .asInt() shifts >> 15.
-            if (d === "sfix") return "node_" + n.id + "_out = " + check + " ? (SFix<15,0>(" + i.a + ") * SFix<15,0>(" + i.b + ").inv()).asInt() : 0;";
-            if (d === "float") return "node_" + n.id + "_out = " + check + " ? (int32_t)((float)" + i.a + " / (float)" + i.b + ") : 0;";
-            return "node_" + n.id + "_out = " + check + " ? (" + i.a + " / " + i.b + ") : 0;"; 
-        } 
+            var d = n.data.cfg_domain || "int";
+            if (d === "sfix") return "node_" + n.id + "_out = " + check + " ? (SFix<15,16>(" + i.a + ") * SFix<15,16>(" + i.b + ").inv()) : SFix<15,16>(0);";
+            return "node_" + n.id + "_out = " + check + " ? (" + i.a + " / " + i.b + ") : 0;";
+        }
     },
-    help: {
-        summary: "Arithmetic division.",
-        usage: "Divides A by B. Protected against division by zero.",
-        inlets: { "a": "Numerator.", "b": "Denominator." },
-        outlets: { "out": "Quotient." }
-    },
-    rpdnode: { "title": "Divide", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
+    help: { summary: "Arithmetic division (A / B).", usage: "Includes protection against division by zero." },
+    rpdnode: { "title": "Div", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "label": "b", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
 });
 
 NodeLibrary.push({
@@ -184,14 +231,9 @@ NodeLibrary.push({
     },
     mozzi: { 
         rate: "audio", is_inline: true, 
-        audio: function(n,v,i) { return "node_" + n.id + "_out = ((int)" + i.a + " ^ (int)" + i.b + ");"; } 
+        audio: function(n,v,i) { return "node_" + n.id + "_out = (" + i.a + " ^ " + i.b + ");"; } 
     },
-    help: {
-        summary: "Bitwise XOR. Forces Integer math.",
-        usage: "Classic Ring Mod effect.",
-        inlets: { "a": "Signal A.", "b": "Signal B." },
-        outlets: { "out": "XOR'ed signal." }
-    },
+    help: { summary: "Bitwise XOR.", usage: "Classic Ring Mod effect." },
     rpdnode: { "title": "XOR RingMod", "inlets": { "a": { "type": "mozziflow/any" }, "b": { "type": "mozziflow/any", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
 });
 
@@ -211,14 +253,9 @@ NodeLibrary.push({
     },
     mozzi: { 
         rate: "audio", is_inline: true, 
-        audio: function(n,v,i) { return "node_" + n.id + "_out = ((int32_t)" + i.a + " << " + i.bits + ");"; } 
+        audio: function(n,v,i) { return "node_" + n.id + "_out = (" + i.a + " << " + i.bits + ");"; } 
     },
-    help: {
-        summary: "Bitwise Shift Left. Forces Integer math.",
-        usage: "Fast multiplication by powers of 2.",
-        inlets: { "a": "Input.", "bits": "Shift amount." },
-        outlets: { "out": "Shifted signal." }
-    },
+    help: { summary: "Bitwise Shift Left.", usage: "Fast multiplication by powers of 2." },
     rpdnode: { "title": "Shift Left", "inlets": { "a": { "type": "mozziflow/any" }, "bits": { "type": "mozziflow/uint8_t", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
 });
 
@@ -238,14 +275,9 @@ NodeLibrary.push({
     },
     mozzi: { 
         rate: "audio", is_inline: true, 
-        audio: function(n,v,i) { return "node_" + n.id + "_out = ((int32_t)" + i.a + " >> " + i.bits + ");"; } 
+        audio: function(n,v,i) { return "node_" + n.id + "_out = (" + i.a + " >> " + i.bits + ");"; } 
     },
-    help: {
-        summary: "Bitwise Shift Right. Forces Integer math.",
-        usage: "Fast division by powers of 2.",
-        inlets: { "a": "Input.", "bits": "Shift amount." },
-        outlets: { "out": "Shifted signal." }
-    },
+    help: { summary: "Bitwise Shift Right.", usage: "Fast division by powers of 2." },
     rpdnode: { "title": "Shift Right", "inlets": { "a": { "type": "mozziflow/any" }, "bits": { "type": "mozziflow/uint8_t", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
 });
 
@@ -259,13 +291,10 @@ NodeLibrary.push({
             var container = document.createElement('div');
             container.style.padding = "5px"; container.style.background = "rgba(0,255,153,0.05)";
             container.style.border = "1px solid #0f9"; container.style.marginBottom = "5px";
-            
             var sel = document.createElement('select');
             sel.style.width = "100%"; sel.style.fontSize = "9px"; sel.style.background = "#222"; sel.style.color = "#0ff";
-            // FIX: Binding
             sel.className = 'mozzi-inlet-val-input';
             sel.setAttribute('data-alias', 'mode');
-
             var opts = [["float", "Float (Std)"], ["fixed", "FixMath (Fast)"]];
             opts.forEach(function(o){ 
                 var opt = document.createElement('option'); opt.value = o[0]; opt.innerText = o[1];
@@ -275,7 +304,6 @@ NodeLibrary.push({
             sel.onchange = function() { node.data.cfg_mode = this.value; };
             if(!node.data.cfg_mode) node.data.cfg_mode = "float";
             container.appendChild(sel);
-            
             createMathInput("NOTE", node, "note", "60", container);
             bodyElm.appendChild(container);
         }
@@ -284,15 +312,10 @@ NodeLibrary.push({
         rate: "control", is_inline: true, includes: ["#include <mozzi_midi.h>"], 
         control: function(n,v,i) { 
             if(n.data.cfg_mode === "fixed") return "node_" + n.id + "_out = Q16n16_mtof(Q8n0_to_Q16n16(" + i.note + "));";
-            return "node_" + n.id + "_out = mtof((uint8_t)" + i.note + ");"; 
+            return "node_" + n.id + "_out = mtof(" + i.note + ");"; 
         } 
     },
-    help: {
-        summary: "MIDI Note to Frequency converter.",
-        usage: "Select 'FixMath' for high-speed conversion useful for driving Phasors or Oscils in Audio Rate.",
-        inlets: { "note": "MIDI note number." },
-        outlets: { "out": "Frequency (float or Q16n16)." }
-    },
+    help: { summary: "MIDI Note to Frequency.", usage: "Select 'FixMath' for high-speed conversion." },
     rpdnode: { "title": "Midi->Freq", "inlets": { "note": { "type": "mozziflow/uint8_t", "label": "note", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/any" } } }
 });
 
@@ -316,18 +339,15 @@ NodeLibrary.push({
     mozzi: { 
         rate: "control", is_inline: true,
         defaults: { "in_min": "0", "in_max": "127", "out_min": "40", "out_max": "10000" },
-        control: function(n,v,i) { 
-            return "node_" + n.id + "_out = (long)(" + i.in + " - " + i.in_min + ") * (long)(" + i.out_max + " - " + i.out_min + ") / (long)(" + i.in_max + " - " + i.in_min + ") + " + i.out_min + ";";
+        inputs: {
+            "in": { type: "long" },
+            "in_min": { type: "long" }, "in_max": { type: "long" },
+            "out_min": { type: "long" }, "out_max": { type: "long" }
         },
-        audio: function(n,v,i) { 
-            return "node_" + n.id + "_out = (long)(" + i.in + " - " + i.in_min + ") * (long)(" + i.out_max + " - " + i.out_min + ") / (long)(" + i.in_max + " - " + i.in_min + ") + " + i.out_min + ";";
+        control: function(n,v,i) { 
+            return "node_" + n.id + "_out = (" + i.in + " - " + i.in_min + ") * (" + i.out_max + " - " + i.out_min + ") / (" + i.in_max + " - " + i.in_min + ") + " + i.out_min + ";";
         }
     },
-    help: {
-        summary: "Linear range mapper.",
-        usage: "Uses 32-bit math to prevent overflow.",
-        inlets: { "in": "Source signal.", "in_min/max": "Source range.", "out_min/max": "Target range." },
-        outlets: { "out": "Scaled signal." }
-    },
+    help: { summary: "Linear range mapper.", usage: "Uses 32-bit math to prevent overflow." },
     rpdnode: { "title": "Map Range", "inlets": { "in": { "type": "mozziflow/any" }, "in_min": { "type": "mozziflow/any", "no_text": true }, "in_max": { "type": "mozziflow/any", "no_text": true }, "out_min": { "type": "mozziflow/any", "no_text": true }, "out_max": { "type": "mozziflow/any", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int32_t" } } }
 });

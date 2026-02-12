@@ -274,7 +274,7 @@ var espAddToContainer = function(node) { var node_prop = _.findWhere(NodeLibrary
 var espDeleteFromContainer = function(node) { mozziFlowContainer = _.filter(mozziFlowContainer, function(el) { return el.nodeid !== node.id; }); };
 
 var importPlainNetwork = function(code) {
-    var lines = code.split(/\r?\n/); var nodeMap = {}; var ioMap = {}; var connections = []; var dataQueue = {};
+    var lines = code.split(/\r?\n/); var nodeMap = {}; var ioMap = {}; var connections = []; var moves = []; var dataQueue = {};
     lines.forEach(function(line) { 
         var parts = line.trim().split(' '); 
         if (parts[0] === 'node/set-data') { 
@@ -322,6 +322,9 @@ var importPlainNetwork = function(code) {
                 node.data.legacy_out_type = parts[2];
             }
         }
+        else if (cmd === 'node/move') {
+            moves.push(parts);
+        }
         else if (cmd === 'node/update-inlet') { 
             var node = nodeMap[parts[1]]; 
             if (node) {
@@ -340,6 +343,10 @@ var importPlainNetwork = function(code) {
         else if (cmd === 'outlet/connect') connections.push(parts);
     });
     setTimeout(function() {
+        moves.forEach(function(m) {
+            var node = nodeMap[m[1]];
+            if (node) node.move(parseInt(m[2]), parseInt(m[3]));
+        });
         connections.forEach(function(p) {
             var outParts = p[1].split(':');
             var inParts = p[2].split(':');

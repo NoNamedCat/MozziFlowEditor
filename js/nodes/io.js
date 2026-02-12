@@ -300,6 +300,7 @@ NodeLibrary.push({
         },
         mozzi: {
             rate: "control", is_inline: true, is_sink: true,
+            inputs: { "in": { type: "bool" }, "pin": { type: "uint8_t" } },
             setup: function(n,v,i){ return "pinMode(" + i.pin + ", OUTPUT);"; },
             control: function(n,v,i){ return "digitalWrite(" + i.pin + ", " + i.in + ");"; }
         },
@@ -328,6 +329,7 @@ NodeLibrary.push({
         },
         mozzi: {
             rate: "control", is_inline: true, is_sink: true,
+            inputs: { "val": { type: "uint8_t" }, "pin": { type: "uint8_t" } },
             setup: function(n,v,i){ return "pinMode(" + i.pin + ", OUTPUT);"; },
             control: function(n,v,i){ return "analogWrite(" + i.pin + ", " + i.val + ");"; }
         },
@@ -363,13 +365,20 @@ NodeLibrary.push({
         },
         mozzi: { 
             rate: "control", is_inline: true, 
+            output_type: function(n) {
+                var t = n.data.cfg_val_type || "int";
+                if (t === "float") return "mozziflow/float";
+                if (t === "sfix") return "mozziflow/sfix";
+                return "mozziflow/int32_t";
+            },
             control: function(n,v,i) { 
-                var type = n.data.cfg_val_type || "int";
                 var val = n.data.cfg_val || "0";
-                if (type === "float") return "node_" + n.id + "_out = " + val + "f;";
-                if (type === "sfix") return "node_" + n.id + "_out = SFix<15,16>(" + val + "f);";
                 return "node_" + n.id + "_out = " + val + ";"; 
-            } 
+            },
+            audio: function(n,v,i) { 
+                var val = n.data.cfg_val || "0";
+                return "node_" + n.id + "_out = " + val + ";"; 
+            }
         },
         help: {
             summary: "Fixed numeric value.",
@@ -397,14 +406,15 @@ NodeLibrary.push({
         },
         mozzi: { 
             rate: "control", 
+            inputs: { "pinA": { type: "uint8_t" }, "pinB": { type: "uint8_t" } },
             global: function(n,v){ return "bool " + v + "_last;"; },
             setup: function(n,v,i) { return "pinMode(" + i.pinA + ", INPUT_PULLUP); pinMode(" + i.pinB + ", INPUT_PULLUP); " + v + "_last = digitalRead(" + i.pinA + ");"; },
             control: function(n,v,i) { 
-                return "bool " + v + "_cur = digitalRead(" + i.pinA + ");\n" + 
+                return "bool _cur = digitalRead(" + i.pinA + ");\n" + 
                        "node_" + n.id + "_up = 0; node_" + n.id + "_down = 0;\n" + 
-                       "if (" + v + "_cur != " + v + "_last && " + v + "_cur == LOW) {\n" + 
-                       "  if (digitalRead(" + i.pinB + ") != " + v + "_cur) { node_" + n.id + "_up = 1; } else { node_" + n.id + "_down = 1; }\n" + 
-                       "}\n" + v + "_last = " + v + "_cur;";
+                       "if (_cur != " + v + "_last && _cur == LOW) {\n" + 
+                       "  if (digitalRead(" + i.pinB + ") != _cur) { node_" + n.id + "_up = 1; } else { node_" + n.id + "_down = 1; }\n" + 
+                       "}\n" + v + "_last = _cur;";
             } 
         },
         help: {
@@ -561,13 +571,17 @@ NodeLibrary.push({
         mozzi: {
             rate: "audio", is_sink: true,
             includes: ["#include <Mozzi.h>"],
+            inputs: {
+                "in": { type: "int32_t" },
+                "in_r": { type: "int32_t" }
+            },
             audio: function(n, v, i) {
                 var res = n.data.cfg_res || "auto";
                 var method = (res === "8bit") ? "from8Bit" : ((res === "16bit") ? "from16Bit" : "");
                 var inL = i.in || "0";
                 var inR = i.in_r || "0";
 
-                if (i.channels === "MOZZI_STEREO") {
+                if (n.data.cfg_channels === "MOZZI_STEREO") {
                     if (method) return "return StereoOutput::" + method + "(" + inL + ", " + inR + ").clip();";
                     return "return StereoOutput(" + inL + ", " + inR + ").clip();";
                 } else {
@@ -601,6 +615,7 @@ NodeLibrary.push({
         },
         mozzi: { 
             rate: "control", is_inline: true, 
+            inputs: { "pin": { type: "uint8_t" } },
             setup: function(n,v,i){ return "pinMode(" + i.pin + ", INPUT_PULLUP);"; }, 
             control: function(n,v,i){ return "node_" + n.id + "_out = (digitalRead(" + i.pin + ") == LOW);"; } 
         },
@@ -634,6 +649,7 @@ NodeLibrary.push({
         mozzi: {
             rate: "control",
             includes: ["#include <mozzi_analog.h>"],
+            inputs: { "pin": { type: "uint8_t" } },
             control: function(n,v,i){ 
                 if (n.data.cfg_read_mode === "mozzi") return "node_" + n.id + "_out = getMozziAnalogRead(" + i.pin + ");\nstartMozziAnalogRead(" + i.pin + ");";
                 return "node_" + n.id + "_out = mozziAnalogRead(" + i.pin + ");"; 

@@ -96,6 +96,7 @@ NodeLibrary.push({
     mozzi: {
         rate: "control",
         includes: ["#include <USBMIDI.h>", "#include <mozzi_midi.h>"],
+        inputs: { "ch": { type: "uint8_t" } },
         definitions: ["void handleNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {\n    /*HOOK:midi_on*/\n}", "void handleNoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {\n    /*HOOK:midi_off*/\n}"],
         setup: function() { return "#ifndef MIDI_INIT_DONE\n#define MIDI_INIT_DONE\nUSBMIDI.begin();\n#endif\nUSBMIDI.setHandleNoteOn(handleNoteOn); USBMIDI.setHandleNoteOff(handleNoteOff);"; },
         global: function(n, v) {
@@ -157,6 +158,7 @@ NodeLibrary.push({
     mozzi: {
         rate: "control",
         includes: ["#include <USBMIDI.h>"],
+        inputs: { "ch": { type: "uint8_t" } },
         definitions: ["void handlePitchBend(uint8_t channel, int value) {\n    /*HOOK:midi_pb*/\n}"],
         setup: function() { return "USBMIDI.setHandlePitchBend(handlePitchBend);"; },
         global: function(n, v) { return "int " + v + "_val = 0;"; },
@@ -190,15 +192,15 @@ NodeLibrary.push({
         includes: ["#include <USBMIDI.h>"],
         definitions: ["void handleRealTime(uint8_t rt) {\n    /*HOOK:midi_rt*/\n}"],
         setup: function() { return "USBMIDI.setHandleRealTime(handleRealTime);"; },
-        global: function(n, v) { return "bool " + v + "_t = 0; uint32_t " + v + "_last = 0; float " + v + "_bpm = 120.0f;"; },
+        global: function(n, v) { return "bool " + v + "_t = 0; uint32_t " + v + "_last = 0; float " + v + "_bpm_val = 120.0f;"; },
         hooks: {
             "midi_rt": function(n, v, i) {
-                return "if (rt == 0xF8) { " + v + "_t = 1; uint32_t now = micros(); if (" + v + "_last > 0) { " + v + "_bpm = 60000000.0f / ((float)(now - " + v + "_last) * 24.0f); } " + v + "_last = now; }";
+                return "if (rt == 0xF8) { " + v + "_t = 1; uint32_t now = micros(); if (" + v + "_last > 0) { " + v + "_bpm_val = 60000000.0f / ((float)(now - " + v + "_last) * 24.0f); } " + v + "_last = now; }";
             }
         },
         control: function(n, v, i) {
             var code = "node_" + n.id + "_tick = " + v + "_t; " + v + "_t = 0;\n";
-            code += "node_" + n.id + "_bpm = " + v + "_bpm;";
+            code += "node_" + n.id + "_bpm = " + v + "_bpm_val;";
             return code;
         }
     },
@@ -247,7 +249,7 @@ for (var i=0; i<8; i++) midiCCOutlets["v"+i] = { "type": "mozziflow/any", "label
 NodeLibrary.push({
     nodetype: 'mozziflow/ch32_midi_cc_in',
     category: "ch32x035",
-    nodeclass: null,
+    nodeclass: "MidiCC",
     renderer: {
         'html': function(bodyElm, node) {
             if (!node.data) node.data = {};
@@ -267,7 +269,12 @@ NodeLibrary.push({
                     if (label && label.innerText.indexOf('cc') === 0) { var idx = parseInt(label.innerText.replace('cc', '')); row.style.display = (idx < count) ? '' : 'none'; }
                 });
                 configBox.innerHTML = '';
-                for(var k=0; k<count; k++) { createCH32Input("CC# " + k, node, "cc"+k, "74", configBox); }
+                for(var k=0; k<count; k++) { 
+                    var row = document.createElement('div'); row.style.display="flex"; row.style.gap="2px";
+                    createCH32Input("CC#", node, "cc"+k, "74", row); 
+                    createCH32Input("VAL", node, "def"+k, "64", row);
+                    configBox.appendChild(row);
+                }
             };
             createCH32Input("CH (0=Omni)", node, "ch", "0", container);
             var iN = document.createElement('input'); iN.type = "number"; iN.min = 1; iN.max = 8;
@@ -286,7 +293,14 @@ NodeLibrary.push({
     },
     mozzi: {
         rate: "control",
-        includes: ["#include <USBMIDI.h>"],
+        includes: ["#include <USBMIDI.h>", "#include <FixMath.h>"],
+        inputs: { "ch": { type: "uint8_t" } },
+        output_type: function(n) {
+            var type = n.data.cfg_val_type || "int";
+            if (type === "float") return "float";
+            if (type === "sfix") return "SFix<15,16>";
+            return "uint8_t";
+        },
         definitions: ["void handleControlChange(uint8_t channel, uint8_t control, uint8_t value) {\n    /*HOOK:midi_cc*/\n}"],
         setup: function() { return "#ifndef MIDI_INIT_DONE\n#define MIDI_INIT_DONE\nUSBMIDI.begin();\n#endif\nUSBMIDI.setHandleControlChange(handleControlChange);"; },
         hooks: {
@@ -295,29 +309,27 @@ NodeLibrary.push({
                 var code = "{ if (!" + i.ch + " || channel == (uint8_t)(" + i.ch + " - 1)) {";
                 for(var k=0; k<count; k++) {
                     var ccNum = i["cc"+k] || "0";
-                    if (isWired(n.id, "v"+k)) code += "\n    if (control == (uint8_t)" + ccNum + ") node_" + n.id + "_v" + k + " = value;";
+                    code += "\n    if (control == " + ccNum + ") " + v + "_raw[" + k + "] = value;";
                 }
                 code += "\n} }";
                 return code;
             }
         },
         global: function(n, v) {
-            // Need globals to hold the CC values because hook runs in interrupt/callback
-            var count = parseInt(n.data.cfg_num_cc) || 1;
-            var g = "";
-            for(var k=0; k<count; k++) { g += "uint8_t node_" + n.id + "_v" + k + " = 0; "; }
-            return g;
+            var vals = [];
+            for(var k=0; k<8; k++) { vals.push(n.data["cfg_def"+k] || "0"); }
+            return "uint8_t " + v + "_raw[8] = {" + vals.join(",") + "};";
         },
         control: function(n, v, i) { 
-            // If normalisation is required, do it here in the control loop
             var type = n.data.cfg_val_type || "int";
             var count = parseInt(n.data.cfg_num_cc) || 1;
-            if (type === "int") return ""; // Direct use of global vars
-            
             var code = "";
             for(var k=0; k<count; k++) {
-                if(type === "float") code += "node_" + n.id + "_v" + k + "_out = (float)node_" + n.id + "_v" + k + " / 127.0f;\n";
-                if(type === "sfix") code += "node_" + n.id + "_v" + k + "_out = SFix<0,8>::fromRaw(node_" + n.id + "_v" + k + " << 1);\n"; // Approx 0..1
+                var out = "node_" + n.id + "_v" + k;
+                var raw = v + "_raw[" + k + "]";
+                if (type === "float") code += out + " = (float)" + raw + " / 127.0f;\n";
+                else if (type === "sfix") code += out + " = SFix<0,8>::fromRaw(" + raw + " << 1);\n"; 
+                else code += out + " = " + raw + ";\n";
             }
             return code;
         }
@@ -339,6 +351,7 @@ NodeLibrary.push({
     mozzi: {
         rate: "control",
         includes: ["#include <USBMIDI.h>"],
+        inputs: { "ch": { type: "uint8_t" } },
         definitions: ["void handleProgramChange(uint8_t channel, uint8_t program) {\n    /*HOOK:midi_pc*/\n}"],
         setup: function() { return "USBMIDI.setHandleProgramChange(handleProgramChange);"; },
         global: function(n, v) { return "uint8_t " + v + "_prog = 0;"; },
@@ -361,6 +374,7 @@ NodeLibrary.push({
     mozzi: {
         rate: "control",
         includes: ["#include <USBMIDI.h>"],
+        inputs: { "ch": { type: "uint8_t" } },
         definitions: ["void handleAfterTouch(uint8_t channel, uint8_t pressure) {\n    /*HOOK:midi_at*/\n}", "void handlePolyPressure(uint8_t channel, uint8_t note, uint8_t pressure) {\n    /*HOOK:midi_pp*/\n}"],
         setup: function() { return "USBMIDI.setHandleAfterTouch(handleAfterTouch); USBMIDI.setHandlePolyPressure(handlePolyPressure);"; },
         global: function(n, v) { return "uint8_t " + v + "_chan = 0; uint8_t " + v + "_poly = 0; uint8_t " + v + "_p_note = 0;"; },
@@ -399,10 +413,11 @@ NodeLibrary.push({
     mozzi: {
         rate: "control", is_sink: true,
         includes: ["#include <USBMIDI.h>"],
+        inputs: { "trig": { type: "bool" }, "note": { type: "uint8_t" }, "vel": { type: "uint8_t" }, "ch": { type: "uint8_t" } },
         setup: function() { return "#ifndef MIDI_INIT_DONE\n#define MIDI_INIT_DONE\nUSBMIDI.begin();\n#endif"; },
         global: function(n, v) { return "bool " + v + "_l = 0; uint8_t " + v + "_n = 0;"; },
         control: function(n, v, i) {
-            var c = "if(" + i.trig + " && !" + v + "_l) { " + v + "_n = (uint8_t)" + i.note + "; USBMIDI.sendNoteOn((uint8_t)(" + i.ch + " - 1), " + v + "_n, (uint8_t)" + i.vel + "); }\n";
+            var c = "if(" + i.trig + " && !" + v + "_l) { " + v + "_n = " + i.note + "; USBMIDI.sendNoteOn((uint8_t)(" + i.ch + " - 1), " + v + "_n, " + i.vel + "); }\n";
             c += "else if(!" + i.trig + " && " + v + "_l) { USBMIDI.sendNoteOff((uint8_t)(" + i.ch + " - 1), " + v + "_n, 0); }\n" + v + "_l = " + i.trig + ";";
             return c;
         }
@@ -433,11 +448,11 @@ NodeLibrary.push({
     mozzi: {
         rate: "control", is_sink: true,
         includes: ["#include <USBMIDI.h>"],
+        inputs: { "ch": { type: "uint8_t" }, "cc": { type: "uint8_t" }, "val": { type: "uint8_t" } },
         setup: function() { return "#ifndef MIDI_INIT_DONE\n#define MIDI_INIT_DONE\nUSBMIDI.begin();\n#endif"; },
         global: function(n, v) { return "uint8_t " + v + "_l = 255;"; },
         control: function(n, v, i) {
-            var c = "if((uint8_t)" + i.val + " != " + v + "_l) {\nUSBMIDI.sendControlChange((uint8_t)(" + i.ch + " - 1), (uint8_t)" + i.cc + ", (uint8_t)" + i.val + ");\n" + v + "_l = (uint8_t)" + i.val + ";\n}";
-            return c;
+            return "if(" + i.val + " != " + v + "_l) {\nUSBMIDI.sendControlChange((uint8_t)(" + i.ch + " - 1), " + i.cc + ", " + i.val + ");\n" + v + "_l = " + i.val + ";\n}";
         }
     },
     help: {
@@ -465,6 +480,7 @@ NodeLibrary.push({
     mozzi: {
         rate: "control", is_sink: true,
         includes: ["#include <USBMIDI.h>"],
+        inputs: { "val": { type: "int16_t" }, "ch": { type: "uint8_t" } },
         setup: function() { return "#ifndef MIDI_INIT_DONE\n#define MIDI_INIT_DONE\nUSBMIDI.begin();\n#endif"; },
         global: function(n, v) { return "int " + v + "_l = 9999;"; },
         control: function(n, v, i) {
@@ -520,7 +536,7 @@ NodeLibrary.push({
     mozzi: {
         rate: "control", is_inline: true, is_sink: true,
         includes: ["#include <CH32X035_USBSerial.h>"],
-        definitions: ["extern \"C\" uint8_t CDC_ready(void);"],
+        definitions: ["using namespace wch::usbcdc;", "extern \"C\" uint8_t CDC_ready(void);"],
         setup: function(){ return "USBSerial.begin();"; },
         control: function(n,v,i){
             var num = parseInt(n.data.cfg_num_ch) || 1;

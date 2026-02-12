@@ -47,6 +47,11 @@ var genLogicCode = function(node, i, op) {
     return "node_" + node.id + "_out = (" + i.a + " " + op + " " + i.b + ");";
 };
 
+var logicInputs = {
+    "a": { type: "int32_t" },
+    "b": { type: "int32_t" }
+};
+
 NodeLibrary.push({
     nodetype: 'mozziflow/gt',
     category: "logic",
@@ -63,7 +68,7 @@ NodeLibrary.push({
         }
     },
     mozzi: { 
-        rate: "audio", is_inline: true, 
+        rate: "audio", is_inline: true, inputs: logicInputs,
         audio: function(n,v,i) { return genLogicCode(n, i, ">"); }
     },
     help: {
@@ -91,7 +96,7 @@ NodeLibrary.push({
         }
     },
     mozzi: { 
-        rate: "audio", is_inline: true, 
+        rate: "audio", is_inline: true, inputs: logicInputs,
         audio: function(n,v,i) { return genLogicCode(n, i, "<"); }
     },
     help: {
@@ -118,7 +123,7 @@ NodeLibrary.push({
         }
     },
     mozzi: { 
-        rate: "audio", is_inline: true, 
+        rate: "audio", is_inline: true, inputs: logicInputs,
         audio: function(n,v,i) { return genLogicCode(n, i, "=="); }
     },
     help: {
@@ -135,6 +140,7 @@ NodeLibrary.push({
     nodeclass: "LogicAND",
     mozzi: { 
         is_inline: true, 
+        inputs: { "a": { type: "bool" }, "b": { type: "bool" } },
         audio: function(n,v,i) { return "node_" + n.id + "_out = (" + i.a + " && " + i.b + ");"; }
     },
     help: {
@@ -152,6 +158,7 @@ NodeLibrary.push({
     nodeclass: "LogicOR",
     mozzi: { 
         is_inline: true, 
+        inputs: { "a": { type: "bool" }, "b": { type: "bool" } },
         audio: function(n,v,i) { return "node_" + n.id + "_out = (" + i.a + " || " + i.b + ");"; }
     },
     help: {
@@ -168,6 +175,7 @@ NodeLibrary.push({
     nodeclass: "LogicNOT",
     mozzi: { 
         is_inline: true, 
+        inputs: { "in": { type: "bool" } },
         audio: function(n,v,i) { return "node_" + n.id + "_out = !" + i.in + ";"; }
     },
     help: {

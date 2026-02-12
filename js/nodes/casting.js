@@ -48,6 +48,7 @@ NodeLibrary.push({
     nodeclass: null,
     mozzi: {
         rate: "audio",
+        inputs: { "in": { type: "int32_t" } },
         audio: function(n,v,i){ return "node_" + n.id + "_out = (float)" + i.in + ";"; }
     },
     help: {
@@ -74,6 +75,7 @@ NodeLibrary.push({
     },
     mozzi: {
         rate: "audio",
+        inputs: { "in": { type: "int32_t" } },
         audio: function(n,v,i){ 
             var type = n.data.cfg_type || "int16_t";
             return "node_" + n.id + "_out = (" + type + ")" + i.in + ";"; 
@@ -111,6 +113,7 @@ NodeLibrary.push({
     mozzi: {
         rate: "audio",
         includes: ["#include <FixMath.h>"],
+        inputs: { "in": { type: "float" } },
         audio: function(n,v,i){ 
             var type = n.data.cfg_type || "SFix<15,16>";
             return "node_" + n.id + "_out = " + type + "(" + i.in + ");"; 
@@ -141,9 +144,9 @@ NodeLibrary.push({
     },
     mozzi: {
         rate: "audio",
+        inputs: { "in": { type: "SFix<15,16>" } }, // Contract expects a FixMath object
         audio: function(n,v,i){ 
             var mode = n.data.cfg_mode || "asInt";
-            // i.in is expected to be an SFix/UFix object
             return "node_" + n.id + "_out = " + i.in + "." + mode + "();"; 
         }
     },
@@ -172,6 +175,7 @@ NodeLibrary.push({
     },
     mozzi: {
         rate: "audio",
+        inputs: { "in": { type: "float" }, "thr": { type: "float" } },
         audio: function(n,v,i){ return "node_" + n.id + "_out = (" + i.in + " > " + i.thr + ");"; }
     },
     help: {

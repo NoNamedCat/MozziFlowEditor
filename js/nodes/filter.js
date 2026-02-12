@@ -22,14 +22,14 @@ var createFilterInput = function(label, node, key, defaultValue, container) {
 
 var createFilterPrecisionSelector = function(node, container) {
     var row = document.createElement('div');
-    row.style.display = "flex"; row.style.justifyContent = "space-between"; row.style.marginBottom = "4px";
+    row.style.display = "flex"; row.style.flexDirection = "column"; row.style.marginBottom = "4px";
+    var lbl = document.createElement('div'); lbl.innerText = "PRECISION"; lbl.style.fontSize = "7px"; lbl.style.color = "#0f9";
     var sel = document.createElement('select');
     sel.style.width = "100%"; sel.style.fontSize = "9px"; sel.style.background = "#222"; sel.style.color = "#0ff";
-    // FIX: Binding
     sel.className = 'mozzi-inlet-val-input';
     sel.setAttribute('data-alias', 'precision');
 
-    var opts = [["uint8_t", "8-bit (Fast)"], ["uint16_t", "16-bit (Hifi)"]];
+    var opts = [["int16_t", "int16 (Std)"], ["uint8_t", "uint8 (Fast)"], ["SFix<15,16>", "FixMath (SFix)"]];
     opts.forEach(function(o){ 
         var opt = document.createElement('option'); opt.value = o[0]; opt.innerText = o[1];
         if(node.data.cfg_precision === o[0]) opt.selected = true;
@@ -37,16 +37,10 @@ var createFilterPrecisionSelector = function(node, container) {
     });
     sel.onchange = function() { 
         node.data.cfg_precision = this.value;
-        // Adjust defaults if changed
-        if (this.value === "uint8_t") {
-            if (parseInt(node.data.cfg_cutoff) > 255) node.data.cfg_cutoff = "200";
-        } else {
-            if (parseInt(node.data.cfg_cutoff) <= 255) node.data.cfg_cutoff = "12000";
-        }
         if (node._onDataUpdate) node._onDataUpdate();
     };
-    if(!node.data.cfg_precision) node.data.cfg_precision = "uint16_t";
-    row.appendChild(sel);
+    if(!node.data.cfg_precision) node.data.cfg_precision = "int16_t";
+    row.appendChild(lbl); row.appendChild(sel);
     container.appendChild(row);
 };
 
@@ -70,27 +64,54 @@ _filterConfigs.forEach(function(cfg) {
             }
         },
         mozzi: {
-            rate: "audio", includes: ["#include <ResonantFilter.h>"],
+            rate: "audio", includes: ["#include <ResonantFilter.h>", "#include <FixMath.h>"],
             defaults: { "cutoff": "12000", "res": "0" },
+            inputs: {
+                "cutoff": { type: function(n) { 
+                    var p = n.data.cfg_precision || "int16_t";
+                    if (p === "SFix<15,16>") return "float";
+                    return (p === "uint8_t") ? "uint8_t" : "uint16_t";
+                } },
+                "res": { type: function(n) { 
+                    var p = n.data.cfg_precision || "int16_t";
+                    if (p === "SFix<15,16>") return "float";
+                    return (p === "uint8_t") ? "uint8_t" : "uint16_t";
+                } }
+            },
+            output_type: function(n) { return n.data.cfg_precision || "int16_t"; },
             global: function(n,v){ 
-                var p = n.data.cfg_precision || "uint16_t";
-                return "ResonantFilter<" + cfg[1] + ", " + p + "> " + v + "; " + p + " " + v + "_f_l=0, " + v + "_r_l=0;"; 
+                var p = n.data.cfg_precision || "int16_t";
+                if (p === "SFix<15,16>") return "SFix<15,16> " + v + "_b1=0;";
+                
+                var su = (p === "uint8_t") ? "uint8_t" : "uint16_t";
+                var dirty = (su === "uint8_t") ? "255" : "65535";
+                return "ResonantFilter<" + cfg[1] + ", " + su + "> " + v + "; " + su + " " + v + "_f_l=" + dirty + "; " + su + " " + v + "_r_l=" + dirty + ";"; 
             },
             control: function(n,v,i){
-                var p = n.data.cfg_precision || "uint16_t";
-                return "if(" + v + "_f_l != (" + p + ")" + i.cutoff + " || " + v + "_r_l != (" + p + ")" + i.res + "){\n" + 
-                       "    " + v + ".setCutoffFreqAndResonance((" + p + ")" + i.cutoff + ", (" + p + ")" + i.res + ");\n" + 
-                       "    " + v + "_f_l=(" + p + ")" + i.cutoff + "; " + v + "_r_l=(" + p + ")" + i.res + ";\n}";
+                var p = n.data.cfg_precision || "int16_t";
+                if (p === "SFix<15,16>") return "";
+                
+                return "if(" + v + "_f_l != " + i.cutoff + " || " + v + "_r_l != " + i.res + "){\n" + 
+                       "    " + v + ".setCutoffFreqAndResonance(" + i.cutoff + ", " + i.res + ");\n" + 
+                       "    " + v + "_f_l=" + i.cutoff + "; " + v + "_r_l=" + i.res + ";\n}";
             },
-            audio: function(n,v,i){ return "node_" + n.id + "_out = " + v + ".next(" + i.in + ");"; }
+            audio: function(n,v,i){ 
+                var p = n.data.cfg_precision || "uint16_t";
+                if (p === "SFix<15,16>") {
+                    // Manual One-Pole LPF for FixMath (High Precision)
+                    return "node_" + n.id + "_out = " + v + "_b1 + SFix<15,16>(SFix<15,16>(" + i.cutoff + ") * (" + i.in + " - " + v + "_b1));\n" + v + "_b1 = node_" + n.id + "_out;";
+                }
+                // Standard Mozzi Filter
+                return "node_" + n.id + "_out = " + v + ".next(" + i.in + ");"; 
+            }
         },
         help: {
             summary: "High-quality " + cfg[2] + " resonant filter.",
-            usage: "8-bit mode is faster (Cutoff 0-255). 16-bit mode is smoother (Cutoff 0-65535).",
-            inlets: { "in": "Audio signal.", "cutoff": "Filter cutoff frequency.", "res": "Resonance level." },
+            usage: "Use 'FixMath' precision for feedback loops (Karplus-Strong) to prevent signal truncation.",
+            inlets: { "in": "Audio signal.", "cutoff": "Filter cutoff/coeff.", "res": "Resonance level." },
             outlets: { "out": "Filtered signal." }
         },
-        rpdnode: { "title": cfg[2], "inlets": { "in": { "type": "mozziflow/int16_t" }, "cutoff": { "type": "mozziflow/any", "is_control": true, "label": "cutoff" }, "res": { "type": "mozziflow/any", "is_control": true, "label": "res" } }, "outlets": { "out": { "type": "mozziflow/int16_t" } } }
+        rpdnode: { "title": cfg[2], "inlets": { "in": { "type": "mozziflow/any" }, "cutoff": { "type": "mozziflow/any", "is_control": true, "label": "cutoff" }, "res": { "type": "mozziflow/any", "is_control": true, "label": "res" } }, "outlets": { "out": { "type": "mozziflow/any" } } }
     });
 });
 
@@ -220,4 +241,29 @@ NodeLibrary.push({
         outlets: { "out": "16-bit wet audio signal." }
     },
     rpdnode: { "title": "Reverb Tank", "inlets": { "in": { "type": "mozziflow/any" }, "fb": { "type": "mozziflow/int8_t", "label": "feedback", "no_text": true }, "r1": { "type": "mozziflow/int8_t", "label": "ref1", "no_text": true }, "r2": { "type": "mozziflow/int8_t", "label": "ref2", "no_text": true }, "r3": { "type": "mozziflow/int8_t", "label": "ref3", "no_text": true }, "d1": { "type": "mozziflow/int8_t", "label": "del1", "no_text": true }, "d2": { "type": "mozziflow/uint8_t", "label": "del2", "no_text": true } }, "outlets": { "out": { "type": "mozziflow/int16_t" } } }
+});
+
+NodeLibrary.push({
+    nodetype: 'mozziflow/dcblock',
+    category: "filter",
+    nodeclass: "DCBlock",
+    mozzi: {
+        rate: "audio",
+        inputs: { "in": { type: "SFix<15,16>" } },
+        output_type: function(n) { return "SFix<15,16>"; },
+        global: function(n,v){ return "SFix<15,16> " + v + "_x1 = 0; SFix<15,16> " + v + "_y1 = 0;"; },
+        audio: function(n,v,i){ 
+            // DC Blocker: y[n] = x[n] - x[n-1] + 0.995 * y[n-1]
+            return "SFix<15,16> _in = " + i.in + ";\n" +
+                   "node_" + n.id + "_out = _in - " + v + "_x1 + (" + v + "_y1 * SFix<15,16>(0.995));\n" +
+                   v + "_x1 = _in; " + v + "_y1 = node_" + n.id + "_out;";
+        }
+    },
+    help: {
+        summary: "Removes DC offset from the signal.",
+        usage: "Essential for feedback loops to prevent saturation/silence over time.",
+        inlets: { "in": "Signal (FixMath)." },
+        outlets: { "out": "Centered signal (FixMath)." }
+    },
+    rpdnode: { "title": "DC Block", "inlets": { "in": { "type": "mozziflow/any" } }, "outlets": { "out": { "type": "mozziflow/any" } } }
 });

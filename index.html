@@ -218,7 +218,7 @@
                 categories.forEach(function(cat) {
                     contentHtml += '<div class="ex-cat-wrapper">';
                     contentHtml += '<div class="ex-cat-header" style="border-left: 4px solid ' + catColors[cat] + '; color: ' + catColors[cat] + ';" onclick="this.nextElementSibling.classList.toggle(\'collapsed\')">' + cat + ' <span style="float:right; font-size:8px;">[TOGGLE]</span></div>';
-                    contentHtml += '<div class="ex-cat-content">';
+                    contentHtml += '<div class="ex-cat-content collapsed">';
                     
                     Object.keys(EXAMPLES).forEach(function(key) {
                         var ex = EXAMPLES[key];

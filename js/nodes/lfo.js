@@ -59,6 +59,13 @@ NodeLibrary.push({
     mozzi: {
         rate: "control", includes: ["#include <Oscil.h>", "#include <tables/sin2048_int8.h>"],
         defaults: { "freq": "1.0f" },
+        inputs: { "freq": { type: "float" } },
+        output_type: function(n) {
+            var d = n.data.cfg_out_domain || "int8";
+            if (d === "sfix") return "SFix<0,8>";
+            if (d === "float") return "float";
+            return "int8_t";
+        },
         global: function(n, v, r) { return "Oscil<SIN2048_NUM_CELLS, " + r + "> " + v + "(SIN2048_DATA); float last_f_" + n.id + " = 0.0f;"; },
         control: function(n,v,i){
             var domain = n.data.cfg_out_domain || "int8";
@@ -78,7 +85,7 @@ NodeLibrary.push({
 });
 
 NodeLibrary.push({
-    nodetype: 'mozziflow/pulse',
+    nodetype: 'mozziflow/pulse_lfo',
     category: "lfo",
     nodeclass: "Phasor",
     renderer: {
@@ -87,7 +94,7 @@ NodeLibrary.push({
             var container = document.createElement('div');
             container.style.padding = "5px"; container.style.background = "rgba(0,255,153,0.05)";
             container.style.border = "1px solid #0f9"; container.style.marginBottom = "5px";
-            createLfoInput("FREQ", node, "freq", "1.0f", container);
+            createLfoInput("LFO FREQ", node, "freq", "1.0f", container);
             createLfoInput("WIDTH%", node, "width", "50", container);
             bodyElm.appendChild(container);
         }
@@ -96,6 +103,10 @@ NodeLibrary.push({
         rate: "control",
         includes: ["#include <Phasor.h>"],
         defaults: { "freq": "1.0f", "width": "50" },
+        inputs: {
+            "freq": { type: "float" },
+            "width": { type: "uint8_t" }
+        },
         global: function(n,v,r){ return "Phasor<" + r + "> " + v + "; float last_f_" + n.id + " = 0.0f; uint32_t " + v + "_thr = 2147483648UL; uint8_t " + v + "_last_w = 0;"; },
         control: function(n,v,i){ 
             var code = "if(last_f_" + n.id + " != " + i.freq + "){ " + v + ".setFreq(" + i.freq + "); last_f_" + n.id + " = " + i.freq + "; }\n";
@@ -105,10 +116,10 @@ NodeLibrary.push({
         }
     },
     help: {
-        summary: "Square/Pulse wave LFO with efficient duty cycle.",
-        usage: "Ideal for clocking or rhythmic gating. Computationally optimized.",
-        inlets: { "freq": "LFO frequency in Hz.", "width": "Duty cycle percentage (0-100%)." },
-        outlets: { "out": "Boolean pulse signal (True/False)." }
+        summary: "Pulse wave LFO for gating.",
+        usage: "Outputs a Boolean signal (True/False). Use for clocking sequencers or gating VCAs.",
+        inlets: { "freq": "LFO frequency.", "width": "Duty cycle %." },
+        outlets: { "out": "Boolean pulse." }
     },
     rpdnode: { "title": "Pulse LFO", "inlets": { "freq": { "type": "mozziflow/float", "is_control": true }, "width": { "type": "mozziflow/uint8_t", "label": "width%" } }, "outlets": { "out": { "type": "mozziflow/bool" } } }
 });
